@@ -5,15 +5,32 @@
 
     RewriteEngine On
 
-    # Redirect Trailing Slashes...
-    RewriteRule ^(.*)/$ /$1 [L,R=301]
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # Handle Front Controller...
-    RewriteCond %{REQUEST_URI} !(\.css|\.js|\.png|\.jpg|\.gif|robots\.txt)$ [NC]
-    RewriteCond %{REQUEST_FILENAME} !-d
+    # Serve storage files (logos, uploads, etc)
+    RewriteRule ^storage/(.*)$ public/storage/$1 [L]
+
+    # Serve static files from public folder (css, js, images, etc)
+    RewriteCond %{REQUEST_URI} \.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot|map)$ [NC]
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
-
-    # Redirect to public folder
     RewriteRule ^(.*)$ public/$1 [L]
+
+    # Serve assets folder from public
+    RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+
+    # Serve existing files in public folder
+    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI} !-f
+    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI} !-d
+    RewriteCond %{DOCUMENT_ROOT}/public/%{REQUEST_URI} -f
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # Route all other requests to root index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php [L,QSA]
 </IfModule>
+
+# Prevent directory listing
+Options -Indexes
