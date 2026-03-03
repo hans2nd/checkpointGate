@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deployment Guide — Checkpoint GIIC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0b1120;
+            --bg-secondary: #131c31;
+            --bg-card: #182139;
+            --bg-code: #0d1526;
+            --border: #1e3050;
+            --text-primary: #e2e8f0;
+            --text-secondary: #8b9dc3;
+            --text-muted: #5a6d8a;
+            --accent-blue: #38bdf8;
+            --accent-cyan: #22d3ee;
+            --accent-green: #4ade80;
+            --accent-yellow: #fbbf24;
+            --accent-red: #f87171;
+            --accent-purple: #a78bfa;
+            --accent-orange: #fb923c;
+            --gradient-1: linear-gradient(135deg, #38bdf8, #818cf8);
+            --gradient-2: linear-gradient(135deg, #4ade80, #22d3ee);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 60px 0 40px;
+            position: relative;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 400px;
+            background: radial-gradient(ellipse, rgba(56, 189, 248, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .header .emoji { font-size: 48px; margin-bottom: 16px; }
+        .header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+        .header .subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        /* Table of Contents */
+        .toc {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin-bottom: 40px;
+        }
+        .toc h3 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+        }
+        .toc ul { list-style: none; columns: 2; gap: 16px; }
+        .toc li { padding: 4px 0; }
+        .toc a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+        .toc a:hover { color: var(--accent-cyan); }
+
+        /* Section headers */
+        h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 48px 0 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+        h2 .num {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-right: 8px;
+        }
+
+        h3 {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            margin: 28px 0 12px;
+        }
+
+        p { color: var(--text-secondary); margin-bottom: 14px; font-size: 15px; }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        thead th {
+            background: var(--bg-card);
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+        tbody td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: rgba(56, 189, 248, 0.03); }
+        tbody td:first-child { font-weight: 500; color: var(--text-primary); }
+
+        /* Code blocks */
+        pre {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px 20px;
+            overflow-x: auto;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        pre .lang-tag {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        pre code { color: var(--text-secondary); }
+
+        /* Inline code */
+        p code, li code, td code {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-blue);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        /* Syntax highlighting */
+        .cmd { color: var(--accent-green); }
+        .flag { color: var(--accent-yellow); }
+        .comment { color: var(--text-muted); font-style: italic; }
+        .str { color: var(--accent-orange); }
+        .key { color: var(--accent-purple); }
+        .val { color: var(--accent-cyan); }
+
+        /* Alert boxes */
+        .alert {
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            border: 1px solid;
+        }
+        .alert .icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+        .alert p { margin: 0; font-size: 14px; }
+        .alert-info { background: rgba(56, 189, 248, 0.06); border-color: rgba(56, 189, 248, 0.2); }
+        .alert-info p { color: #93c5fd; }
+        .alert-success { background: rgba(74, 222, 128, 0.06); border-color: rgba(74, 222, 128, 0.2); }
+        .alert-success p { color: #86efac; }
+        .alert-warning { background: rgba(251, 191, 36, 0.06); border-color: rgba(251, 191, 36, 0.2); }
+        .alert-warning p { color: #fde68a; }
+        .alert-danger { background: rgba(248, 113, 113, 0.06); border-color: rgba(248, 113, 113, 0.2); }
+        .alert-danger p { color: #fca5a5; }
+
+        /* Lists */
+        ul, ol { padding-left: 20px; margin-bottom: 14px; }
+        li {
+            color: var(--text-secondary);
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+        li strong { color: var(--text-primary); font-weight: 600; }
+
+        /* Checklist table */
+        .check-table tbody td:first-child {
+            text-align: center;
+            width: 40px;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        /* Nginx/Apache config tabs */
+        .config-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: -1px;
+            position: relative;
+            z-index: 1;
+        }
+        .config-tab {
+            padding: 8px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .config-tab.active {
+            background: var(--bg-code);
+            color: var(--accent-blue);
+            border-color: var(--border);
+        }
+        .config-panel { display: none; }
+        .config-panel.active { display: block; }
+        .config-panel pre { border-radius: 0 10px 10px 10px; margin-top: 0; }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .toc ul { columns: 1; }
+            .header h1 { font-size: 24px; }
+            .container { padding: 20px 16px 60px; }
+        }
+
+        /* Print styles */
+        @media print {
+            body { background: #fff; color: #111; }
+            .card, pre, .alert, table { border-color: #ddd; }
+            pre { background: #f5f5f5; }
+            .header h1 { -webkit-text-fill-color: #1e40af; color: #1e40af; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="header">
+            <div class="emoji">🚀</div>
+            <h1>Panduan Deploy ke Production</h1>
+            <p class="subtitle">Checkpoint GIIC &nbsp;·&nbsp; Laravel 11 &nbsp;·&nbsp; PHP ≥ 8.2 &nbsp;·&nbsp; MySQL &nbsp;·&nbsp; Vite + TailwindCSS</p>
+        </div>
+
+        <!-- TABLE OF CONTENTS -->
+        <div class="toc">
+            <h3>📑 Daftar Isi</h3>
+            <ul>
+                <li><a href="#prasyarat">Prasyarat Server</a></li>
+                <li><a href="#step1">1. Clone / Upload</a></li>
+                <li><a href="#step2">2. Composer Install</a></li>
+                <li><a href="#step3">3. Build Asset (Vite)</a></li>
+                <li><a href="#step4">4. Konfigurasi .env</a></li>
+                <li><a href="#step5">5. Generate App Key</a></li>
+                <li><a href="#step6">6. Database & Migrasi</a></li>
+                <li><a href="#step7">7. Jalankan Seeder</a></li>
+                <li><a href="#step8">8. Optimisasi</a></li>
+                <li><a href="#step9">9. Set Permission</a></li>
+                <li><a href="#step10">10. Konfigurasi Web Server</a></li>
+                <li><a href="#step11">11. Symlink Storage</a></li>
+                <li><a href="#checklist">Checklist Verifikasi</a></li>
+                <li><a href="#update">Langkah Update</a></li>
+                <li><a href="#security">Tips Keamanan</a></li>
+            </ul>
+        </div>
+
+        <!-- PRASYARAT -->
+        <h2 id="prasyarat">📋 Prasyarat Server</h2>
+        <table>
+            <thead>
+                <tr><th>Komponen</th><th>Minimum</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>PHP</td><td>8.2+</td></tr>
+                <tr><td>MySQL</td><td>5.7+ / MariaDB 10.3+</td></tr>
+                <tr><td>Composer</td><td>2.x</td></tr>
+                <tr><td>Node.js</td><td>18+ (untuk build asset)</td></tr>
+                <tr><td>NPM</td><td>9+</td></tr>
+                <tr><td>Ekstensi PHP</td><td><code>mbstring</code>, <code>xml</code>, <code>curl</code>, <code>zip</code>, <code>gd</code>, <code>pdo_mysql</code>, <code>fileinfo</code>, <code>bcmath</code></td></tr>
+            </tbody>
+        </table>
+
+        <!-- STEP 1 -->
+        <h2 id="step1"><span class="num">01</span> Clone / Upload Source Code</h2>
+        <pre><span class="lang-tag">bash</span><code><span class="comment"># Via Git</span>
+<span class="cmd">git clone</span> https://github.com/username/checkpoint-GIIC.git
+<span class="cmd">cd</span> checkpoint-GIIC
+
+<span class="comment"># Atau upload manual via cPanel File Manager / FTP</span></code></pre>
+
+        <!-- STEP 2 -->
+        <h2 id="step2"><span class="num">02</span> Install Dependency PHP (Composer)</h2>
+        <pre><span class="lang-tag">bash</span><code><span class="cmd">composer install</span> <span class="flag">--optimize-autoloader --no-dev</span></code></pre>
+
+        <div class="alert alert-info">
+            <span class="icon">ℹ️</span>
+            <p>Flag <code>--no-dev</code> menghilangkan dependency development (Breeze, Pint, PHPUnit, dll) agar lebih ringan di production.</p>
+        </div>
+
+        <!-- STEP 3 -->
+        <h2 id="step3"><span class="num">03</span> Install & Build Asset Frontend (Vite)</h2>
+        <pre><span class="lang-tag">bash</span><code><span class="cmd">npm ci</span>
+<span class="cmd">npm run build</span></code></pre>
+        <p>Perintah ini menghasilkan folder <code>public/build/</code> berisi CSS & JS yang sudah di-compile dan minified.</p>
+
+        <div class="alert alert-success">
+            <span class="icon">💡</span>
+            <p>Setelah <code>npm run build</code> selesai, folder <code>node_modules</code> boleh dihapus di server untuk menghemat ruang disk.</p>
+        </div>
+
+        <!-- STEP 4 -->
+        <h2 id="step4"><span class="num">04</span> Konfigurasi Environment (<code>.env</code>)</h2>
+        <pre><span class="lang-tag">bash</span><code><span class="cmd">cp</span> .env.example .env</code></pre>
+        <p>Edit file <code>.env</code> sesuai dengan konfigurasi production:</p>
+        <pre><span class="lang-tag">env</span><code><span class="key">APP_NAME</span>=<span class="str">"Checkpoint GIIC"</span>
+<span class="key">APP_ENV</span>=<span class="val">production</span>
+<span class="key">APP_KEY</span>=                          <span class="comment"># generate di langkah berikutnya</span>
+<span class="key">APP_DEBUG</span>=<span class="val">false</span>                   <span class="comment"># ⚠️ WAJIB false di production</span>
+<span class="key">APP_TIMEZONE</span>=<span class="val">Asia/Jakarta</span>
+<span class="key">APP_URL</span>=<span class="str">https://yourdomain.com</span>
+
+<span class="key">DB_CONNECTION</span>=<span class="val">mysql</span>
+<span class="key">DB_HOST</span>=<span class="val">127.0.0.1</span>
+<span class="key">DB_PORT</span>=<span class="val">3306</span>
+<span class="key">DB_DATABASE</span>=<span class="val">checkpoint_giic</span>
+<span class="key">DB_USERNAME</span>=<span class="val">db_user</span>
+<span class="key">DB_PASSWORD</span>=<span class="val">db_password_aman</span>
+
+<span class="key">SESSION_DRIVER</span>=<span class="val">database</span>
+<span class="key">CACHE_STORE</span>=<span class="val">database</span>
+<span class="key">QUEUE_CONNECTION</span>=<span class="val">database</span>
+
+<span class="key">MAIL_MAILER</span>=<span class="val">smtp</span>
+<span class="key">MAIL_HOST</span>=<span class="val">smtp.example.com</span>
+<span class="key">MAIL_PORT</span>=<span class="val">587</span>
+<span class="key">MAIL_USERNAME</span>=<span class="str">your@email.com</span>
+<span class="key">MAIL_PASSWORD</span>=<span class="val">email_password</span>
+<span class="key">MAIL_ENCRYPTION</span>=<span class="val">tls</span>
+<span class="key">MAIL_FROM_ADDRESS</span>=<span class="str">"noreply@yourdomain.com"</span>
+<span class="key">MAIL_FROM_NAME</span>=<span class="str">"${APP_NAME}"</span></code></pre>
+
+        <div class="alert alert-danger">
+            <span class="icon">🚨</span>
+            <p>Pastikan <code>APP_DEBUG=false</code> di production! Jika <code>true</code>, error detail akan terlihat oleh user dan bisa menjadi celah keamanan.</p>
+        </div>
+
+        <!-- STEP 5 -->
+        <h2 id="step5"><span class="num">05</span> Generate Application Key</h2>
+        <pre><span class="lang-tag">bash</span><code><span class="cmd">php artisan</span> key:generate</code></pre>
+
+        <!-- STEP 6 -->
+        <h2 id="step6"><span class="num">06</span> Buat Database & Jalankan Migrasi</h2>
+        <pre><span class="lang-tag">bash</span><code><span class="comment"># Buat database terlebih dahulu di MySQL:</span>
+<span class="comment"># mysql -u root -p -e "CREATE DATABASE checkpoint_giic;"</span>
+
+<span class="cmd">php artisan</span> migrate <span class="flag">--force</span></code></pre>
+
+        <div class="alert alert-info">
+            <span class="icon">📝</span>
+            <p>Flag <code>--force</code> diperlukan karena environment <code>production</code> secara default akan menolak migrasi tanpa konfirmasi.</p>
+        </div>
+
+        <!-- STEP 7 -->
+        <h2 id="step7"><span class="num">07</span> Jalankan Seeder (Opsional — hanya jika fresh install)</h2>
+        <pre><span class="lang-tag">bash</span><code><span class="cmd">php artisan</span> db:seed <span class="flag">--force</span></code></pre>
+
+        <!-- STEP 8 -->
+        <h2 id="step8"><span class="num">08</span> Optimisasi untuk Production</h2>
+        <pre><span class="lang-tag">bash</span><code><span class="comment"># Cache konfigurasi</span>
+<span class="cmd">php artisan</span> config:cache
+
+<span class="comment"># Cache route</span>
+<span class="cmd">php artisan</span> route:cache
+
+<span class="comment"># Cache view</span>
+<span class="cmd">php artisan</span> view:cache
+
+<span class="comment"># Optimisasi autoloader</span>
+<span class="cmd">composer</span> dump-autoload <span class="flag">--optimize</span></code></pre>
+
+        <!-- STEP 9 -->
+        <h2 id="step9"><span class="num">09</span> Set Permission Storage & Cache</h2>
+        <pre><span class="lang-tag">bash</span><code><span class="cmd">chmod</span> <span class="flag">-R 775</span> storage bootstrap/cache
+<span class="cmd">chown</span> <span class="flag">-R</span> www-data:www-data storage bootstrap/cache</code></pre>
+        <p>Sesuaikan user <code>www-data</code> dengan user web server Anda (bisa <code>apache</code>, <code>nginx</code>, atau user lain).</p>
+
+        <!-- STEP 10 -->
+        <h2 id="step10"><span class="num">10</span> Konfigurasi Web Server</h2>
+        <p>Pastikan <strong>Document Root</strong> mengarah ke folder <code>public/</code>:</p>
+
+        <!-- Tabs -->
+        <div class="config-tabs">
+            <div class="config-tab active" onclick="switchTab('apache')">Apache</div>
+            <div class="config-tab" onclick="switchTab('nginx')">Nginx</div>
+            <div class="config-tab" onclick="switchTab('cpanel')">cPanel</div>
+        </div>
+
+        <div id="tab-apache" class="config-panel active">
+            <pre><code><span class="comment"># httpd.conf atau VirtualHost</span>
+<span class="key">DocumentRoot</span> <span class="str">/var/www/checkpoint-giic/public</span>
+
+<span class="key">&lt;Directory</span> <span class="str">"/var/www/checkpoint-giic/public"</span><span class="key">&gt;</span>
+    <span class="key">AllowOverride</span> <span class="val">All</span>
+    <span class="key">Require</span> <span class="val">all granted</span>
+<span class="key">&lt;/Directory&gt;</span></code></pre>
+            <p><code>.htaccess</code> sudah tersedia di folder <code>public/</code> dan akan otomatis menangani routing.</p>
+        </div>
+
+        <div id="tab-nginx" class="config-panel">
+            <pre><code><span class="key">server</span> {
+    <span class="key">listen</span> <span class="val">80</span>;
+    <span class="key">server_name</span> <span class="str">yourdomain.com</span>;
+    <span class="key">root</span> <span class="str">/var/www/checkpoint-giic/public</span>;
+    <span class="key">index</span> <span class="val">index.php</span>;
+
+    <span class="key">location</span> / {
+        <span class="key">try_files</span> <span class="val">$uri $uri/ /index.php?$query_string</span>;
+    }
+
+    <span class="key">location</span> ~ \.php$ {
+        <span class="key">fastcgi_pass</span> <span class="val">unix:/run/php/php8.2-fpm.sock</span>;
+        <span class="key">fastcgi_param</span> <span class="val">SCRIPT_FILENAME $realpath_root$fastcgi_script_name</span>;
+        <span class="key">include</span> <span class="val">fastcgi_params</span>;
+    }
+
+    <span class="key">location</span> ~ /\.(?!well-known).* {
+        <span class="key">deny</span> <span class="val">all</span>;
+    }
+}</code></pre>
+        </div>
+
+        <div id="tab-cpanel" class="config-panel">
+            <pre><code><span class="comment"># Opsi A: Symlink (Recommended)</span>
+<span class="cmd">ln -s</span> /home/user/checkpoint-giic/public /home/user/public_html
+
+<span class="comment"># Opsi B: Upload semua file ke public_html,</span>
+<span class="comment"># pindahkan isi public/ ke root public_html,</span>
+<span class="comment"># lalu edit index.php untuk menyesuaikan path.</span></code></pre>
+        </div>
+
+        <!-- STEP 11 -->
+        <h2 id="step11"><span class="num">11</span> Buat Symbolic Link Storage</h2>
+        <pre><span class="lang-tag">bash</span><code><span class="cmd">php artisan</span> storage:link</code></pre>
+        <p>Membuat symlink <code>public/storage</code> → <code>storage/app/public</code> agar file upload bisa diakses publik.</p>
+
+        <!-- CHECKLIST -->
+        <h2 id="checklist">✅ Checklist Verifikasi</h2>
+        <table class="check-table">
+            <thead>
+                <tr><th>#</th><th>Cek</th><th>Perintah / Cara</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td>Website bisa diakses</td><td>Buka <code>https://yourdomain.com</code> di browser</td></tr>
+                <tr><td>2</td><td>Login berfungsi</td><td>Coba login dengan akun yang sudah ada</td></tr>
+                <tr><td>3</td><td><code>APP_DEBUG</code> false</td><td>Cek <code>.env</code> → <code>APP_DEBUG=false</code></td></tr>
+                <tr><td>4</td><td>HTTPS aktif</td><td>Pastikan SSL certificate terpasang</td></tr>
+                <tr><td>5</td><td>File upload berfungsi</td><td>Test upload di fitur yang tersedia</td></tr>
+                <tr><td>6</td><td>Import Excel berfungsi</td><td>Test import data via PhpSpreadsheet</td></tr>
+                <tr><td>7</td><td>Email berfungsi</td><td>Test kirim email (jika dikonfigurasi)</td></tr>
+            </tbody>
+        </table>
+
+        <!-- UPDATE -->
+        <h2 id="update">🔄 Langkah Update di Production</h2>
+        <p>Ketika ada update code baru, jalankan perintah berikut di server:</p>
+        <pre><span class="lang-tag">bash</span><code><span class="comment"># 1. Pull code terbaru</span>
+<span class="cmd">git pull</span> origin main
+
+<span class="comment"># 2. Install dependency baru (jika ada)</span>
+<span class="cmd">composer install</span> <span class="flag">--optimize-autoloader --no-dev</span>
+
+<span class="comment"># 3. Rebuild asset (jika ada perubahan frontend)</span>
+<span class="cmd">npm ci</span> && <span class="cmd">npm run build</span>
+
+<span class="comment"># 4. Jalankan migrasi baru</span>
+<span class="cmd">php artisan</span> migrate <span class="flag">--force</span>
+
+<span class="comment"># 5. Clear &amp; rebuild cache</span>
+<span class="cmd">php artisan</span> config:cache
+<span class="cmd">php artisan</span> route:cache
+<span class="cmd">php artisan</span> view:cache
+
+<span class="comment"># 6. (Opsional) Restart queue worker jika ada</span>
+<span class="cmd">php artisan</span> queue:restart</code></pre>
+
+        <!-- SECURITY -->
+        <h2 id="security">🛡️ Tips Keamanan</h2>
+        <div class="card">
+            <ul>
+                <li><strong>Jangan expose file <code>.env</code></strong> — pastikan web server hanya melayani folder <code>public/</code></li>
+                <li><strong>Backup database</strong> rutin sebelum update</li>
+                <li><strong>Gunakan HTTPS</strong> — install SSL certificate (gratis via Let's Encrypt)</li>
+                <li><strong>Update dependency</strong> secara berkala untuk patch keamanan</li>
+            </ul>
+        </div>
+
+        <div class="alert alert-warning">
+            <span class="icon">⚠️</span>
+            <p>Selalu backup database dan file sebelum melakukan update di production!</p>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <p>Checkpoint GIIC — Deployment Guide &nbsp;·&nbsp; Laravel 11 &nbsp;·&nbsp; PHP 8.2+</p>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(name) {
+            document.querySelectorAll('.config-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.config-panel').forEach(p => p.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-' + name).classList.add('active');
+        }
+    </script>
+</body>
+</html>
