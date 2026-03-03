@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Pagination styling */
+nav[role="navigation"] {
+    @apply flex items-center justify-between;
+}
+
+nav[role="navigation"] .relative.inline-flex {
+    @apply gap-1;
+}
+
+nav[role="navigation"] span[aria-current="page"] span {
+    @apply bg-orange-500 text-white border-orange-500 rounded-lg text-sm;
+}
+
+nav[role="navigation"] a {
+    @apply hover:bg-gray-100 rounded-lg text-sm transition-colors;
+}
+
+/* ============================================
+   Sidebar: Expanded & Collapsed States
+   ============================================ */
+
+/* Expanded sidebar (default) */
+.sidebar-expanded {
+    width: 16rem; /* w-64 */
+}
+
+.sidebar-expanded .sidebar-label {
+    opacity: 1;
+    width: auto;
+    transition: opacity 0.2s ease 0.1s;
+}
+
+/* Collapsed sidebar (desktop only) */
+@media (min-width: 1024px) {
+    .sidebar-collapsed {
+        width: 4.5rem;
+    }
+
+    .sidebar-collapsed .sidebar-label {
+        opacity: 0;
+        width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        transition: opacity 0.1s ease;
+    }
+
+    .sidebar-collapsed .sidebar-brand {
+        justify-content: center;
+    }
+
+    .sidebar-collapsed .sidebar-link {
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .sidebar-collapsed .sidebar-link svg {
+        margin: 0 auto;
+    }
+}
+
+/* Mobile sidebar: full width on very small screens */
+@media (max-width: 639px) {
+    #sidebar {
+        width: 17rem;
+    }
+}
