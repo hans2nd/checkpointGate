@@ -9,27 +9,15 @@
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # Serve storage files (logos, uploads, etc)
-    RewriteRule ^storage/(.*)$ public/storage/$1 [L]
-
-    # Serve static files from public folder (css, js, images, etc)
-    RewriteCond %{REQUEST_URI} \.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot|map)$ [NC]
-    RewriteCond %{REQUEST_FILENAME} !-f
+    # If the request is for an existing file/dir in public/, serve it directly
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteCond %{DOCUMENT_ROOT}/public/%{REQUEST_URI} -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/public/%{REQUEST_URI} -d
     RewriteRule ^(.*)$ public/$1 [L]
 
-    # Serve assets folder from public
-    RewriteRule ^assets/(.*)$ public/assets/$1 [L]
-
-    # Serve existing files in public folder
-    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI} !-f
-    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_URI} !-d
-    RewriteCond %{DOCUMENT_ROOT}/public/%{REQUEST_URI} -f
-    RewriteRule ^(.*)$ public/$1 [L]
-
-    # Route all other requests to root index.php
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php [L,QSA]
+    # Otherwise, route everything to public/index.php (Laravel front controller)
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/index.php [L,QSA]
 </IfModule>
 
 # Prevent directory listing
