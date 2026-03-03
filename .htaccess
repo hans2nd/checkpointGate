@@ -1,24 +1,17 @@
 <IfModule mod_rewrite.c>
-    <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
-    </IfModule>
-
     RewriteEngine On
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # If the request is for an existing file/dir in public/, serve it directly
-    RewriteCond %{REQUEST_URI} !^/public/
-    RewriteCond %{DOCUMENT_ROOT}/public/%{REQUEST_URI} -f [OR]
-    RewriteCond %{DOCUMENT_ROOT}/public/%{REQUEST_URI} -d
-    RewriteRule ^(.*)$ public/$1 [L]
+    # If file or directory exists, serve directly
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
 
-    # Otherwise, route everything to public/index.php (Laravel front controller)
-    RewriteCond %{REQUEST_URI} !^/public/
-    RewriteRule ^(.*)$ public/index.php [L,QSA]
+    # Route everything else to public/index.php
+    RewriteRule ^(.*)$ public/index.php/$1 [L,QSA]
 </IfModule>
 
-# Prevent directory listing
 Options -Indexes
