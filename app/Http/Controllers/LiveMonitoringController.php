@@ -124,6 +124,8 @@ class LiveMonitoringController extends Controller
                 'vendor' => $checkpoint ? $checkpoint->vendor : null,
                 'status' => $checkpoint ? $checkpoint->status : null,
                 'durasi' => $checkpoint ? $checkpoint->durasi : null,
+                'waktu_start' => $checkpoint && $checkpoint->waktu_start ? $checkpoint->waktu_start->toIso8601String() : null,
+                'waktu_end' => $checkpoint && $checkpoint->waktu_end ? $checkpoint->waktu_end->toIso8601String() : null,
             ];
         }
 

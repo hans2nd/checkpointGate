@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Checkpoint;
+use App\Models\Gate;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -236,15 +237,64 @@ class CheckpointController extends Controller
 
     /**
      * Trigger: Penerimaan Dokumen (INBOUND - dokumen diterima)
+     * Now also assigns gate number
      */
-    public function triggerPenerimaan(Checkpoint $checkpoint)
+    public function triggerPenerimaan(Request $request, Checkpoint $checkpoint)
     {
+        $request->validate([
+            'gate' => 'required|integer|min:1|max:27',
+        ]);
+
+        $gateNumber = (int) $request->gate;
+
+        // Check if gate is already in use today (has active loading)
+        $gateInUse = Checkpoint::whereDate('tanggal', Carbon::today())
+            ->where('gate', $gateNumber)
+            ->where('status', 'START')
+            ->whereNotNull('waktu_start')
+            ->whereNull('waktu_end')
+            ->exists();
+
+        if ($gateInUse) {
+            return redirect()->back()
+                             ->with('error', "Gate {$gateNumber} sedang digunakan untuk loading.");
+        }
+
         $checkpoint->update([
             'waktu_penerimaan_dokumen' => Carbon::now(),
+            'gate' => $gateNumber,
         ]);
 
         return redirect()->back()
-                         ->with('success', "Waktu penerimaan dokumen {$checkpoint->no_polisi} dicatat.");
+                         ->with('success', "Dokumen {$checkpoint->no_polisi} diterima. Gate {$gateNumber} ditetapkan.");
+    }
+
+    /**
+     * API: Get available gates (not currently used for active loading today)
+     */
+    public function getAvailableGates()
+    {
+        // Gates currently occupied by active loading (status START, has waktu_start, no waktu_end)
+        $occupiedGates = Checkpoint::whereDate('tanggal', Carbon::today())
+            ->whereNotNull('gate')
+            ->where('status', 'START')
+            ->whereNotNull('waktu_start')
+            ->whereNull('waktu_end')
+            ->pluck('gate')
+            ->unique()
+            ->toArray();
+
+        $allGates = [];
+        for ($i = 1; $i <= 27; $i++) {
+            $jenisBarang = $i <= 16 ? 'FROZEN' : 'DRY';
+            $allGates[] = [
+                'nomor' => $i,
+                'jenis_barang' => $jenisBarang,
+                'available' => !in_array($i, $occupiedGates),
+            ];
+        }
+
+        return response()->json($allGates);
     }
 
     /**

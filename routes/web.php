@@ -60,4 +60,5 @@ Route::middleware('auth')->group(function () {
     Route::resource('vehicles', VehicleController::class)->except(['show']);
     Route::get('/api/vehicles/search', [VehicleController::class, 'search'])->name('vehicles.search');
     Route::get('/api/vehicles/lookup', [VehicleController::class, 'getByNoPolisi'])->name('vehicles.lookup');
+    Route::get('/api/gates/available', [CheckpointController::class, 'getAvailableGates'])->name('gates.available');
 });
