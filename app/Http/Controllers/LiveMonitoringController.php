@@ -46,7 +46,7 @@ class LiveMonitoringController extends Controller
                 $onProcess = Checkpoint::whereDate('tanggal', $selectedDate)
                     ->where('aktivitas', $aktivitas)
                     ->where('jenis_barang', $jenis)
-                    ->where('status', 'START')
+                    ->where('status', 'ON LOADING')
                     ->count();
                 $finish = Checkpoint::whereDate('tanggal', $selectedDate)
                     ->where('aktivitas', $aktivitas)
@@ -126,6 +126,8 @@ class LiveMonitoringController extends Controller
                 'durasi' => $checkpoint ? $checkpoint->durasi : null,
                 'waktu_start' => $checkpoint && $checkpoint->waktu_start ? $checkpoint->waktu_start->toIso8601String() : null,
                 'waktu_end' => $checkpoint && $checkpoint->waktu_end ? $checkpoint->waktu_end->toIso8601String() : null,
+                'waktu_penerimaan' => $checkpoint && $checkpoint->waktu_penerimaan_dokumen ? $checkpoint->waktu_penerimaan_dokumen->toIso8601String() : null,
+                'waktu_penyerahan' => $checkpoint && $checkpoint->waktu_penyerahan_dokumen ? $checkpoint->waktu_penyerahan_dokumen->toIso8601String() : null,
             ];
         }
 
@@ -136,7 +138,7 @@ class LiveMonitoringController extends Controller
                 $onProcess = Checkpoint::whereDate('tanggal', $selectedDate)
                     ->where('aktivitas', $aktivitas)
                     ->where('jenis_barang', $jenis)
-                    ->where('status', 'START')
+                    ->where('status', 'ON LOADING')
                     ->count();
                 $finish = Checkpoint::whereDate('tanggal', $selectedDate)
                     ->where('aktivitas', $aktivitas)

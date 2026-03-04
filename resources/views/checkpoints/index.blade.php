@@ -72,7 +72,7 @@
                 <select name="status"
                     class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white">
                     <option value="">Semua Status</option>
-                    <option value="START" {{ request('status') == 'START' ? 'selected' : '' }}>Start</option>
+                    <option value="ON LOADING" {{ request('status') == 'ON LOADING' ? 'selected' : '' }}>On Loading</option>
                     <option value="FINISH" {{ request('status') == 'FINISH' ? 'selected' : '' }}>Finish</option>
                 </select>
                 <input type="date" name="tanggal" value="{{ request('tanggal') }}"
@@ -208,12 +208,22 @@
                                 <td class="px-3 py-2.5 text-gray-600 text-center text-xs">{{ $cp->gate ?? '-' }}</td>
 
                                 <td class="px-3 py-2.5 whitespace-nowrap">
-                                    <span
-                                        class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold {{ $cp->status === 'FINISH' ? 'bg-emerald-50 text-emerald-700' : 'bg-yellow-50 text-yellow-700' }}">
-                                        <span
-                                            class="w-1.5 h-1.5 rounded-full {{ $cp->status === 'FINISH' ? 'bg-emerald-500' : 'bg-yellow-500' }}"></span>
-                                        {{ $cp->status }}
-                                    </span>
+                                    @if($cp->status === 'FINISH')
+                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                            FINISH
+                                        </span>
+                                    @elseif($cp->status === 'ON LOADING')
+                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                                            ON LOADING
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-yellow-50 text-yellow-700">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
+                                            {{ $cp->status }}
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="px-3 py-2.5 text-gray-500 font-mono text-xs whitespace-nowrap">
                                     {{ $cp->durasi ?? '-' }}</td>
@@ -221,13 +231,15 @@
                                     @if ($cp->waktu_penyerahan_dokumen)
                                         <span
                                             class="text-xs text-gray-600">{{ $cp->waktu_penyerahan_dokumen->format('H:i:s') }}</span>
-                                    @else
+                                    @elseif($cp->waktu_end)
                                         <form method="POST" action="{{ route('checkpoints.trigger-penyerahan', $cp) }}"
                                             class="inline">@csrf
                                             <button type="submit"
                                                 class="px-2 py-1 bg-purple-500 hover:bg-purple-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">📤
                                                 Serah</button>
                                         </form>
+                                    @else
+                                        <span class="text-xs text-gray-300">—</span>
                                     @endif
                                 </td>
                                 <td class="px-3 py-2.5 whitespace-nowrap">
@@ -361,7 +373,7 @@
     <div id="gateModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4">
             <div class="fixed inset-0 bg-black/50" onclick="closeGateModal()"></div>
-            <div class="relative bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 z-10">
+            <div class="relative bg-white rounded-2xl shadow-xl max-w-3xl w-full p-6 z-10">
                 <div class="flex items-center justify-between mb-4">
                     <div>
                         <h3 class="text-lg font-bold text-gray-900">Pilih Gate</h3>
@@ -387,13 +399,13 @@
                 <!-- Gate grid -->
                 <div id="gateModalContent" class="hidden">
                     <p class="text-xs text-gray-500 mb-3">🟢 Gate tersedia &nbsp; 🔴 Gate sedang loading</p>
-                    <div class="mb-3">
+                    <div class="mb-4">
                         <p class="text-xs font-semibold text-blue-600 mb-1.5">FROZEN (Gate 1-16)</p>
-                        <div class="grid grid-cols-8 gap-1.5" id="gateGridFrozen"></div>
+                        <div class="grid grid-cols-3 gap-2.5" id="gateGridFrozen"></div>
                     </div>
                     <div class="mb-4">
                         <p class="text-xs font-semibold text-amber-600 mb-1.5">DRY (Gate 17-27)</p>
-                        <div class="grid grid-cols-8 gap-1.5" id="gateGridDry"></div>
+                        <div class="grid grid-cols-3 gap-2.5" id="gateGridDry"></div>
                     </div>
 
                     <form id="gateForm" method="POST" action="">
@@ -480,14 +492,14 @@
                     gates.forEach(gate => {
                         const btn = document.createElement('button');
                         btn.type = 'button';
-                        btn.textContent = gate.nomor;
+                        btn.textContent = 'Gate-' + gate.nomor;
                         btn.dataset.gate = gate.nomor;
 
                         if (gate.available) {
-                            btn.className = 'gate-btn p-2 text-xs font-bold rounded-lg border-2 border-green-300 bg-green-50 text-green-700 hover:bg-green-200 hover:border-green-500 transition-all cursor-pointer';
+                            btn.className = 'gate-btn py-3 px-4 text-sm font-bold rounded-xl border border-green-200 bg-green-50 text-green-700 hover:bg-green-100 hover:border-green-400 transition-all cursor-pointer';
                             btn.onclick = function() { selectGate(gate.nomor); };
                         } else {
-                            btn.className = 'p-2 text-xs font-bold rounded-lg border-2 border-red-200 bg-red-50 text-red-400 cursor-not-allowed opacity-60';
+                            btn.className = 'py-3 px-4 text-sm font-bold rounded-xl border border-red-200 bg-red-50 text-red-400 cursor-not-allowed opacity-60';
                             btn.disabled = true;
                             btn.title = 'Gate sedang digunakan';
                         }
@@ -517,9 +529,9 @@
             // Highlight selected
             document.querySelectorAll('.gate-btn').forEach(btn => {
                 if (parseInt(btn.dataset.gate) === gateNumber) {
-                    btn.className = 'gate-btn p-2 text-xs font-bold rounded-lg border-2 border-orange-500 bg-orange-100 text-orange-700 ring-2 ring-orange-300 transition-all cursor-pointer';
+                    btn.className = 'gate-btn py-3 px-4 text-sm font-bold rounded-xl border-2 border-orange-500 bg-orange-100 text-orange-700 ring-2 ring-orange-300 transition-all cursor-pointer';
                 } else {
-                    btn.className = 'gate-btn p-2 text-xs font-bold rounded-lg border-2 border-green-300 bg-green-50 text-green-700 hover:bg-green-200 hover:border-green-500 transition-all cursor-pointer';
+                    btn.className = 'gate-btn py-3 px-4 text-sm font-bold rounded-xl border border-green-200 bg-green-50 text-green-700 hover:bg-green-100 hover:border-green-400 transition-all cursor-pointer';
                 }
             });
         }

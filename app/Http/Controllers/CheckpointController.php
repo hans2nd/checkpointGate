@@ -46,8 +46,7 @@ class CheckpointController extends Controller
 
         $perPage = in_array($request->input('per_page'), [10,15,25,50,100,1000]) ? (int)$request->input('per_page') : 15;
 
-        $checkpoints = $query->orderBy('tanggal', 'desc')
-                            ->orderBy('waktu_penerimaan_dokumen', 'desc')
+        $checkpoints = $query->orderBy('created_at', 'desc')
                             ->paginate($perPage)
                             ->withQueryString();
 
@@ -274,11 +273,10 @@ class CheckpointController extends Controller
      */
     public function getAvailableGates()
     {
-        // Gates currently occupied by active loading (status START, has waktu_start, no waktu_end)
+        // Gates currently occupied: has gate assigned, penerimaan done, but loading not finished yet
         $occupiedGates = Checkpoint::whereDate('tanggal', Carbon::today())
             ->whereNotNull('gate')
-            ->where('status', 'START')
-            ->whereNotNull('waktu_start')
+            ->whereNotNull('waktu_penerimaan_dokumen')
             ->whereNull('waktu_end')
             ->pluck('gate')
             ->unique()
@@ -317,7 +315,7 @@ class CheckpointController extends Controller
     {
         $checkpoint->update([
             'waktu_start' => Carbon::now(),
-            'status' => 'START',
+            'status' => 'ON LOADING',
         ]);
 
         return redirect()->back()
