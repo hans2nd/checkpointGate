@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Checkpoint;
 use App\Models\Gate;
+use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -62,7 +63,11 @@ class LiveMonitoringController extends Controller
         }
 
         // Average loading time per vehicle type × jenis_barang × aktivitas
-        $vehicleTypes = ['L300', 'CDE', 'CDE-LONG', 'CDD', 'CDD-LONG', 'FUSO', 'TRONTON', 'CONT-20FT', 'CONT-40FT'];
+        $vehicleTypes = Vehicle::select('jenis_kendaraan')
+            ->distinct()
+            ->orderBy('jenis_kendaraan')
+            ->pluck('jenis_kendaraan')
+            ->toArray();
         $avgTimes = [];
 
         foreach ($vehicleTypes as $vt) {
@@ -149,7 +154,41 @@ class LiveMonitoringController extends Controller
             }
         }
 
-        return response()->json(compact('gates', 'activitySummary'));
+        // Average loading time per vehicle type (dynamic from master)
+        $vehicleTypes = Vehicle::select('jenis_kendaraan')
+            ->distinct()
+            ->orderBy('jenis_kendaraan')
+            ->pluck('jenis_kendaraan')
+            ->toArray();
+        $avgTimes = [];
+
+        foreach ($vehicleTypes as $vt) {
+            $row = ['jenis_kendaraan' => $vt];
+            foreach (['DRY', 'FROZEN'] as $jenis) {
+                $altAvg = Checkpoint::whereDate('tanggal', $selectedDate)
+                    ->where('jenis_kendaraan', $vt)
+                    ->where('jenis_barang', $jenis)
+                    ->where('aktivitas', 'INBOUND')
+                    ->where('status', 'FINISH')
+                    ->whereNotNull('durasi')
+                    ->pluck('durasi');
+
+                $row["{$jenis}_ALT"] = $this->calculateAverage($altAvg);
+
+                $autAvg = Checkpoint::whereDate('tanggal', $selectedDate)
+                    ->where('jenis_kendaraan', $vt)
+                    ->where('jenis_barang', $jenis)
+                    ->where('aktivitas', 'OUTBOUND')
+                    ->where('status', 'FINISH')
+                    ->whereNotNull('durasi')
+                    ->pluck('durasi');
+
+                $row["{$jenis}_AUT"] = $this->calculateAverage($autAvg);
+            }
+            $avgTimes[] = $row;
+        }
+
+        return response()->json(compact('gates', 'activitySummary', 'avgTimes'));
     }
 
     private function calculateAverage($durations)

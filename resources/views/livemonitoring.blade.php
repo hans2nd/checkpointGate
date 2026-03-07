@@ -138,7 +138,7 @@
                             <th class="px-3 py-1.5 text-center font-medium text-[10px] uppercase text-blue-600 bg-blue-50">AUT</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-50">
+                    <tbody id="avg-times-body" class="divide-y divide-gray-50">
                         @foreach($avgTimes as $row)
                         <tr class="hover:bg-gray-50/50">
                             <td class="px-3 py-2 font-medium text-gray-700 text-xs border-r border-gray-100">{{ $row['jenis_kendaraan'] }}</td>
@@ -362,6 +362,28 @@
                             }
                         }
                     });
+                }
+
+                // Update average loading time table (dynamic from master kendaraan)
+                if (data.avgTimes) {
+                    const avgBody = document.getElementById('avg-times-body');
+                    if (avgBody) {
+                        let html = '';
+                        data.avgTimes.forEach(row => {
+                            const dryAlt = row.DRY_ALT ?? null;
+                            const dryAut = row.DRY_AUT ?? null;
+                            const frozenAlt = row.FROZEN_ALT ?? null;
+                            const frozenAut = row.FROZEN_AUT ?? null;
+                            html += `<tr class="hover:bg-gray-50/50">
+                                <td class="px-3 py-2 font-medium text-gray-700 text-xs border-r border-gray-100">${row.jenis_kendaraan}</td>
+                                <td class="px-3 py-2 text-center font-mono text-xs ${dryAlt ? 'text-green-700 bg-green-50/50' : 'text-gray-300'}">${dryAlt ?? '—'}</td>
+                                <td class="px-3 py-2 text-center font-mono text-xs border-r border-gray-100 ${dryAut ? 'text-green-700 bg-green-50/50' : 'text-gray-300'}">${dryAut ?? '—'}</td>
+                                <td class="px-3 py-2 text-center font-mono text-xs ${frozenAlt ? 'text-blue-700 bg-blue-50/50' : 'text-gray-300'}">${frozenAlt ?? '—'}</td>
+                                <td class="px-3 py-2 text-center font-mono text-xs ${frozenAut ? 'text-blue-700 bg-blue-50/50' : 'text-gray-300'}">${frozenAut ?? '—'}</td>
+                            </tr>`;
+                        });
+                        avgBody.innerHTML = html;
+                    }
                 }
 
                 const now = new Date();
