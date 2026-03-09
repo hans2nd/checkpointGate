@@ -43,10 +43,11 @@
                     $borderColor = $isFrozen ? 'border-blue-200' : 'border-amber-200';
                     $headerBg = $isFrozen ? 'bg-blue-500' : 'bg-amber-500';
                     $typeLabel = $isFrozen ? 'FROZEN' : 'DRY';
+                    $displayGate = $isFrozen ? 'F-' . $i : 'D-' . ($i - 16);
                 @endphp
                 <div id="gate-{{ $i }}" class="rounded-xl border-2 overflow-hidden transition-all duration-300 {{ $borderColor }}">
                     <div class="{{ $headerBg }} text-white text-center py-1.5 px-2">
-                        <p class="text-xs font-bold">GATE {{ $i }}</p>
+                        <p class="text-xs font-bold">{{ $displayGate }}</p>
                         <p class="text-[9px] font-medium opacity-80">{{ $typeLabel }}</p>
                     </div>
                     <div class="gate-body p-3 min-h-[80px] flex flex-col items-center justify-center transition-all duration-500"
@@ -173,10 +174,10 @@
         </div>
         <div class="flex flex-wrap gap-4 text-xs text-gray-500 mt-2 pt-2 border-t border-gray-100">
             <span class="flex items-center gap-1.5">
-                <span class="w-3 h-3 rounded bg-blue-500"></span> FROZEN (Gate 1-16)
+                <span class="w-3 h-3 rounded bg-blue-500"></span> FROZEN (Gate F-1 - F-16)
             </span>
             <span class="flex items-center gap-1.5">
-                <span class="w-3 h-3 rounded bg-amber-500"></span> DRY (Gate 17-27)
+                <span class="w-3 h-3 rounded bg-amber-500"></span> DRY (Gate D-1 - D-11)
             </span>
             <span class="flex items-center gap-1.5">
                 <span class="w-3 h-3 rounded bg-emerald-400"></span> Loading &lt; 30 menit

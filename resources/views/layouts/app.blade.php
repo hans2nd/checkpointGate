@@ -57,6 +57,11 @@
         Swal.fire({icon:'error',title:'Gagal!',text:@json(session('error')),timer:4000,showConfirmButton:true,toast:true,position:'top-end'});
     </script>
     @endif
+    @if(session('warning'))
+    <script>
+        Swal.fire({icon:'warning',title:'Perhatian!',text:@json(session('warning')),showConfirmButton:true,confirmButtonColor:'#F59E0B'});
+    </script>
+    @endif
 
     {{-- Reusable SweetAlert helpers --}}
     <script>

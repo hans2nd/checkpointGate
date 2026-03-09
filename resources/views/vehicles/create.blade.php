@@ -62,7 +62,7 @@
                     <select id="jenis_kendaraan" name="jenis_kendaraan" required
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white transition-all">
                         <option value="">-- Pilih --</option>
-                        @foreach(['L300', 'CDE', 'CDE-LONG', 'CDD', 'CDD-LONG', 'FUSO', 'TRONTON', 'CONT-20FT', 'CONT-40FT'] as $jk)
+                        @foreach($jenisKendaraanList as $jk)
                             <option value="{{ $jk }}" {{ old('jenis_kendaraan') == $jk ? 'selected' : '' }}>{{ $jk }}</option>
                         @endforeach
                     </select>

@@ -43,7 +43,8 @@ class VehicleController extends Controller
 
     public function create()
     {
-        return view('vehicles.create');
+        $jenisKendaraanList = Vehicle::JENIS_KENDARAAN;
+        return view('vehicles.create', compact('jenisKendaraanList'));
     }
 
     public function store(Request $request)
@@ -53,7 +54,7 @@ class VehicleController extends Controller
             'driver' => 'required|string|max:100',
             'vendor' => 'required|string|max:100',
             'tipe' => 'required|in:INTERNAL,EKSTERNAL',
-            'jenis_kendaraan' => 'required|string|max:50',
+            'jenis_kendaraan' => 'required|in:' . implode(',', Vehicle::JENIS_KENDARAAN),
         ]);
 
         Vehicle::create($validated);
@@ -64,7 +65,8 @@ class VehicleController extends Controller
 
     public function edit(Vehicle $vehicle)
     {
-        return view('vehicles.edit', compact('vehicle'));
+        $jenisKendaraanList = Vehicle::JENIS_KENDARAAN;
+        return view('vehicles.edit', compact('vehicle', 'jenisKendaraanList'));
     }
 
     public function update(Request $request, Vehicle $vehicle)
@@ -74,7 +76,7 @@ class VehicleController extends Controller
             'driver' => 'required|string|max:100',
             'vendor' => 'required|string|max:100',
             'tipe' => 'required|in:INTERNAL,EKSTERNAL',
-            'jenis_kendaraan' => 'required|string|max:50',
+            'jenis_kendaraan' => 'required|in:' . implode(',', Vehicle::JENIS_KENDARAAN),
         ]);
 
         $vehicle->update($validated);
@@ -188,15 +190,21 @@ class VehicleController extends Controller
         $imported = 0;
         $updated = 0;
         $skipped = 0;
+        $errors = [];
+        $validJenis = Vehicle::JENIS_KENDARAAN;
 
         foreach ($rows as $index => $row) {
             if ($index === 0) continue; // Skip header
+            $rowNum = $index + 1; // Nomor baris Excel (1-based, termasuk header)
 
             $noPolisi = strtoupper(trim($row[0] ?? ''));
             $driver = trim($row[1] ?? '');
             $vendor = trim($row[2] ?? '');
             $tipe = strtoupper(trim($row[3] ?? ''));
-            $jenisKendaraan = trim($row[4] ?? '');
+            $rawJenis = trim($row[4] ?? '');
+
+            // Normalisasi jenis kendaraan: uppercase, spasi → strip
+            $jenisKendaraan = strtoupper(str_replace(' ', '-', $rawJenis));
 
             if (empty($noPolisi) || empty($driver) || empty($vendor) || empty($tipe) || empty($jenisKendaraan)) {
                 $skipped++;
@@ -204,6 +212,13 @@ class VehicleController extends Controller
             }
 
             if (!in_array($tipe, ['INTERNAL', 'EKSTERNAL'])) {
+                $errors[] = "Baris {$rowNum}: Tipe '{$row[3]}' tidak valid (harus INTERNAL/EKSTERNAL).";
+                $skipped++;
+                continue;
+            }
+
+            if (!in_array($jenisKendaraan, $validJenis)) {
+                $errors[] = "Baris {$rowNum}: Jenis kendaraan '{$rawJenis}' tidak valid. Nilai yang diizinkan: " . implode(', ', $validJenis) . ".";
                 $skipped++;
                 continue;
             }
@@ -227,6 +242,17 @@ class VehicleController extends Controller
                 ]);
                 $imported++;
             }
+        }
+
+        // Build result message
+        if (!empty($errors)) {
+            $errorMsg = implode(' | ', array_slice($errors, 0, 5));
+            if (count($errors) > 5) {
+                $errorMsg .= ' | ...dan ' . (count($errors) - 5) . ' error lainnya.';
+            }
+            $successPart = "{$imported} diimport, {$updated} diupdate, {$skipped} dilewati.";
+            return redirect()->route('vehicles.index')
+                ->with('warning', $successPart . ' Detail error: ' . $errorMsg);
         }
 
         $message = "{$imported} data kendaraan baru diimport.";
@@ -303,6 +329,31 @@ class VehicleController extends Controller
         foreach (range('A', 'E') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
+
+        // Sheet referensi: daftar jenis kendaraan yang valid
+        $refSheet = $spreadsheet->createSheet();
+        $refSheet->setTitle('Referensi Jenis Kendaraan');
+
+        $refSheet->setCellValue('A1', 'Jenis Kendaraan yang Valid');
+        $refSheet->getStyle('A1')->applyFromArray([
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'DC2626']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+        ]);
+
+        foreach (Vehicle::JENIS_KENDARAAN as $idx => $jk) {
+            $refSheet->setCellValue('A' . ($idx + 2), $jk);
+        }
+
+        $lastRef = count(Vehicle::JENIS_KENDARAAN) + 1;
+        $refSheet->getStyle('A2:A' . $lastRef)->applyFromArray([
+            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+        ]);
+        $refSheet->getColumnDimension('A')->setAutoSize(true);
+
+        // Kembali ke sheet pertama sebagai aktif
+        $spreadsheet->setActiveSheetIndex(0);
 
         $filename = 'template_kendaraan.xlsx';
         $temp = storage_path('app/' . $filename);
