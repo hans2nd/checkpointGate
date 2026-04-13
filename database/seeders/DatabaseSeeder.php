@@ -22,5 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call(CheckpointSeeder::class);
         $this->call(GateSeeder::class);
         $this->call(VehicleSeeder::class);
+        $this->call(DemoUserSeeder::class);
+        $this->call(RolePermissionSeeder::class);
     }
 }
