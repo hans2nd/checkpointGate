@@ -11,6 +11,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
+        /* Fullscreen mode */
+        body.fullscreen-mode .fullscreen-hide { display: none !important; }
+        body.fullscreen-mode .fullscreen-main { padding: 0 !important; }
+        body.fullscreen-mode .fullscreen-main > main { padding: 12px !important; }
     </style>
 </head>
 <body class="h-full">
@@ -19,9 +23,9 @@
         @include('components.sidebar')
 
         {{-- Main Content --}}
-        <div class="flex-1 flex flex-col overflow-hidden min-w-0">
+        <div class="flex-1 flex flex-col overflow-hidden min-w-0 fullscreen-main">
             {{-- Top Header --}}
-            <header class="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 flex items-center justify-between shrink-0">
+            <header class="fullscreen-hide bg-white border-b border-gray-200 px-4 sm:px-6 py-3 flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-3">
                     <button onclick="openSidebar()" class="lg:hidden p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
@@ -29,6 +33,7 @@
                     <h1 class="text-lg sm:text-xl font-semibold text-gray-800 truncate">@yield('title', 'Dashboard')</h1>
                 </div>
                 <div class="flex items-center gap-2 sm:gap-4">
+                    @yield('header-actions')
                     <span class="hidden sm:inline text-sm text-gray-500">{{ Auth::user()->name }}</span>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -118,6 +123,26 @@
             }
         });
     }
+    // Fullscreen toggle
+    function toggleFullscreen() {
+        document.body.classList.toggle('fullscreen-mode');
+        const isFs = document.body.classList.contains('fullscreen-mode');
+        localStorage.setItem('checkpoint_fullscreen', isFs ? '1' : '0');
+        // Update button icons
+        document.querySelectorAll('.fs-icon-expand').forEach(el => el.style.display = isFs ? 'none' : 'block');
+        document.querySelectorAll('.fs-icon-compress').forEach(el => el.style.display = isFs ? 'block' : 'none');
+        document.querySelectorAll('.fs-exit-btn').forEach(el => el.style.display = isFs ? 'flex' : 'none');
+    }
+    // Restore fullscreen on load
+    if (localStorage.getItem('checkpoint_fullscreen') === '1') {
+        document.body.classList.add('fullscreen-mode');
+    }
+    // ESC to exit fullscreen
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('fullscreen-mode')) {
+            toggleFullscreen();
+        }
+    });
     </script>
 </body>
 </html>

@@ -74,6 +74,17 @@ class CheckpointController extends Controller
         $validated['tanggal'] = Carbon::today();
         $validated['status'] = 'START';
 
+        // Auto-insert Master Vehicle jika belum ada
+        \App\Models\Vehicle::firstOrCreate(
+            ['no_polisi' => $validated['no_polisi']],
+            [
+                'driver' => $validated['driver'],
+                'vendor' => $validated['vendor'],
+                'tipe' => $validated['tipe'],
+                'jenis_kendaraan' => $validated['jenis_kendaraan'],
+            ]
+        );
+
         Checkpoint::create($validated);
 
         return redirect()->route('checkpoints.index')
@@ -177,14 +188,14 @@ class CheckpointController extends Controller
         $sheet->setTitle('Data Checkpoint');
 
         // Header
-        $headers = ['No', 'Tanggal', 'No Polisi', 'Vendor', 'Driver', 'Tipe', 'Jenis Kendaraan', 'Jenis Barang', 'Aktivitas', 'Gate', 'Penerimaan Dokumen', 'Penyerahan Dokumen', 'Waktu Start', 'Waktu End', 'Status', 'Durasi'];
+        $headers = ['No', 'Tanggal', 'No Polisi', 'Vendor', 'Driver', 'Tipe', 'Jenis Kendaraan', 'Jenis Barang', 'Aktivitas', 'Gate', 'Penerimaan Dokumen', 'Penyerahan Dokumen', 'Durasi Dokumen', 'Waktu Start', 'Waktu End', 'Status', 'Durasi Loading'];
         foreach ($headers as $col => $header) {
             $cell = chr(65 + $col) . '1';
             $sheet->setCellValue($cell, $header);
         }
 
         // Style header
-        $headerRange = 'A1:P1';
+        $headerRange = 'A1:Q1';
         $sheet->getStyle($headerRange)->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '10B981']],
@@ -207,22 +218,30 @@ class CheckpointController extends Controller
             $sheet->setCellValue('J' . $row, $cp->gate);
             $sheet->setCellValue('K' . $row, $cp->waktu_penerimaan_dokumen ? $cp->waktu_penerimaan_dokumen->format('d/m/Y H:i:s') : '');
             $sheet->setCellValue('L' . $row, $cp->waktu_penyerahan_dokumen ? $cp->waktu_penyerahan_dokumen->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('M' . $row, $cp->waktu_start ? $cp->waktu_start->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('N' . $row, $cp->waktu_end ? $cp->waktu_end->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('O' . $row, $cp->status);
-            $sheet->setCellValue('P' . $row, $cp->durasi);
+            // Durasi Dokumen (penerimaan -> penyerahan)
+            $durasiDokumen = '';
+            if ($cp->waktu_penerimaan_dokumen && $cp->waktu_penyerahan_dokumen) {
+                $diff = $cp->waktu_penerimaan_dokumen->diff($cp->waktu_penyerahan_dokumen);
+                $hours = ($diff->days * 24) + $diff->h;
+                $durasiDokumen = sprintf('%02d:%02d:%02d', $hours, $diff->i, $diff->s);
+            }
+            $sheet->setCellValue('M' . $row, $durasiDokumen);
+            $sheet->setCellValue('N' . $row, $cp->waktu_start ? $cp->waktu_start->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('O' . $row, $cp->waktu_end ? $cp->waktu_end->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('P' . $row, $cp->status);
+            $sheet->setCellValue('Q' . $row, $cp->durasi);
             $row++;
         }
 
         // Data borders
         if ($row > 2) {
-            $sheet->getStyle('A2:P' . ($row - 1))->applyFromArray([
+            $sheet->getStyle('A2:Q' . ($row - 1))->applyFromArray([
                 'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
             ]);
         }
 
         // Auto-size columns
-        foreach (range('A', 'P') as $col) {
+        foreach (range('A', 'Q') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 

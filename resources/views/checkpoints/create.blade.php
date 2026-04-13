@@ -34,6 +34,29 @@
                     </div>
                 @endif
 
+                {{-- Arrival Date/Time Info --}}
+                <div class="mb-6 p-4 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-orange-600 uppercase tracking-wider">Waktu Kedatangan Kendaraan</p>
+                            <div class="flex items-center gap-3 mt-0.5">
+                                <span class="text-lg font-bold text-gray-800" id="arrival-date">{{ now()->format('d/m/Y') }}</span>
+                                <span class="text-gray-400">|</span>
+                                <span class="text-lg font-bold text-orange-600 font-mono" id="arrival-time">{{ now()->format('H:i:s') }}</span>
+                            </div>
+                        </div>
+                        <div class="ml-auto flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                            <span class="text-xs text-gray-500">Live</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {{-- No Polisi with autocomplete --}}
                     <div class="md:col-span-2 relative">
@@ -264,5 +287,15 @@
                 document.getElementById('tipe').classList.remove('bg-gray-50');
             });
         });
+
+        // Live clock for arrival time
+        setInterval(function() {
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            document.getElementById('arrival-date').textContent =
+                pad(now.getDate()) + '/' + pad(now.getMonth() + 1) + '/' + now.getFullYear();
+            document.getElementById('arrival-time').textContent =
+                pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+        }, 1000);
     </script>
 @endsection
