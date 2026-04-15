@@ -66,7 +66,7 @@ class CheckpointController extends Controller
             'driver' => 'required|string|max:100',
             'tipe' => 'required|in:INTERNAL,EKSTERNAL',
             'jenis_kendaraan' => 'nullable|string|max:50',
-            'jenis_barang' => 'required|in:FROZEN,DRY',
+            'jenis_barang' => 'required|in:FROZEN,DRY,CHILLED',
             'aktivitas' => 'required|in:INBOUND,OUTBOUND',
             'gate' => 'nullable|integer',
         ]);
@@ -112,7 +112,7 @@ class CheckpointController extends Controller
             'jenis_kendaraan' => 'nullable|string|max:50',
             'waktu_penerimaan_dokumen' => 'nullable|date',
             'waktu_penyerahan_dokumen' => 'nullable|date',
-            'jenis_barang' => 'required|in:FROZEN,DRY',
+            'jenis_barang' => 'required|in:FROZEN,DRY,CHILLED',
             'aktivitas' => 'required|in:INBOUND,OUTBOUND',
             'gate' => 'nullable|integer',
             'status' => 'required|in:START,FINISH',
@@ -205,6 +205,7 @@ class CheckpointController extends Controller
 
         // Data
         $row = 2;
+
         foreach ($data as $index => $cp) {
             $sheet->setCellValue('A' . $row, $index + 1);
             $sheet->setCellValue('B' . $row, $cp->tanggal ? $cp->tanggal->format('d/m/Y') : '');
@@ -215,7 +216,18 @@ class CheckpointController extends Controller
             $sheet->setCellValue('G' . $row, $cp->jenis_kendaraan);
             $sheet->setCellValue('H' . $row, $cp->jenis_barang);
             $sheet->setCellValue('I' . $row, $cp->aktivitas);
-            $sheet->setCellValue('J' . $row, $cp->gate);
+            // $sheet->setCellValue('J' . $row, $cp->gate);
+            $gateLabel = '';
+
+            if ($cp->gate >= 1 && $cp->gate <= 16) {
+                $gateLabel = 'F-' . $cp->gate;
+            } elseif ($cp->gate >= 17 && $cp->gate <= 27) {
+                $gateLabel = 'D-' . ($cp->gate - 16);
+            } else {
+                $gateLabel = 'Gate-' . $cp->gate;
+            }
+
+            $sheet->setCellValue('J' . $row, $gateLabel);
             $sheet->setCellValue('K' . $row, $cp->waktu_penerimaan_dokumen ? $cp->waktu_penerimaan_dokumen->format('d/m/Y H:i:s') : '');
             $sheet->setCellValue('L' . $row, $cp->waktu_penyerahan_dokumen ? $cp->waktu_penyerahan_dokumen->format('d/m/Y H:i:s') : '');
             // Durasi Dokumen (penerimaan -> penyerahan)

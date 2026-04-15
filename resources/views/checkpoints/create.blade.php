@@ -39,15 +39,19 @@
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center shrink-0">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
                         <div>
-                            <p class="text-xs font-semibold text-orange-600 uppercase tracking-wider">Waktu Kedatangan Kendaraan</p>
+                            <p class="text-xs font-semibold text-orange-600 uppercase tracking-wider">Waktu Kedatangan
+                                Kendaraan</p>
                             <div class="flex items-center gap-3 mt-0.5">
-                                <span class="text-lg font-bold text-gray-800" id="arrival-date">{{ now()->format('d/m/Y') }}</span>
+                                <span class="text-lg font-bold text-gray-800"
+                                    id="arrival-date">{{ now()->format('d/m/Y') }}</span>
                                 <span class="text-gray-400">|</span>
-                                <span class="text-lg font-bold text-orange-600 font-mono" id="arrival-time">{{ now()->format('H:i:s') }}</span>
+                                <span class="text-lg font-bold text-orange-600 font-mono"
+                                    id="arrival-time">{{ now()->format('H:i:s') }}</span>
                             </div>
                         </div>
                         <div class="ml-auto flex items-center gap-1.5">
@@ -121,7 +125,8 @@
 
                     {{-- Jenis Kendaraan (auto-filled) --}}
                     <div>
-                        <label for="jenis_kendaraan" class="block text-sm font-medium text-gray-700 mb-1.5">Jenis Kendaraan
+                        <label for="jenis_kendaraan" class="block text-sm font-medium text-gray-700 mb-1.5">Jenis
+                            Kendaraan
                             <span class="text-red-400">*</span></label>
                         <input type="text" id="jenis_kendaraan" name="jenis_kendaraan"
                             value="{{ old('jenis_kendaraan') }}" required placeholder="Jenis kendaraan"
@@ -131,12 +136,14 @@
 
                     {{-- Jenis Barang --}}
                     <div>
-                        <label for="jenis_barang" class="block text-sm font-medium text-gray-700 mb-1.5">Jenis Barang <span
-                                class="text-red-400">*</span></label>
+                        <label for="jenis_barang" class="block text-sm font-medium text-gray-700 mb-1.5">Jenis Barang
+                            <span class="text-red-400">*</span></label>
                         <select id="jenis_barang" name="jenis_barang" required
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white transition-all">
                             <option value="FROZEN" {{ old('jenis_barang') == 'FROZEN' ? 'selected' : '' }}>FROZEN</option>
                             <option value="DRY" {{ old('jenis_barang') == 'DRY' ? 'selected' : '' }}>DRY</option>
+                            <option value="CHILLED" {{ old('jenis_barang') == 'CHILLED' ? 'selected' : '' }}>CHILLED
+                            </option>
                         </select>
                     </div>
 
