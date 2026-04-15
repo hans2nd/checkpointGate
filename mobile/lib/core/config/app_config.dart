@@ -2,10 +2,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AppConfig {
   static const String keyBaseUrl = 'API_BASE_URL';
-  
-  // Default URL is pointing to standard Android emulator loopback for localhost,
-  // or a fallback development IP. User should configure this in the UI.
-  static String _baseUrl = 'http://10.0.2.2/checkpoint-GIIC/api';
+
+  // Default URL untuk Android Emulator ke Laragon port 8082
+  // 10.0.2.2 = localhost PC dari perspective Android Emulator
+  // Untuk device fisik, ganti via Settings di app
+  static String _baseUrl = 'http://192.168.15.19:8082/checkpoint-GIIC/public/api';
 
   static String get baseUrl => _baseUrl;
 
@@ -22,7 +23,7 @@ class AppConfig {
     if (url.endsWith('/')) {
       url = url.substring(0, url.length - 1);
     }
-    
+
     // Add /api if not present
     if (!url.endsWith('/api')) {
       url = '$url/api';
@@ -31,5 +32,12 @@ class AppConfig {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(keyBaseUrl, url);
     _baseUrl = url;
+  }
+
+  /// Reset ke default (hapus URL tersimpan)
+  static Future<void> resetBaseUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(keyBaseUrl);
+    _baseUrl = 'http://10.0.2.2:8082/checkpoint-GIIC/api';
   }
 }

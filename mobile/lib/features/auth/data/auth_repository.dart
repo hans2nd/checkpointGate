@@ -3,7 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../core/network/api_client.dart';
 
 class AuthRepository {
-  final Dio _dio = ApiClient.instance;
+  Dio get _dio => ApiClient.instance;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   Future<Map<String, dynamic>> login(String email, String password) async {
@@ -14,17 +14,29 @@ class AuthRepository {
         'device_name': 'android_flutter',
       });
       
-      final data = response.data;
-      if (data['token'] != null) {
-        await _storage.write(key: 'auth_token', value: data['token']);
+      final body = response.data;
+      if (body is Map<String, dynamic>) {
+        // Laravel's response pattern wraps token inside `data`
+        final token = body['data']?['token'] ?? body['token'];
+        
+        if (token != null) {
+          await _storage.write(key: 'auth_token', value: token);
+          return body;
+        }
       }
-      return data;
+      throw Exception('Format respon tidak sesuai. Pastikan API mengembalikan Token yang valid.');
     } on DioException catch (e) {
       if (e.response != null) {
-        throw Exception(e.response?.data['message'] ?? 'Login gagal.');
+        final respData = e.response?.data;
+        if (respData is Map<String, dynamic> && respData['message'] != null) {
+          throw Exception(respData['message']);
+        }
+        throw Exception('Server merespon dengan error ${e.response?.statusCode}. Pastikan URL Endpoint API benar.');
       } else {
-        throw Exception('Tidak ada koneksi ke server.');
+        throw Exception('Tidak ada koneksi ke server. Periksa Base URL (saat ini: ${_dio.options.baseUrl}).');
       }
+    } catch (e) {
+      throw Exception('Terjadi kesalahan tidak terduga: $e');
     }
   }
 

@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkpoint GIIC — API Documentation & Tester</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface2: #334155;
+            --border: #475569;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent: #f97316;
+            --accent-hover: #fb923c;
+            --green: #22c55e;
+            --green-bg: #052e16;
+            --red: #ef4444;
+            --red-bg: #450a0a;
+            --blue: #3b82f6;
+            --blue-bg: #1e3a5f;
+            --yellow: #eab308;
+            --purple: #a855f7;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 24px 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+
+        /* Config Bar */
+        .config-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .config-bar label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+        .config-bar input[type="text"] {
+            flex: 1;
+            min-width: 300px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+        .config-bar input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+        }
+
+        /* Token display */
+        .token-bar {
+            background: var(--green-bg);
+            border: 1px solid rgba(34,197,94,0.3);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--green);
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: none;
+        }
+        .token-bar.visible { display: block; }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 32px;
+        }
+
+        /* Section / Group */
+        .api-group {
+            margin-bottom: 32px;
+        }
+        .api-group-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent);
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid var(--surface2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .api-group-title .icon { font-size: 20px; }
+
+        /* API Card */
+        .api-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+        .api-card:hover { border-color: var(--accent); }
+
+        .api-card-header {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            cursor: pointer;
+            gap: 12px;
+            user-select: none;
+        }
+        .api-card-header:hover { background: rgba(255,255,255,0.02); }
+
+        .method-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 4px;
+            min-width: 56px;
+            text-align: center;
+        }
+        .method-GET { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+        .method-POST { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+        .method-DELETE { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+
+        .endpoint-path {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text);
+            flex: 1;
+        }
+        .endpoint-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .auth-badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .auth-public { background: rgba(234,179,8,0.15); color: var(--yellow); }
+        .auth-protected { background: rgba(168,85,247,0.15); color: var(--purple); }
+
+        .chevron {
+            font-size: 14px;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+        .api-card.open .chevron { transform: rotate(90deg); }
+
+        /* Card Body */
+        .api-card-body {
+            display: none;
+            padding: 0 20px 20px;
+            border-top: 1px solid var(--border);
+        }
+        .api-card.open .api-card-body { display: block; }
+
+        .param-section { margin-top: 16px; }
+        .param-section h4 {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .param-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        .param-row label {
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+            min-width: 140px;
+        }
+        .param-row input, .param-row select {
+            flex: 1;
+            padding: 6px 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+        }
+        .param-row input:focus, .param-row select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .param-hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            min-width: 160px;
+        }
+
+        /* Buttons */
+        .btn-send {
+            background: linear-gradient(135deg, var(--accent), #ea580c);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 12px;
+            transition: all 0.2s;
+        }
+        .btn-send:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(249,115,22,0.3); }
+        .btn-send:active { transform: translateY(0); }
+        .btn-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* Response area */
+        .response-area {
+            margin-top: 16px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+        }
+        .response-area.visible { display: block; }
+
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .response-header.success { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.2); border-bottom: none; }
+        .response-header.error { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.2); border-bottom: none; }
+        .response-header.loading { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(59,130,246,0.2); border-bottom: none; }
+
+        .response-body {
+            background: #020617;
+            border: 1px solid var(--border);
+            border-top: none;
+            padding: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 400px;
+            overflow-y: auto;
+            color: var(--text);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border); }
+
+        /* Status indicator */
+        .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status-dot.online { background: var(--green); box-shadow: 0 0 6px var(--green); }
+        .status-dot.offline { background: var(--red); box-shadow: 0 0 6px var(--red); }
+
+        /* Quick test bar */
+        .quick-test {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .quick-test h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .btn-quick {
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-quick:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-quick.active { border-color: var(--green); color: var(--green); background: var(--green-bg); }
+
+        @media (max-width: 768px) {
+            .config-bar { flex-direction: column; align-items: stretch; }
+            .config-bar input[type="text"] { min-width: auto; }
+            .param-row { flex-direction: column; }
+            .param-row label { min-width: auto; }
+            .param-hint { min-width: auto; }
+            .container { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🚛 Checkpoint GIIC — API Documentation</h1>
+    <p>Interactive API Tester • Laravel 11 + Sanctum • 17 Endpoints</p>
+</div>
+
+<div class="config-bar">
+    <label>🌐 Base URL:</label>
+    <input type="text" id="baseUrl" value="" placeholder="http://checkpoint-giic.test:8082/api">
+    <button class="btn-send" onclick="detectBaseUrl()" style="margin-top:0">Auto Detect</button>
+    <div id="tokenDisplay" class="token-bar">Token: —</div>
+</div>
+
+<div class="container">
+
+    <!-- Quick Test -->
+    <div class="quick-test">
+        <h3>⚡ Quick Test:</h3>
+        <button class="btn-quick" id="btnConnTest" onclick="quickConnTest()">🔌 Test Koneksi</button>
+        <button class="btn-quick" id="btnQuickLogin" onclick="quickLogin()">🔑 Login (admin)</button>
+        <button class="btn-quick" onclick="quickTest('/me', 'GET')">👤 /me</button>
+        <button class="btn-quick" onclick="quickTest('/dashboard', 'GET')">📊 /dashboard</button>
+        <button class="btn-quick" onclick="quickTest('/checkpoints', 'GET')">📋 /checkpoints</button>
+        <span id="connStatus" style="margin-left:auto; font-size:12px; color:var(--text-muted)"></span>
+    </div>
+
+    <!-- AUTH GROUP -->
+    <div class="api-group">
+        <div class="api-group-title"><span class="icon">🔐</span> Authentication</div>
+
+        <!-- POST /login -->
+        <div class="api-card" id="card-login">
+            <div class="api-card-header" onclick="toggleCard('card-login')">
+                <span class="method-badge method-POST">POST</span>
+                <span class="endpoint-path">/api/login</span>
+                <span class="endpoint-desc">Login & mendapatkan Bearer Token</span>
+                <span class="auth-badge auth-public">PUBLIC</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="api-card-body">
+                <div class="param-section">
+                    <h4>Body Parameters (JSON)</h4>
+                    <div class="param-row">
+                        <label>email *</label>
+                        <input type="text" id="login-email" value="admin@checkpoint.com">
+                        <span class="param-hint">required, email</span>
+                    </div>
+                    <div class="param-row">
+                        <label>password *</label>
+                        <input type="password" id="login-password" value="password">
+                        <span class="param-hint">required, string</span>
+                    </div>
+                    <div class="param-row">
+                        <label>device_name</label>
+                        <input type="text" id="login-device" value="api-tester">
+                        <span class="param-hint">optional, default: flutter-app</span>
+                    </div>
+                </div>
+                <button class="btn-send" onclick="doLogin()">▶ Send & Save Token</button>
+                <div class="response-area" id="resp-login"></div>
+            </div>
+        </div>
+
+        <!-- POST /logout -->
+        <div class="api-card" id="card-logout">
+            <div class="api-card-header" onclick="toggleCard('card-logout')">
+                <span class="method-badge method-POST">POST</span>
+                <span class="endpoint-path">/api/logout</span>
+                <span class="endpoint-desc">Revoke token saat ini</span>
+                <span class="auth-badge auth-protected">🔒 AUTH</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="api-card-body">
+                <p style="font-size:13px; color:var(--text-muted)">Menghapus/revoke token yang aktif. Tidak ada parameter yang diperlukan.</p>
+                <button class="btn-send" onclick="sendRequest('/logout', 'POST', {}, 'resp-logout')">▶ Send</button>
+                <div class="response-area" id="resp-logout"></div>
+            </div>
+        </div>
+
+        <!-- GET /me -->
+        <div class="api-card" id="card-me">
+            <div class="api-card-header" onclick="toggleCard('card-me')">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/api/me</span>
+                <span class="endpoint-desc">Data user yang sedang login (termasuk role & permissions)</span>
+                <span class="auth-badge auth-protected">🔒 AUTH</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="api-card-body">
+                <p style="font-size:13px; color:var(--text-muted)">Mengambil data user, role, dan permissions. Tidak ada parameter yang diperlukan.</p>
+                <button class="btn-send" onclick="sendRequest('/me', 'GET', {}, 'resp-me')">▶ Send</button>
+                <div class="response-area" id="resp-me"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD GROUP -->
+    <div class="api-group">
+        <div class="api-group-title"><span class="icon">📊</span> Dashboard</div>
+
+        <!-- GET /dashboard -->
+        <div class="api-card" id="card-dashboard">
+            <div class="api-card-header" onclick="toggleCard('card-dashboard')">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/api/dashboard</span>
+                <span class="endpoint-desc">Statistik dashboard (summary + recent checkpoints)</span>
+                <span class="auth-badge auth-protected">🔒 AUTH</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="api-card-body">
+                <div class="param-section">
+                    <h4>Query Parameters</h4>
+                    <div class="param-row">
+                        <label>tanggal</label>
+                        <input type="date" id="dashboard-tanggal">
+                        <span class="param-hint">optional, default: hari ini</span>
+                    </div>
+                </div>
+                <button class="btn-send" onclick="sendRequest('/dashboard' + buildQuery({tanggal: gv('dashboard-tanggal')}), 'GET', {}, 'resp-dashboard')">▶ Send</button>
+                <div class="response-area" id="resp-dashboard"></div>
+            </div>
+        </div>
+
+        <!-- GET /chart-data -->
+        <div class="api-card" id="card-chart">
+            <div class="api-card-header" onclick="toggleCard('card-chart')">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/api/chart-data</span>
+                <span class="endpoint-desc">Data chart harian (inbound/outbound per hari)</span>
+                <span class="auth-badge auth-protected">🔒 AUTH</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="api-card-body">
+                <div class="param-section">
+                    <h4>Query Parameters</h4>
+                    <div class="param-row">
+                        <label>days</label>
+                        <input type="number" id="chart-days" value="7">
+                        <span class="param-hint">optional, default: 7</span>
+                    </div>
+                </div>
+                <button class="btn-send" onclick="sendRequest('/chart-data' + buildQuery({days: gv('chart-days')}), 'GET', {}, 'resp-chart')">▶ Send</button>
+                <div class="response-area" id="resp-chart"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LIVE MONITORING GROUP -->
+    <div class="api-group">
+        <div class="api-group-title"><span class="icon">📡</span> Live Monitoring</div>
+
+        <div class="api-card" id="card-livemon">
+            <div class="api-card-header" onclick="toggleCard('card-livemon')">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/api/live-monitoring</span>
+                <span class="endpoint-desc">Data grid gate (27 gate) + activity summary</span>
+                <span class="auth-badge auth-protected">🔒 AUTH</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="api-card-body">
+                <div class="param-section">
+                    <h4>Query Parameters</h4>
+                    <div class="param-row">
+                        <label>tanggal</label>
+                        <input type="date" id="livemon-tanggal">
+                        <span class="param-hint">optional, default: hari ini</span>
+                    </div>
+                </div>
+                <button class="btn-send" onclick="sendRequest('/live-monitoring' + buildQuery({tanggal: gv('livemon-tanggal')}), 'GET', {}, 'resp-livemon')">▶ Send</button>
+                <div class="response-area" id="resp-livemon"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHECKPOINTS GROUP -->
+    <div class="api-group">
+        <div class="api-group-title"><span class="icon">📋</span> Checkpoints</div>
+
+        <!-- GET /checkpoints -->
+        <div class="api-card" id="card-cp-list">
+            <div class="api-card-header" onclick="toggleCard('card-cp-list')">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/api/checkpoints</span>
+                <span class="endpoint-desc">Daftar checkpoint (dengan filter & pagination)</span>
+                <span class="auth-badge auth-protected">🔒 AUTH</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="api-card-body">
+                <div class="param-section">
+                    <h4>Query Parameters</h4>
+                    <div class="param-row">
+                        <label>search</label>
+                        <input type="text" id="cp-search" placeholder="no_polisi / vendor / driver">
+                        <span class="param-hint">optional</span>
+                    </div>
+                    <div class="param-row">
+                        <label>aktivitas</label>
+                        <select id="cp-aktivitas"><option value="">Semua</option><option>INBOUND</option><option>OUTBOUND</option></select>
+                        <span class="param-hint">optional</span>
+                    </div>
+                    <div class="param-row">
+                        <label>jenis_barang</label>
+                        <select id="cp-jenis"><option value="">Semua</option><option>FROZEN</option><option>DRY</option></select>
+                        <span class="param-hint">optional</span>
+                    </div>
+                    <div class="param-row">
+                        <label>status</label>
+                        <select id="cp-status"><option value="">Semua</option><option>WAITING</option><option>ASSIGN</option><option>ON LOADING</option><option>FINISH</option></select>
+                        <span class="param-hint">optional</span>
+                    </div>
+                    <div class="param-row">
+                        <label>tanggal</label>
+                        <input type="date" id="cp-tanggal">
+                        <span class="param-hint">optional</span>
+                    </div>
+                    <div class="param-row">
+                        <label>per_page</label>
+                        <input type="number" id="cp-perpage" value="15">
+                        <span class="param-hint">optional, max: 100</span>
+                    </div>
+                </div>
+                <button class="btn-send" onclick="sendRequest('/checkpoints' + buildQuery({search:gv('cp-search'),aktivitas:gv('cp-aktivitas'),jenis_barang:gv('cp-jenis'),status:gv('cp-status'),tanggal:gv('cp-tanggal'),per_page:gv('cp-perpage')}), 'GET', {}, 'resp-cp-list')">▶ Send</button>
+                <div class="response-area" id="resp-cp-list"></div>
+            </div>
+        </div>
+
+        <!-- GET /checkpoints/{id} -->
+        <div class="api-card" id="card-cp-show">
+            <div class="api-card-header" onclick="toggleCard('card-cp-show')">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/api/checkpoints/{id}</span>
+                <span class="endpoint-desc">Detail checkpoint berdasarkan ID</span>
+                <span class="auth-badge auth-protected">🔒 AUTH</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="api-card-body">
+                <div class="param-section">
+                    <h4>URL Parameters</h4>
+                    <div class="param-row">
+                        <label>id *</label>
+                        <input type="number" id="cp-show-id" value="1">
+                        <span class="param-hint">required, integer</span>
+                    </div>
+                </div>
+                <button class="btn-send" onclick="sendRequest('/checkpoints/' + gv('cp-show-id'), 'GET', {}, 'resp-cp-show')">▶ Send</button>
+                <div class="response-area" id="resp-cp-show"></div>
+            </div>
+        </div>
+
+        <!-- POST /checkpoints -->
+        <div class="api-card" id="card-cp-store">
+            <div class="api-card-header" onclick="toggleCard('card-cp-store')">
+                <span class="method-badge method-POST">POST</span>
+                <span class="endpoint-path">/api/checkpoints</span>
+                <span class="endpoint-desc">Tambah checkpoint baru</span>
+                <span class="auth-badge auth-protected">🔒 AUTH</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="api-card-body">
+                <div class="param-section">
+                    <h4>Body Parameters (JSON)</h4>
+                    <div class="param-row">
+                        <label>no_polisi *</label>
+                        <input type="text" id="cp-nopol" value="B 1234 XY">
+                        <span class="param-hint">required, max:20</span>
+                    </div>
+                    <div class="param-row">
+                        <label>vendor *</label>
+                        <input type="text" id="cp-vendor" value="PT Test Vendor">
+                        <span class="param-hint">required, max:100</span>
+                    </div>
+                    <div class="param-row">
+                        <label>driver *</label>
+                        <input type="text" id="cp-driver" value="Budi Driver">
+                        <span class="param-hint">required, max:100</span>
+                    </div>
+                    <div class="param-row">
+                        <label>tipe *</label>
+                        <select id="cp-tipe"><option>INTERNAL</option><option>EKSTERNAL</option></select>
+                        <span class="param-hint">required</span>
+                    </div>
+                    <div class="param-row">
+                        <label>jenis_kendaraan *</label>
+                        <input type="text" id="cp-kendaraan" value="TRUK ENGKEL">
+                        <span class="param-hint">required, max:50</span>
+                    </div>
+                    <div class="param-row">
+                        <label>jenis_barang *</label>
+                        <select id="cp-barang"><option>FROZEN</option><option>DRY</option></select>
+                        <span class="param-hint">required</span>
+                    </div>
+                    <div class="param-row">
+                        <label>aktivitas *</label>
+                        <select id="cp-akt"><option>INBOUND</option><option>OUTBOUND</option></select>
+                        <span class="param-hint">required</span>
+                    </div>
+                </div>
+                <button class="btn-send" onclick="sendRequest('/checkpoints', 'POST', {no_polisi:gv('cp-nopol'),vendor:gv('cp-vendor'),driver:gv('cp-driver'),tipe:gv('cp-tipe'),jenis_kendaraan:gv('cp-kendaraan'),jenis_barang:gv('cp-barang'),aktivitas:gv('cp-akt')}, 'resp-cp-store')">▶ Send</button>
+                <div class="response-area" id="resp-cp-store"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TRIGGERS GROUP -->
+    <div class="api-group">
+        <div class="api-group-title"><span class="icon">⚡</span> Trigger Actions</div>
+
+        <!-- Trigger Penerimaan -->
+        <div class="api-card" id="card-trig-penerimaan">
+            <div class="api-card-header" onclick="toggleCard('card-trig-penerimaan')">
+                <span class="method-badge method-POST">POST</span>
+                <span class="endpoint-path">/api/checkpoints/{id}/trigger-penerimaan</span>
+                <span class="endpoint-desc">Terima dokumen & assign gate → Status: ASSIGN</span>
+                <span class="auth-badge auth-protected">🔒 AUTH</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="api-card-body">
+                <div class="param-section">
+                    <h4>Parameters</h4>
+                    <div class="param-row">
+                        <label>id * (URL)</label>
+                        <input type="number" id="trig-pen-id" value="1">
+                        <span class="param-hint">required, checkpoint ID</span>
+                    </div>
+                    <div class="param-row">
+                        <label>gate * (Body)</label>
+                        <input type="number" id="trig-pen-gate" value="1" min="1" max="27">
+                        <span class="param-hint">required, 1–27</span>
+                    </div>
+                </div>
+                <button class="btn-send" onclick="sendRequest('/checkpoints/'+gv('trig-pen-id')+'/trigger-penerimaan', 'POST', {gate:parseInt(gv('trig-pen-gate'))}, 'resp-trig-pen')">▶ Send</button>
+                <div class="response-area" id="resp-trig-pen"></div>
+            </div>
+        </div>
+
+        <!-- Trigger Start -->
+        <div class="api-card" id="card-trig-start">
+            <div class="api-card-header" onclick="toggleCard('card-trig-start')">
+                <span class="method-badge method-POST">POST</span>
+                <span class="endpoint-path">/api/checkpoints/{id}/trigger-start</span>
+                <span class="endpoint-desc">Mulai loading → Status: ON LOADING</span>
+                <span class="auth-badge auth-protected">🔒 AUTH</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="api-card-body">
+                <div class="param-section">
+                    <h4>URL Parameters</h4>
+                    <div class="param-row">
+                        <label>id *</label>
+                        <input type="number" id="trig-start-id" value="1">
+                        <span class="param-hint">required, checkpoint ID</span>
+                    </div>
+                </div>
+                <button class="btn-send" onclick="sendRequest('/checkpoints/'+gv('trig-start-id')+'/trigger-start', 'POST', {}, 'resp-trig-start')">▶ Send</button>
+                <div class="response-area" id="resp-trig-start"></div>
+            </div>
+        </div>
+
+        <!-- Trigger End -->
+        <div class="api-card" id="card-trig-end">
+            <div class="api-card-header" onclick="toggleCard('card-trig-end')">
+                <span class="method-badge method-POST">POST</span>
+                <span class="endpoint-path">/api/checkpoints/{id}/trigger-end</span>
+                <span class="endpoint-desc">Selesai loading → Status: FINISH (+ durasi)</span>
+                <span class="auth-badge auth-protected">🔒 AUTH</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="api-card-body">
+                <div class="param-section">
+                    <h4>URL Parameters</h4>
+                    <div class="param-row">
+                        <label>id *</label>
+                        <input type="number" id="trig-end-id" value="1">
+                        <span class="param-hint">required, checkpoint ID</span>
+                    </div>
+                </div>
+                <button class="btn-send" onclick="sendRequest('/checkpoints/'+gv('trig-end-id')+'/trigger-end', 'POST', {}, 'resp-trig-end')">▶ Send</button>
+                <div class="response-area" id="resp-trig-end"></div>
+            </div>
+        </div>
+
+        <!-- Trigger Penyerahan -->
+        <div class="api-card" id="card-trig-serah">
+            <div class="api-card-header" onclick="toggleCard('card-trig-serah')">
+                <span class="method-badge method-POST">POST</span>
+                <span class="endpoint-path">/api/checkpoints/{id}/trigger-penyerahan</span>
+                <span class="endpoint-desc">Serah dokumen (tandai waktu penyerahan)</span>
+                <span class="auth-badge auth-protected">🔒 AUTH</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="api-card-body">
+                <div class="param-section">
+                    <h4>URL Parameters</h4>
+                    <div class="param-row">
+                        <label>id *</label>
+                        <input type="number" id="trig-serah-id" value="1">
+                        <span class="param-hint">required, checkpoint ID</span>
+                    </div>
+                </div>
+                <button class="btn-send" onclick="sendRequest('/checkpoints/'+gv('trig-serah-id')+'/trigger-penyerahan', 'POST', {}, 'resp-trig-serah')">▶ Send</button>
+                <div class="response-area" id="resp-trig-serah"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GATES & VEHICLES -->
+    <div class="api-group">
+        <div class="api-group-title"><span class="icon">🚪</span> Gates & Vehicles</div>
+
+        <!-- Gates available -->
+        <div class="api-card" id="card-gates">
+            <div class="api-card-header" onclick="toggleCard('card-gates')">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/api/gates/available</span>
+                <span class="endpoint-desc">Daftar 27 gate beserta status ketersediaannya</span>
+                <span class="auth-badge auth-protected">🔒 AUTH</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="api-card-body">
+                <p style="font-size:13px; color:var(--text-muted)">Tidak ada parameter. Mengembalikan 27 gate (F-1 s/d F-16 = FROZEN, D-1 s/d D-11 = DRY) dengan status available true/false.</p>
+                <button class="btn-send" onclick="sendRequest('/gates/available', 'GET', {}, 'resp-gates')">▶ Send</button>
+                <div class="response-area" id="resp-gates"></div>
+            </div>
+        </div>
+
+        <!-- Vehicle search -->
+        <div class="api-card" id="card-vehicles">
+            <div class="api-card-header" onclick="toggleCard('card-vehicles')">
+                <span class="method-badge method-GET">GET</span>
+                <span class="endpoint-path">/api/vehicles/search</span>
+                <span class="endpoint-desc">Cari kendaraan berdasarkan no polisi (autocomplete)</span>
+                <span class="auth-badge auth-protected">🔒 AUTH</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="api-card-body">
+                <div class="param-section">
+                    <h4>Query Parameters</h4>
+                    <div class="param-row">
+                        <label>term *</label>
+                        <input type="text" id="veh-term" value="B 1" placeholder="min 2 karakter">
+                        <span class="param-hint">required, min 2 chars</span>
+                    </div>
+                </div>
+                <button class="btn-send" onclick="sendRequest('/vehicles/search' + buildQuery({term:gv('veh-term')}), 'GET', {}, 'resp-vehicles')">▶ Send</button>
+                <div class="response-area" id="resp-vehicles"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center; padding:32px 0; color:var(--text-muted); font-size:12px;">
+        Checkpoint GIIC API v1.0 • Laravel 11 + Sanctum • Generated 2026-04-14
+    </div>
+</div>
+
+<script>
+    // State
+    let authToken = '';
+
+    // Helpers
+    function gv(id) { return document.getElementById(id)?.value || ''; }
+    function $(id) { return document.getElementById(id); }
+
+    // Auto detect base URL from current page location
+    function detectBaseUrl() {
+        const loc = window.location;
+        // Remove /public/api-docs.html or /api-docs.html from the path
+        let path = loc.pathname.replace(/\/public\/api-docs\.html.*/, '').replace(/\/api-docs\.html.*/, '');
+        const base = loc.origin + path + '/api';
+        $('baseUrl').value = base;
+    }
+
+    // Initialize
+    (function() {
+        detectBaseUrl();
+    })();
+
+    function getBaseUrl() {
+        let url = $('baseUrl').value.trim();
+        if (url.endsWith('/')) url = url.slice(0, -1);
+        return url;
+    }
+
+    function toggleCard(id) {
+        const card = $(id);
+        card.classList.toggle('open');
+    }
+
+    function buildQuery(params) {
+        const p = Object.entries(params).filter(([k,v]) => v !== '' && v !== null && v !== undefined);
+        if (p.length === 0) return '';
+        return '?' + p.map(([k,v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v)).join('&');
+    }
+
+    function showResponse(containerId, status, statusText, data, timeMs) {
+        const container = $(containerId);
+        const isOk = status >= 200 && status < 400;
+        const headerClass = isOk ? 'success' : 'error';
+        const formatted = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+
+        container.innerHTML = `
+            <div class="response-header ${headerClass}">
+                <span>HTTP ${status} ${statusText}</span>
+                <span>${timeMs}ms</span>
+            </div>
+            <div class="response-body">${escapeHtml(formatted)}</div>
+        `;
+        container.classList.add('visible');
+    }
+
+    function showLoading(containerId) {
+        const container = $(containerId);
+        container.innerHTML = `
+            <div class="response-header loading">
+                <span>⏳ Sending request...</span>
+            </div>
+            <div class="response-body">Loading...</div>
+        `;
+        container.classList.add('visible');
+    }
+
+    function showError(containerId, error) {
+        const container = $(containerId);
+        container.innerHTML = `
+            <div class="response-header error">
+                <span>❌ Network Error</span>
+            </div>
+            <div class="response-body">${escapeHtml(error.toString())}</div>
+        `;
+        container.classList.add('visible');
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // Core request function
+    async function sendRequest(endpoint, method, body, responseContainerId) {
+        const url = getBaseUrl() + endpoint;
+        showLoading(responseContainerId);
+
+        const headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        };
+
+        if (authToken) {
+            headers['Authorization'] = 'Bearer ' + authToken;
+        }
+
+        const options = { method, headers };
+        if (method === 'POST' && Object.keys(body).length > 0) {
+            options.body = JSON.stringify(body);
+        }
+
+        const startTime = performance.now();
+        try {
+            const response = await fetch(url, options);
+            const elapsed = Math.round(performance.now() - startTime);
+            let data;
+            const contentType = response.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+                data = await response.json();
+            } else {
+                data = await response.text();
+            }
+            showResponse(responseContainerId, response.status, response.statusText, data, elapsed);
+            return { status: response.status, data };
+        } catch (err) {
+            showError(responseContainerId, err);
+            return null;
+        }
+    }
+
+    // Login (special — saves token)
+    async function doLogin() {
+        const url = getBaseUrl() + '/login';
+        showLoading('resp-login');
+
+        const startTime = performance.now();
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: gv('login-email'),
+                    password: gv('login-password'),
+                    device_name: gv('login-device'),
+                })
+            });
+            const elapsed = Math.round(performance.now() - startTime);
+            const data = await response.json();
+            showResponse('resp-login', response.status, response.statusText, data, elapsed);
+
+            // Extract token
+            const token = data?.data?.token || data?.token;
+            if (token) {
+                authToken = token;
+                const tokenEl = $('tokenDisplay');
+                tokenEl.textContent = '🔑 Token: ' + token.substring(0, 40) + '...';
+                tokenEl.classList.add('visible');
+            }
+        } catch (err) {
+            showError('resp-login', err);
+        }
+    }
+
+    // Quick actions
+    async function quickConnTest() {
+        const btn = $('btnConnTest');
+        btn.textContent = '⏳ Testing...';
+        try {
+            const url = getBaseUrl() + '/login';
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: 'test@test.com', password: 'test', device_name: 'conn_test' })
+            });
+            if (response.status) {
+                btn.textContent = '✅ Connected!';
+                btn.classList.add('active');
+                $('connStatus').innerHTML = '<span class="status-dot online"></span> Server Online';
+            }
+        } catch(e) {
+            btn.textContent = '❌ Failed';
+            $('connStatus').innerHTML = '<span class="status-dot offline"></span> Server Offline: ' + e.message;
+        }
+        setTimeout(() => { btn.textContent = '🔌 Test Koneksi'; }, 3000);
+    }
+
+    async function quickLogin() {
+        const btn = $('btnQuickLogin');
+        btn.textContent = '⏳ Logging in...';
+        try {
+            const url = getBaseUrl() + '/login';
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: 'admin@checkpoint.com', password: 'password', device_name: 'api-tester' })
+            });
+            const data = await response.json();
+            const token = data?.data?.token || data?.token;
+            if (token) {
+                authToken = token;
+                btn.textContent = '✅ Logged in!';
+                btn.classList.add('active');
+                const tokenEl = $('tokenDisplay');
+                tokenEl.textContent = '🔑 Token: ' + token.substring(0, 40) + '...';
+                tokenEl.classList.add('visible');
+            } else {
+                btn.textContent = '❌ ' + (data?.message || 'Failed');
+            }
+        } catch(e) {
+            btn.textContent = '❌ Error';
+        }
+        setTimeout(() => { btn.textContent = '🔑 Login (admin)'; }, 3000);
+    }
+
+    function quickTest(endpoint, method) {
+        const id = 'resp-quick-' + endpoint.replace(/\//g, '-');
+        // Create a temporary response area if doesn't exist
+        let container = $(id);
+        if (!container) {
+            const qt = document.querySelector('.quick-test');
+            container = document.createElement('div');
+            container.className = 'response-area';
+            container.id = id;
+            container.style.cssText = 'width:100%;margin-top:12px;';
+            qt.appendChild(container);
+        }
+        sendRequest(endpoint, method, {}, id);
+    }
+</script>
+</body>
+</html>

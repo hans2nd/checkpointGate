@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/checkpoint_provider.dart';
 
-class ScannerScreen extends StatefulWidget {
+class ScannerScreen extends ConsumerStatefulWidget {
   const ScannerScreen({super.key});
 
   @override
-  State<ScannerScreen> createState() => _ScannerScreenState();
+  ConsumerState<ScannerScreen> createState() => _ScannerScreenState();
 }
 
-class _ScannerScreenState extends State<ScannerScreen> {
+class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   final MobileScannerController _controller = MobileScannerController(
     formats: const [BarcodeFormat.all],
   );
@@ -30,13 +32,17 @@ class _ScannerScreenState extends State<ScannerScreen> {
     }
   }
 
-  void _showProcessDialog(String ticketId) {
+  void _showProcessDialog(String scannedData) {
+    // Mengekstrak angka dari hasil scan (misal 'F-1', 'Gate 1', atau '1' menjadi '1')
+    final gateMatch = RegExp(r'\d+').firstMatch(scannedData);
+    final gateNumber = gateMatch?.group(0);
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        title: const Text('Tiket Terdeteksi'),
-        content: Text('Nomor Tiket/ID: $ticketId\n\nEksekusi aksi:'),
+        title: const Text('Gate Terdeteksi'),
+        content: Text('Gate Scan: $scannedData\n\nEksekusi Start Loading untuk gate ini?'),
         actions: [
           TextButton(
             onPressed: () {
@@ -48,11 +54,63 @@ class _ScannerScreenState extends State<ScannerScreen> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            onPressed: () {
-              // TODO: Panggil API Trigger Start Loading
-              Navigator.pop(ctx);
-              context.pop(); // Kembali ke home
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trigger Start Berhasil Ditambahkan ke Antrean')));
+            onPressed: () async {
+              Navigator.pop(ctx); // Tutup dialog konfirmasi
+              
+              if (gateNumber == null) {
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Format QR Code Gate tidak valid.'), backgroundColor: Colors.red),
+                );
+                context.pop();
+                return;
+              }
+
+              // Capture references before await to avoid async gap lint issues
+              final scaffoldMessenger = ScaffoldMessenger.of(context);
+              final router = GoRouter.of(context);
+              final navigator = Navigator.of(context);
+
+              // Tampilkan dialog loading
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (c) => const Center(child: CircularProgressIndicator()),
+              );
+
+              try {
+                final repo = ref.read(checkpointRepositoryProvider);
+                final checkpoints = await repo.fetchActiveCheckpoints();
+
+                // Cari checkpoint di gate ini yang statusnya START
+                final cp = checkpoints.cast<Map<String, dynamic>>().firstWhere(
+                  (element) => element['gate'].toString() == gateNumber && element['status'] == 'START',
+                  orElse: () => <String, dynamic>{},
+                );
+
+                if (cp.isNotEmpty && cp['id'] != null) {
+                  await repo.triggerStart(cp['id']);
+                  ref.invalidate(activeCheckpointsProvider);
+                  
+                  navigator.pop(); // Tutup loading
+                  scaffoldMessenger.showSnackBar(
+                    SnackBar(content: Text('Start Loading di Gate $gateNumber berhasil!'), backgroundColor: Colors.green),
+                  );
+                  router.pop(); // Kembali ke home
+                } else {
+                  navigator.pop(); // Tutup loading
+                  scaffoldMessenger.showSnackBar(
+                    SnackBar(content: Text('Tidak ada kendaraan dengan status START di Gate $gateNumber saat ini.'), backgroundColor: Colors.orange),
+                  );
+                  router.pop(); // Kembali ke home
+                }
+              } catch (e) {
+                navigator.pop(); // Tutup loading
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(content: Text('Terjadi kesalahan: ${e.toString().replaceAll('Exception: ', '')}'), backgroundColor: Colors.red),
+                );
+                router.pop(); // Kembali ke home
+              }
             },
             child: const Text('START LOADING'),
           ),
@@ -65,7 +123,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scan Tiket Gate'),
+        title: const Text('Scan Gate'),
         actions: [
           IconButton(
             icon: ValueListenableBuilder(

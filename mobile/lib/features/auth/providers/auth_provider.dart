@@ -22,10 +22,17 @@ class AuthController extends Notifier<AuthState> {
 
   Future<void> checkToken() async {
     state = AuthState.loading;
-    final isValid = await ref.read(authRepositoryProvider).checkAuth();
-    if (isValid) {
-      state = AuthState.authenticated;
-    } else {
+    try {
+      final isValid = await ref.read(authRepositoryProvider).checkAuth();
+      if (isValid) {
+        state = AuthState.authenticated;
+      } else {
+        state = AuthState.unauthenticated;
+      }
+    } catch (e) {
+      // Jika terjadi error (timeout, koneksi gagal, dll),
+      // langsung arahkan ke login, jangan stuck di splash
+      _errorMessage = e.toString();
       state = AuthState.unauthenticated;
     }
   }

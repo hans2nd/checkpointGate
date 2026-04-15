@@ -11,7 +11,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('GIIC Dashboard'),
+        title: const Text('Checkpoint Gate'),
         actions: [
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
@@ -33,13 +33,13 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Add new pipeline
-        },
-        backgroundColor: const Color(0xFFF97316),
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     // TODO: Add new pipeline
+      //   },
+      //   backgroundColor: const Color(0xFFF97316),
+      //   child: const Icon(Icons.add, color: Colors.white),
+      // ),
     );
   }
 

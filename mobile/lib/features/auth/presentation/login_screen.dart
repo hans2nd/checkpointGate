@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/config/app_config.dart';
 import '../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -27,12 +28,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
 
     if (!result && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(ref.read(authControllerProvider.notifier).errorMessage),
-          backgroundColor: Colors.red,
-        )
-      );
+      // Error message will be shown via the error state widget below
     } else if (result && mounted) {
       context.go('/home');
     }
@@ -42,6 +38,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
     final isLoading = authState == AuthState.loading;
+    final hasError = authState == AuthState.error;
+    final errorMsg = ref.read(authControllerProvider.notifier).errorMessage;
 
     return Scaffold(
       body: SafeArea(
@@ -74,6 +72,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 48),
                 
+                // Error message banner
+                if (hasError && errorMsg.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            errorMsg,
+                            style: TextStyle(color: Colors.red.shade700, fontSize: 13),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                 TextFormField(
                   controller: _emailCtrl,
                   decoration: const InputDecoration(
@@ -99,6 +121,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: isLoading 
                       ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                       : const Text('MASUK', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+                const SizedBox(height: 16),
+                // Show active API URL for debugging
+                Text(
+                  'Server: ${AppConfig.baseUrl}',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 10, color: Colors.grey.shade400),
                 ),
               ],
             ),

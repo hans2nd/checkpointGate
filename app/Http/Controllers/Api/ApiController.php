@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
+Carbon::setLocale('id');
+
 class ApiController extends Controller
 {
     // ===================================================================
@@ -317,7 +319,7 @@ class ApiController extends Controller
         $cp = Checkpoint::create(array_merge($request->only([
             'no_polisi', 'vendor', 'driver', 'tipe',
             'jenis_kendaraan', 'jenis_barang', 'aktivitas',
-        ]), ['tanggal' => Carbon::today(), 'status' => 'WAITING']));
+        ]), ['tanggal' => Carbon::today(), 'status' => 'START']));
 
         return response()->json([
             'success' => true,
@@ -349,7 +351,7 @@ class ApiController extends Controller
         $cp->update([
             'waktu_penerimaan_dokumen' => Carbon::now(),
             'gate' => $request->gate,
-            'status' => 'ASSIGN',
+            'status' => 'START',
         ]);
 
         return response()->json([
@@ -491,7 +493,9 @@ class ApiController extends Controller
 
         return [
             'id' => $cp->id,
-            'tanggal' => $cp->tanggal?->format('Y-m-d'),
+            'tanggal' => $cp->tanggal
+    ? Carbon::parse($cp->tanggal)->translatedFormat('d M Y')
+    : null,
             'no_polisi' => $cp->no_polisi,
             'vendor' => $cp->vendor,
             'driver' => $cp->driver,

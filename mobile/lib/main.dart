@@ -49,14 +49,20 @@ final routerProvider = Provider<GoRouter>((ref) {
     // 2. Gunakan redirect untuk menangani perpindahan halaman berdasarkan auth
     redirect: (context, state) {
       final authState = ref.watch(authControllerProvider);
-      final isLoggingIn = state.matchedLocation == '/login';
-      final isSplash = state.matchedLocation == '/splash';
+      final currentLocation = state.matchedLocation;
+      final isLoggingIn = currentLocation == '/login';
+      final isSplash = currentLocation == '/splash';
+      final isSettings = currentLocation == '/settings';
+
+      // Halaman settings boleh diakses kapan saja (tanpa auth)
+      if (isSettings) return null;
 
       if (authState == AuthState.authenticated) {
         if (isLoggingIn || isSplash) return '/home';
-      } else if (authState == AuthState.unauthenticated) {
+      } else if (authState == AuthState.unauthenticated || authState == AuthState.error) {
         if (!isLoggingIn) return '/login';
       }
+      // AuthState.loading / AuthState.initial -> tetap di halaman saat ini (splash)
       return null;
     },
   );
@@ -75,7 +81,9 @@ class SplashScreen extends StatelessWidget {
           children: [
             Icon(Icons.local_shipping, size: 64, color: Color(0xFFF97316)),
             SizedBox(height: 16),
-            CircularProgressIndicator()
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Memeriksa koneksi...', style: TextStyle(color: Colors.grey)),
           ],
         ),
       ),

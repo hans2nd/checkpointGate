@@ -31,11 +31,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
-    Route::get('/api/chart-data', [DashboardController::class, 'chartData'])->name('chart.data');
+    Route::get('/web-data/chart-data', [DashboardController::class, 'chartData'])->name('chart.data');
     Route::get('/live-monitoring', [LiveMonitoringController::class, 'index'])->name('livemonitoring');
-    Route::get('/api/live-monitoring', [LiveMonitoringController::class, 'data'])->name('livemonitoring.data');
+    Route::get('/web-data/live-monitoring', [LiveMonitoringController::class, 'data'])->name('livemonitoring.data');
     Route::get('/live-monitoring-2', [\App\Http\Controllers\LiveMonitoring2Controller::class, 'index'])->name('livemonitoring2')->middleware('permission:livemonitoring2.view');
-    Route::get('/api/live-monitoring-2', [\App\Http\Controllers\LiveMonitoring2Controller::class, 'data'])->name('livemonitoring2.data')->middleware('permission:livemonitoring2.view');
+    Route::get('/web-data/live-monitoring-2', [\App\Http\Controllers\LiveMonitoring2Controller::class, 'data'])->name('livemonitoring2.data')->middleware('permission:livemonitoring2.view');
     // Bulk delete routes (protected by delete permissions)
     Route::post('checkpoints/bulk-delete', [CheckpointController::class, 'bulkDelete'])
          ->name('checkpoints.bulk-delete')->middleware('permission:checkpoint.delete');
@@ -73,9 +73,9 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('gates', GateController::class)->except(['show', 'destroy']);
     Route::resource('vehicles', VehicleController::class)->except(['show', 'destroy']);
-    Route::get('/api/vehicles/search', [VehicleController::class, 'search'])->name('vehicles.search');
-    Route::get('/api/vehicles/lookup', [VehicleController::class, 'getByNoPolisi'])->name('vehicles.lookup');
-    Route::get('/api/gates/available', [CheckpointController::class, 'getAvailableGates'])->name('gates.available');
+    Route::get('/web-data/vehicles/search', [VehicleController::class, 'search'])->name('vehicles.search');
+    Route::get('/web-data/vehicles/lookup', [VehicleController::class, 'getByNoPolisi'])->name('vehicles.lookup');
+    Route::get('/web-data/gates/available', [CheckpointController::class, 'getAvailableGates'])->name('gates.available');
 
     // User Management (Admin only)
     Route::middleware('role:admin')->group(function () {
