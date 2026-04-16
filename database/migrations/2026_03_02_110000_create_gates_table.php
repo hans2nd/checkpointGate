@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('gates', function (Blueprint $table) {
             $table->id();
             $table->integer('nomor_gate');
-            $table->enum('jenis_barang', ['FROZEN', 'DRY']);
+            $table->enum('jenis_barang', ['FROZEN', 'DRY', 'CHILLED']);
             $table->string('jenis_kendaraan', 50);
             $table->enum('aktivitas', ['INBOUND', 'OUTBOUND']);
             $table->timestamps();

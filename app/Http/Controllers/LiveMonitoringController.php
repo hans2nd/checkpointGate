@@ -8,6 +8,7 @@ use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Nette\NotImplementedException;
 
 class LiveMonitoringController extends Controller
 {
@@ -42,8 +43,20 @@ class LiveMonitoringController extends Controller
         // Activity summary: Loading = INBOUND, Unloading = OUTBOUND
         $activitySummary = [];
         foreach (['INBOUND', 'OUTBOUND'] as $aktivitas) {
-            foreach (['FROZEN', 'DRY'] as $jenis) {
-                $label = ($aktivitas === 'INBOUND' ? 'LOADING' : 'UNLOADING') . ' ' . $jenis;
+            foreach (['FROZEN', 'DRY', 'CHILLED'] as $jenis) {
+                $label = ($aktivitas === 'INBOUND' ? 'INBOUND' : 'OUTBOUND') . ' ' . $jenis;
+                $parking = Checkpoint::whereDate('tanggal', $selectedDate)
+                    ->where('aktivitas', $aktivitas)
+                    ->where('jenis_barang', $jenis)
+                    ->where('waktu_penerimaan_dokumen', null)
+                    ->count();
+                $receiving = Checkpoint::whereDate('tanggal', $selectedDate)
+                    ->where('aktivitas', $aktivitas)
+                    ->where('jenis_barang', $jenis)
+                    ->where('status', 'START')
+                    ->whereNotNull('waktu_penerimaan_dokumen')
+                    ->whereNotNull('gate')
+                    ->count();
                 $onProcess = Checkpoint::whereDate('tanggal', $selectedDate)
                     ->where('aktivitas', $aktivitas)
                     ->where('jenis_barang', $jenis)
@@ -54,8 +67,11 @@ class LiveMonitoringController extends Controller
                     ->where('jenis_barang', $jenis)
                     ->where('status', 'FINISH')
                     ->count();
+
                 $activitySummary[] = [
                     'label' => $label,
+                    'parking' => $parking,
+                    'receiving' => $receiving,
                     'on_process' => $onProcess,
                     'finish' => $finish,
                 ];
@@ -139,8 +155,20 @@ class LiveMonitoringController extends Controller
 
         $activitySummary = [];
         foreach (['INBOUND', 'OUTBOUND'] as $aktivitas) {
-            foreach (['FROZEN', 'DRY'] as $jenis) {
-                $label = ($aktivitas === 'INBOUND' ? 'LOADING' : 'UNLOADING') . ' ' . $jenis;
+            foreach (['FROZEN', 'DRY','CHILLED'] as $jenis) {
+                $label = ($aktivitas === 'INBOUND' ? 'INBOUND' : 'OUTBOUND') . ' ' . $jenis;
+                $parking = Checkpoint::whereDate('tanggal', $selectedDate)
+                    ->where('aktivitas', $aktivitas)
+                    ->where('jenis_barang', $jenis)
+                    ->where('waktu_penerimaan_dokumen', null)
+                    ->count();
+                $receiving = Checkpoint::whereDate('tanggal', $selectedDate)
+                    ->where('aktivitas', $aktivitas)
+                    ->where('jenis_barang', $jenis)
+                    ->where('status', 'START')
+                    ->whereNotNull('waktu_penerimaan_dokumen')
+                    ->whereNotNull('gate')
+                    ->count();
                 $onProcess = Checkpoint::whereDate('tanggal', $selectedDate)
                     ->where('aktivitas', $aktivitas)
                     ->where('jenis_barang', $jenis)
@@ -151,7 +179,13 @@ class LiveMonitoringController extends Controller
                     ->where('jenis_barang', $jenis)
                     ->where('status', 'FINISH')
                     ->count();
-                $activitySummary[] = compact('label', 'onProcess', 'finish');
+                $activitySummary[] = [
+                    'label' => $label,
+                    'parking' => $parking,
+                    'receiving' => $receiving,
+                    'on_process' => $onProcess,
+                    'finish' => $finish,
+                ];
             }
         }
 

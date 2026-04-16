@@ -81,7 +81,7 @@
                         @if(Auth::user()->hasPermission('vehicle.manage'))
                         <td class="px-4 py-3"><input type="checkbox" data-id="{{ $vehicle->id }}" class="row-checkbox rounded border-gray-300 text-orange-500 focus:ring-orange-500" onchange="updateSelectedCount()"></td>
                         @endif
-                        <td class="px-4 py-3 text-gray-400 text-xs">{{ $vehicles->firstItem() + $index }}</td>
+                        <td class="px-4 py-3 text-gray-400 text-xs">{{ format_row_number($vehicles, $index) }}</td>
                         <td class="px-4 py-3 font-semibold text-gray-900">{{ $vehicle->no_polisi }}</td>
                         <td class="px-4 py-3 text-gray-700">{{ $vehicle->driver }}</td>
                         <td class="px-4 py-3 text-gray-700">{{ $vehicle->vendor }}</td>

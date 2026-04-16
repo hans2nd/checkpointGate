@@ -68,7 +68,7 @@ class CheckpointController extends Controller
             'jenis_kendaraan' => 'nullable|string|max:50',
             'jenis_barang' => 'required|in:FROZEN,DRY,CHILLED',
             'aktivitas' => 'required|in:INBOUND,OUTBOUND',
-            'gate' => 'nullable|integer',
+            'gate' => 'nullable|string|max:30',
         ]);
 
         $validated['tanggal'] = Carbon::today();
@@ -114,7 +114,7 @@ class CheckpointController extends Controller
             'waktu_penyerahan_dokumen' => 'nullable|date',
             'jenis_barang' => 'required|in:FROZEN,DRY,CHILLED',
             'aktivitas' => 'required|in:INBOUND,OUTBOUND',
-            'gate' => 'nullable|integer',
+            'gate' => 'nullable|string|max:30',
             'status' => 'required|in:START,FINISH',
             'waktu_start' => 'nullable|date',
             'waktu_end' => 'nullable|date',

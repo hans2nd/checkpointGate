@@ -33,6 +33,6 @@ class Checkpoint extends Model
         'waktu_penyerahan_dokumen' => 'datetime',
         'waktu_start' => 'datetime',
         'waktu_end' => 'datetime',
-        'gate' => 'integer',
+        'gate' => 'string',
     ];
 }

@@ -18,7 +18,6 @@
 @endsection
 
 @section('content')
-    <!-- Floating exit fullscreen button -->
     <button onclick="toggleFullscreen()"
         class="fs-exit-btn hidden fixed top-3 right-3 z-50 items-center gap-1.5 px-3 py-1.5 bg-gray-900/80 hover:bg-gray-900 text-white text-xs font-medium rounded-full shadow-lg backdrop-blur transition-all">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,72 +60,6 @@
             </div>
         </div>
 
-        {{-- GATE GRID: 4 columns, Gate 1-27 sequential --}}
-        <div>
-            <div class="grid grid-cols-4 gap-3">
-                @for ($i = 1; $i <= 27; $i++)
-                    @php
-                        $g = $gates[$i];
-                        $cp = $g['checkpoint'];
-                        $isFrozen = $i <= 16;
-                        $borderColor = $isFrozen ? 'border-blue-200' : 'border-amber-200';
-                        $headerBg = $isFrozen ? 'bg-blue-500' : 'bg-amber-500';
-                        $typeLabel = $isFrozen ? 'FROZEN' : 'DRY';
-                        $displayGate = $isFrozen ? 'F-' . $i : 'D-' . ($i - 16);
-                    @endphp
-                    <div id="gate-{{ $i }}"
-                        class="rounded-xl border-2 overflow-hidden transition-all duration-300 {{ $borderColor }}">
-                        <div class="{{ $headerBg }} text-white text-center py-1.5 px-2">
-                            <p class="text-xs font-bold">{{ $displayGate }}</p>
-                            <p class="text-[9px] font-medium opacity-80">{{ $typeLabel }}</p>
-                        </div>
-                        <div class="gate-body p-3 min-h-[80px] flex flex-col items-center justify-center transition-all duration-500"
-                            data-waktu-start="{{ $cp && $cp->waktu_start ? $cp->waktu_start->toIso8601String() : '' }}"
-                            data-waktu-end="{{ $cp && $cp->waktu_end ? $cp->waktu_end->toIso8601String() : '' }}"
-                            data-waktu-penerimaan="{{ $cp && $cp->waktu_penerimaan_dokumen ? $cp->waktu_penerimaan_dokumen->toIso8601String() : '' }}"
-                            data-waktu-penyerahan="{{ $cp && $cp->waktu_penyerahan_dokumen ? $cp->waktu_penyerahan_dokumen->toIso8601String() : '' }}"
-                            data-status="{{ $cp ? $cp->status : '' }}">
-                            @if ($cp)
-                                @if(strtoupper($cp->aktivitas) === 'INBOUND')
-                                    <div class="mt-0.5 w-full text-center"><span class="px-2 py-0.5 rounded text-[9px] font-bold bg-orange-100 text-orange-700 shadow-sm border border-orange-200">INBOUND</span></div>
-                                @elseif(strtoupper($cp->aktivitas) === 'OUTBOUND')
-                                    <div class="mt-0.5 w-full text-center"><span class="px-2 py-0.5 rounded text-[9px] font-bold bg-indigo-100 text-indigo-700 shadow-sm border border-indigo-200">OUTBOUND</span></div>
-                                @elseif($cp->aktivitas)
-                                    <div class="mt-0.5 w-full text-center"><span class="px-2 py-0.5 rounded text-[9px] font-bold bg-gray-100 text-gray-700 shadow-sm border border-gray-200">{{ $cp->aktivitas }}</span></div>
-                                @endif
-                                <p class="text-xs font-bold text-gray-800 truncate w-full text-center mt-1">{{ $cp->no_polisi }}
-                                </p>
-                                <p class="text-[10px] text-gray-400 truncate w-full text-center">{{ $cp->vendor }}</p>
-                                @if ($cp->waktu_penyerahan_dokumen)
-                                    <span
-                                        class="gate-status mt-1 text-[9px] px-2 py-0.5 rounded-full font-bold bg-purple-100 text-purple-700">✅
-                                        COMPLETED</span>
-                                @elseif($cp->status === 'FINISH')
-                                    <span
-                                        class="mt-1 text-[10px] px-2 py-0.5 rounded-full font-bold font-mono bg-emerald-100 text-emerald-700">{{ $cp->durasi ?? 'DONE' }}</span>
-                                    <span
-                                        class="gate-status mt-0.5 text-[9px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">🏁
-                                        FINISH LOADING</span>
-                                @elseif($cp->status === 'ON LOADING' && $cp->waktu_start)
-                                    <span class="gate-timer mt-1 text-[10px] px-2 py-0.5 rounded font-bold font-mono"
-                                        data-start="{{ $cp->waktu_start->toIso8601String() }}">00:00:00</span>
-                                    <span
-                                        class="gate-status mt-0.5 text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">⏳
-                                        ON LOADING</span>
-                                @elseif($cp->waktu_penerimaan_dokumen)
-                                    <span
-                                        class="gate-status mt-1 text-[9px] px-2 py-0.5 rounded-full font-bold bg-yellow-100 text-yellow-700">📋
-                                        ASSIGN</span>
-                                @endif
-                            @else
-                                <span class="text-[10px] text-gray-300 italic">kosong</span>
-                            @endif
-                        </div>
-                    </div>
-                @endfor
-            </div>
-        </div>
-
         {{-- Bottom Section: Activity Summary + Average Times --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
@@ -142,7 +75,12 @@
                             <tr class="bg-gray-50">
                                 <th class="px-4 py-2.5 text-left font-semibold text-gray-600 text-xs uppercase">Aktivitas
                                 </th>
-                                <th class="px-4 py-2.5 text-center font-semibold text-gray-600 text-xs uppercase">On Process
+                                <th class="px-4 py-2.5 text-center font-semibold text-gray-600 text-xs uppercase">Parking
+                                </th>
+                                <th class="px-4 py-2.5 text-center font-semibold text-gray-600 text-xs uppercase">Doc In
+                                </th>
+                                <th class="px-4 py-2.5 text-center font-semibold text-gray-600 text-xs uppercase">
+                                    Loading/Unloading
                                 </th>
                                 <th class="px-4 py-2.5 text-center font-semibold text-gray-600 text-xs uppercase">Finish
                                 </th>
@@ -152,6 +90,18 @@
                             @foreach ($activitySummary as $row)
                                 <tr class="hover:bg-gray-50/50">
                                     <td class="px-4 py-2.5 font-medium text-gray-700 text-xs">{{ $row['label'] }}</td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span
+                                            class="inline-flex min-w-[28px] items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold {{ $row['on_process'] > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-400' }}">
+                                            {{ $row['parking'] }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-center">
+                                        <span
+                                            class="inline-flex min-w-[28px] items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold {{ $row['on_process'] > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-400' }}">
+                                            {{ $row['receiving'] }}
+                                        </span>
+                                    </td>
                                     <td class="px-4 py-2.5 text-center">
                                         <span
                                             class="inline-flex min-w-[28px] items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold {{ $row['on_process'] > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-400' }}">
@@ -232,6 +182,124 @@
             </div>
         </div>
 
+        {{-- GATE GRID: 5 columns, Gate 1-27 sequential --}}
+        <div>
+            <div class="grid grid-cols-5 gap-2">
+                @for ($i = 1; $i <= 27; $i++)
+                    @php
+                        $g = $gates[$i];
+                        $cp = $g['checkpoint'];
+
+                        // LOGIKA PHP: Kosongkan UI secara awal jika penyerahan dokumen >= 2 menit
+                        if ($cp && $cp->waktu_penyerahan_dokumen) {
+                            $diffMinutes = now()->diffInMinutes($cp->waktu_penyerahan_dokumen);
+                            if ($diffMinutes >= 2) {
+                                $cp = null;
+                            }
+                        }
+
+                        $isFrozen = $i <= 16;
+                        $borderColor = $isFrozen ? 'border-blue-200' : 'border-amber-200';
+                        $headerBg = $isFrozen ? 'bg-blue-500' : 'bg-amber-500';
+                        $typeLabel = $isFrozen ? 'FROZEN' : 'DRY';
+                        $displayGate = $isFrozen ? 'F-' . $i : 'D-' . ($i - 16);
+                    @endphp
+                    <div id="gate-{{ $i }}"
+                        class="rounded-xl border-2 overflow-hidden {{ $borderColor }} h-[200px] flex flex-col">
+                        <div class="{{ $headerBg }} text-white text-center py-1.5 px-2">
+                            <p class="text-[28px] font-bold">{{ $displayGate }}</p>
+                            <p class="text-[14px] font-medium opacity-100">{{ $typeLabel }}</p>
+                        </div>
+                        <div class="gate-body flex-1 flex justify-between items-stretch p-2"
+                            data-waktu-start="{{ $cp && $cp->waktu_start ? $cp->waktu_start->toIso8601String() : '' }}"
+                            data-waktu-end="{{ $cp && $cp->waktu_end ? $cp->waktu_end->toIso8601String() : '' }}"
+                            data-waktu-penerimaan="{{ $cp && $cp->waktu_penerimaan_dokumen ? $cp->waktu_penerimaan_dokumen->toIso8601String() : '' }}"
+                            data-waktu-penyerahan="{{ $cp && $cp->waktu_penyerahan_dokumen ? $cp->waktu_penyerahan_dokumen->toIso8601String() : '' }}"
+                            data-status="{{ $cp ? $cp->status : '' }}">
+                            <div class="flex-1 flex flex-col justify-center items-center text-center">
+                                @if ($cp)
+                                    {{-- AKTIVITAS --}}
+                                    <span
+                                        class="text-[12px] font-bold px-2 py-0.5 rounded
+                                        {{ $cp->aktivitas === 'INBOUND' ? 'bg-orange-100 text-orange-700' : '' }}
+                                        {{ $cp->aktivitas === 'OUTBOUND' ? 'bg-indigo-100 text-indigo-700' : '' }}">
+                                        {{ $cp->aktivitas }}
+                                    </span>
+
+                                    {{-- NOPOL --}}
+                                    <p class="text-[16px] font-bold text-gray-800 mt-1">
+                                        {{ $cp->no_polisi }}
+                                    </p>
+
+                                    {{-- VENDOR --}}
+                                    <p class="text-[12px] text-gray-500">
+                                        {{ $cp->vendor }}
+                                    </p>
+
+                                    {{-- STATUS --}}
+                                    @if ($cp->waktu_penyerahan_dokumen)
+                                        <span
+                                            class="gate-status mt-0.5 text-[9px] px-2 py-0.5 rounded-full font-bold bg-purple-100 text-purple-700">
+                                            ✅ COMPLETED
+                                        </span>
+                                    @elseif($cp->waktu_end || $cp->status === 'FINISH')
+                                        <span
+                                            class="static-timer mt-1 text-[10px] px-2 py-0.5 rounded font-mono bg-emerald-100 text-emerald-700"
+                                            data-start="{{ $cp->waktu_start ? $cp->waktu_start->toIso8601String() : '' }}"
+                                            data-end="{{ $cp->waktu_end ? $cp->waktu_end->toIso8601String() : '' }}">DONE</span>
+                                        <span
+                                            class="gate-status mt-0.5 text-[9px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">
+                                            🏁 FINISH
+                                        </span>
+                                    @elseif($cp->waktu_start || $cp->status === 'ON LOADING')
+                                        <span class="gate-timer mt-1 text-[10px] px-2 py-0.5 rounded font-mono"
+                                            data-start="{{ $cp->waktu_start ? $cp->waktu_start->toIso8601String() : '' }}">00:00:00</span>
+                                        <span
+                                            class="gate-status mt-0.5 text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">
+                                            ⏳ LOADING
+                                        </span>
+                                    @elseif ($cp->waktu_penerimaan_dokumen)
+                                        <span
+                                            class="gate-status mt-1 text-[9px] px-2 py-0.5 rounded-full font-bold bg-yellow-100 text-yellow-700">
+                                            📋 ASSIGN
+                                        </span>
+                                    @endif
+                                @else
+                                    <span class="text-gray-300 italic text-sm">kosong</span>
+                                @endif
+                            </div>
+
+                            @if ($cp)
+                                <div class="w-[80px] flex flex-col justify-center text-[10px] space-y-1 border-l pl-2">
+
+                                    <div class="{{ $cp->waktu_penerimaan_dokumen ? 'text-gray-600' : 'text-gray-300' }}">
+                                        📋
+                                        {{ $cp->waktu_penerimaan_dokumen ? $cp->waktu_penerimaan_dokumen->format('H:i') : '--:--' }}
+                                    </div>
+
+                                    <div class="{{ $cp->waktu_start ? 'text-gray-600' : 'text-gray-300' }}">
+                                        ⏳ {{ $cp->waktu_start ? $cp->waktu_start->format('H:i') : '--:--' }}
+                                    </div>
+
+                                    <div class="{{ $cp->waktu_end ? 'text-gray-600' : 'text-gray-300' }}">
+                                        🏁 {{ $cp->waktu_end ? $cp->waktu_end->format('H:i') : '--:--' }}
+                                    </div>
+
+                                    <div class="{{ $cp->waktu_penyerahan_dokumen ? 'text-gray-600' : 'text-gray-300' }}">
+                                        ✅
+                                        {{ $cp->waktu_penyerahan_dokumen ? $cp->waktu_penyerahan_dokumen->format('H:i') : '--:--' }}
+                                    </div>
+
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endfor
+            </div>
+        </div>
+
+
+
         {{-- Legend --}}
         <div class="bg-white rounded-xl border border-gray-100 p-3 shadow-sm">
             <p class="text-xs font-semibold text-gray-600 mb-2">Keterangan Status Gate:</p>
@@ -274,7 +342,15 @@
     </div>
 
     <script>
-        // ===== DURATION HELPERS =====
+        // ===== DURATION & TIME HELPERS =====
+        function formatTime(isoString) {
+            if (!isoString) return '--:--';
+            const date = new Date(isoString);
+            const h = String(date.getHours()).padStart(2, '0');
+            const m = String(date.getMinutes()).padStart(2, '0');
+            return h + ':' + m;
+        }
+
         function getDurationMinutes(startISO, endISO) {
             const start = new Date(startISO);
             const end = endISO ? new Date(endISO) : new Date();
@@ -337,6 +413,20 @@
                 const color = getDurationColor(minutes);
                 body.style.backgroundColor = color.bodyBg;
             });
+
+            document.querySelectorAll('.static-timer').forEach(timer => {
+                const start = timer.dataset.start;
+                const end = timer.dataset.end;
+                if (start && end) {
+                    timer.textContent = formatDuration(start, end);
+                }
+            });
+            document.querySelectorAll('.gate-timer').forEach(timer => {
+                const start = timer.dataset.start;
+                if (start) {
+                    timer.textContent = formatDuration(start, null);
+                }
+            });
         }
 
         // ===== UPDATE RUNNING TIMERS =====
@@ -357,31 +447,55 @@
 
         // ===== DETERMINE GATE STATUS LABEL =====
         function getGateStatusHtml(gate) {
+            // ✅ COMPLETED (paling tinggi)
             if (gate.waktu_penyerahan) {
                 return '<span class="gate-status mt-0.5 text-[9px] px-2 py-0.5 rounded-full font-bold bg-purple-100 text-purple-700">✅ COMPLETED</span>';
-            } else if (gate.status === 'FINISH') {
+            }
+
+            // ✅ FINISH
+            if (gate.waktu_end) {
+                let finalDur = gate.durasi;
+                if (!finalDur && gate.waktu_start) {
+                    finalDur = formatDuration(gate.waktu_start, gate.waktu_end);
+                }
                 let html =
-                    `<span class="mt-1 text-[10px] px-2 py-0.5 rounded-full font-bold font-mono bg-emerald-100 text-emerald-700">${gate.durasi || 'DONE'}</span>`;
+                    `<span class="static-timer mt-1 text-[10px] px-2 py-0.5 rounded font-mono bg-emerald-100 text-emerald-700" data-start="${gate.waktu_start ? gate.waktu_start : ''}" data-end="${gate.waktu_end}">${finalDur || 'DONE'}</span>`;
                 html +=
-                    '<span class="gate-status mt-0.5 text-[9px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">🏁 FINISH LOADING</span>';
+                    '<span class="gate-status mt-0.5 text-[9px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">🏁 FINISH</span>';
                 return html;
-            } else if (gate.status === 'ON LOADING' && gate.waktu_start) {
+            }
+
+            // ✅ LOADING (JANGAN pakai status, pakai waktu_start)
+            if (gate.waktu_start) {
                 const elapsed = formatDuration(gate.waktu_start, null);
                 let html =
-                    `<span class="gate-timer mt-1 text-[10px] px-2 py-0.5 rounded font-bold font-mono" data-start="${gate.waktu_start}">${elapsed}</span>`;
+                    `<span class="gate-timer mt-1 text-[10px] px-2 py-0.5 rounded font-mono bg-blue-100 text-blue-700" data-start="${gate.waktu_start}">${elapsed}</span>`;
                 html +=
-                    '<span class="gate-status mt-0.5 text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">⏳ ON LOADING</span>';
+                    '<span class="gate-status mt-0.5 text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">⏳ LOADING</span>';
                 return html;
-            } else if (gate.waktu_penerimaan) {
+            }
+
+            // ✅ ASSIGN (hanya kalau belum start)
+            if (gate.waktu_penerimaan) {
                 return '<span class="gate-status mt-1 text-[9px] px-2 py-0.5 rounded-full font-bold bg-yellow-100 text-yellow-700">📋 ASSIGN</span>';
             }
+
             return '';
         }
 
         // ===== GATE CONTENT BUILDER (for auto-refresh) =====
-        function buildGateContent(gate) {
-            const body = document.querySelector('#gate-' + gate.nomor + ' .gate-body');
+        function buildGateContent(gate, gateIndex) {
+            // Gunakan gate.nomor jika ada, jika tidak gunakan gateIndex dari loop
+            const id = (gate && gate.nomor) ? gate.nomor : gateIndex;
+            const body = document.querySelector('#gate-' + id + ' .gate-body');
             if (!body) return;
+
+            // Jika gate kosong/null dari server
+            if (!gate || !gate.no_polisi) {
+                body.innerHTML = '<span class="text-[10px] text-gray-300 italic">kosong</span>';
+                body.style.backgroundColor = '';
+                return;
+            }
 
             // Update data attributes
             body.dataset.status = gate.status || '';
@@ -390,43 +504,63 @@
             body.dataset.waktuPenerimaan = gate.waktu_penerimaan || '';
             body.dataset.waktuPenyerahan = gate.waktu_penyerahan || '';
 
-            if (gate.no_polisi) {
-                const statusHtml = getGateStatusHtml(gate);
-                let minutes = 0;
+            // Cek 2 menit setelah completed
+            if (gate.waktu_penyerahan) {
+                const penyerahanTime = new Date(gate.waktu_penyerahan).getTime();
+                const now = new Date().getTime();
+                const diffMinutes = (now - penyerahanTime) / 60000;
 
-                let aktivitasHtml = '';
-                if (gate.aktivitas) {
-                    const actName = gate.aktivitas.toUpperCase();
-                    if (actName === 'INBOUND') {
-                        aktivitasHtml = '<div class="mt-0.5 w-full text-center"><span class="px-2 py-0.5 rounded text-[9px] font-bold bg-orange-100 text-orange-700 shadow-sm border border-orange-200">INBOUND</span></div>';
-                    } else if (actName === 'OUTBOUND') {
-                        aktivitasHtml = '<div class="mt-0.5 w-full text-center"><span class="px-2 py-0.5 rounded text-[9px] font-bold bg-indigo-100 text-indigo-700 shadow-sm border border-indigo-200">OUTBOUND</span></div>';
-                    } else {
-                        aktivitasHtml = `<div class="mt-0.5 w-full text-center"><span class="px-2 py-0.5 rounded text-[9px] font-bold bg-gray-100 text-gray-700 shadow-sm border border-gray-200">${gate.aktivitas}</span></div>`;
-                    }
+                if (diffMinutes >= 2) {
+                    body.innerHTML = '<span class="text-[10px] text-gray-300 italic">kosong</span>';
+                    body.style.backgroundColor = '';
+                    return;
                 }
+            }
 
-                body.innerHTML = `
+            const statusHtml = getGateStatusHtml(gate);
+            let minutes = 0;
+
+            let aktivitasHtml = '';
+            if (gate.aktivitas) {
+                const actName = gate.aktivitas.toUpperCase();
+                if (actName === 'INBOUND') {
+                    aktivitasHtml =
+                        '<div class="mt-0.5 w-full text-center"><span class="px-2 py-0.5 rounded text-[9px] font-bold bg-orange-100 text-orange-700 shadow-sm border border-orange-200">INBOUND</span></div>';
+                } else if (actName === 'OUTBOUND') {
+                    aktivitasHtml =
+                        '<div class="mt-0.5 w-full text-center"><span class="px-2 py-0.5 rounded text-[9px] font-bold bg-indigo-100 text-indigo-700 shadow-sm border border-indigo-200">OUTBOUND</span></div>';
+                } else {
+                    aktivitasHtml =
+                        `<div class="mt-0.5 w-full text-center"><span class="px-2 py-0.5 rounded text-[9px] font-bold bg-gray-100 text-gray-700 shadow-sm border border-gray-200">${gate.aktivitas}</span></div>`;
+                }
+            }
+
+            body.innerHTML = `
+            <div class="flex-1 flex flex-col justify-center items-center text-center">
                 ${aktivitasHtml}
-                <p class="text-xs font-bold text-gray-800 truncate w-full text-center mt-1">${gate.no_polisi}</p>
-                <p class="text-[10px] text-gray-400 truncate w-full text-center">${gate.vendor || ''}</p>
+                <p class="text-xs font-bold text-gray-800 mt-1">${gate.no_polisi}</p>
+                <p class="text-[10px] text-gray-400">${gate.vendor || ''}</p>
                 ${statusHtml}
+            </div>
+
+            <div class="w-[80px] flex flex-col justify-center text-[10px] space-y-1 border-l pl-2">
+                <div>📋 ${gate.waktu_penerimaan ? formatTime(gate.waktu_penerimaan) : '--:--'}</div>
+                <div>⏳ ${gate.waktu_start ? formatTime(gate.waktu_start) : '--:--'}</div>
+                <div>🏁 ${gate.waktu_end ? formatTime(gate.waktu_end) : '--:--'}</div>
+                <div>✅ ${gate.waktu_penyerahan ? formatTime(gate.waktu_penyerahan) : '--:--'}</div>
+            </div>
             `;
 
-                // Apply color based on loading status
-                if (gate.status === 'ON LOADING' && gate.waktu_start) {
-                    minutes = getDurationMinutes(gate.waktu_start, null);
-                    const color = getDurationColor(minutes);
-                    body.style.backgroundColor = color.bodyBg;
-                } else if (gate.status === 'FINISH' && gate.waktu_start && gate.waktu_end) {
-                    minutes = getDurationMinutes(gate.waktu_start, gate.waktu_end);
-                    const color = getDurationColor(minutes);
-                    body.style.backgroundColor = color.bodyBg;
-                } else {
-                    body.style.backgroundColor = '';
-                }
+            // Apply color based on loading status
+            if (gate.status === 'ON LOADING' && gate.waktu_start) {
+                minutes = getDurationMinutes(gate.waktu_start, null);
+                const color = getDurationColor(minutes);
+                body.style.backgroundColor = color.bodyBg;
+            } else if (gate.status === 'FINISH' && gate.waktu_start && gate.waktu_end) {
+                minutes = getDurationMinutes(gate.waktu_start, gate.waktu_end);
+                const color = getDurationColor(minutes);
+                body.style.backgroundColor = color.bodyBg;
             } else {
-                body.innerHTML = '<span class="text-[10px] text-gray-300 italic">kosong</span>';
                 body.style.backgroundColor = '';
             }
         }
@@ -453,7 +587,8 @@
                     .then(data => {
                         // Update gates
                         for (let i = 1; i <= 27; i++) {
-                            buildGateContent(data.gates[i]);
+                            // Kirim gate object dan indexnya (sebagai id fallback)
+                            buildGateContent(data.gates[i], i);
                         }
 
                         // Update activity summary table
@@ -462,16 +597,30 @@
                             data.activitySummary.forEach((item, idx) => {
                                 if (rows[idx]) {
                                     const cells = rows[idx].querySelectorAll('td');
+                                    const parking = item.parking ?? 0;
+                                    const receiving = item.receiving ?? 0;
                                     const op = item.onProcess ?? item.on_process ?? 0;
                                     const fin = item.finish ?? 0;
                                     if (cells[1]) {
                                         const span = cells[1].querySelector('span');
-                                        span.textContent = op;
+                                        span.textContent = parking;
                                         span.className =
-                                            `inline-flex min-w-[28px] items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold ${op > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-400'}`;
+                                            `inline-flex min-w-[28px] items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold ${parking > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-400'}`;
                                     }
                                     if (cells[2]) {
                                         const span = cells[2].querySelector('span');
+                                        span.textContent = receiving;
+                                        span.className =
+                                            `inline-flex min-w-[28px] items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold ${receiving > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-400'}`;
+                                    }
+                                    if (cells[3]) {
+                                        const span = cells[3].querySelector('span');
+                                        span.textContent = op;
+                                        span.className =
+                                            `inline-flex min-w-[28px] items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold ${op > 0 ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-400'}`;
+                                    }
+                                    if (cells[4]) {
+                                        const span = cells[4].querySelector('span');
                                         span.textContent = fin;
                                         span.className =
                                             `inline-flex min-w-[28px] items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold ${fin > 0 ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-400'}`;

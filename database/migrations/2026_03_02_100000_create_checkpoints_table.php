@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('jenis_kendaraan', 50)->nullable();
             $table->dateTime('waktu_penerimaan_dokumen')->nullable();
             $table->dateTime('waktu_penyerahan_dokumen')->nullable();
-            $table->enum('jenis_barang', ['FROZEN', 'DRY'])->default('FROZEN');
+            $table->enum('jenis_barang', ['FROZEN', 'DRY', 'CHILLED'])->default('FROZEN');
             $table->enum('aktivitas', ['INBOUND', 'OUTBOUND'])->default('INBOUND');
             $table->integer('gate')->nullable();
             $table->enum('status', ['START', 'FINISH'])->default('START');
