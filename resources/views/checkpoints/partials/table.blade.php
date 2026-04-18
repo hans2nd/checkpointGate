@@ -48,7 +48,8 @@
                                 Status</th>
                             <th data-col="col-durasi"
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
-                                Durasi</th>
+                                Durasi<br><span class="text-[10px] font-normal normal-case text-gray-400">Loading</span>
+                            </th>
                             <th data-col="col-penyerahan"
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
                                 Penyerahan<br><span class="text-[10px] font-normal normal-case text-gray-400">Dokumen

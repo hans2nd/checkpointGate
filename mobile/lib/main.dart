@@ -7,7 +7,7 @@ import 'features/auth/presentation/login_screen.dart';
 import 'features/auth/presentation/settings_screen.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'features/home/presentation/home_screen.dart';
-import 'features/checkpoint/presentation/scanner_screen.dart';
+import 'features/checkpoint/presentation/search_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,8 +42,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const HomeScreen(),
       ),
       GoRoute(
-        path: '/scanner',
-        builder: (context, state) => const ScannerScreen(),
+        path: '/search',
+        builder: (context, state) => const SearchScreen(),
       ),
     ],
     // 2. Gunakan redirect untuk menangani perpindahan halaman berdasarkan auth

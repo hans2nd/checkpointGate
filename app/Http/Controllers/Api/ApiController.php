@@ -308,8 +308,9 @@ class ApiController extends Controller
             'driver' => 'required|string|max:100',
             'tipe' => 'required|in:INTERNAL,EKSTERNAL',
             'jenis_kendaraan' => 'required|string|max:50',
-            'jenis_barang' => 'required|in:FROZEN,DRY',
+            'jenis_barang' => 'required|in:FROZEN,DRY,CHILLED',
             'aktivitas' => 'required|in:INBOUND,OUTBOUND',
+            'note' => 'nullable|string|max:500',
         ]);
 
         if ($validator->fails()) {
@@ -318,8 +319,12 @@ class ApiController extends Controller
 
         $cp = Checkpoint::create(array_merge($request->only([
             'no_polisi', 'vendor', 'driver', 'tipe',
-            'jenis_kendaraan', 'jenis_barang', 'aktivitas',
-        ]), ['tanggal' => Carbon::today(), 'status' => 'START']));
+            'jenis_kendaraan', 'jenis_barang', 'aktivitas', 'note',
+        ]), [
+            'tanggal' => Carbon::today(),
+            'status' => 'START',
+            'created_by' => $request->user()->id,
+        ]));
 
         return response()->json([
             'success' => true,
@@ -364,12 +369,13 @@ class ApiController extends Controller
     /**
      * POST /api/checkpoints/{id}/trigger-start
      */
-    public function triggerStart($id)
+    public function triggerStart(Request $request, $id)
     {
         $cp = Checkpoint::findOrFail($id);
         $cp->update([
             'waktu_start' => Carbon::now(),
             'status' => 'ON LOADING',
+            'started_by' => $request->user()->id,
         ]);
 
         return response()->json([
@@ -382,9 +388,20 @@ class ApiController extends Controller
     /**
      * POST /api/checkpoints/{id}/trigger-end
      */
-    public function triggerEnd($id)
+    public function triggerEnd(Request $request, $id)
     {
         $cp = Checkpoint::findOrFail($id);
+        $currentUser = $request->user();
+
+        // Validate: user who ends must be the same who started (unless admin)
+        if ($cp->started_by && $currentUser->id !== $cp->started_by && !$currentUser->isAdmin()) {
+            $starterName = $cp->startedByUser?->name ?? 'Unknown';
+            return response()->json([
+                'success' => false,
+                'message' => "Anda tidak dapat menyelesaikan loading ini. Loading dimulai oleh {$starterName}. Hanya user yang sama atau Administrator yang dapat menyelesaikan loading.",
+            ], 403);
+        }
+
         $durasi = null;
         if ($cp->waktu_start) {
             $diff = $cp->waktu_start->diff(Carbon::now());
@@ -507,6 +524,11 @@ class ApiController extends Controller
             'status' => $cp->status,
             'durasi' => $cp->durasi,
             'durasi_dokumen' => $durasiDokumen,
+            'note' => $cp->note,
+            'created_by' => $cp->created_by,
+            'created_by_name' => $cp->createdByUser?->name,
+            'started_by' => $cp->started_by,
+            'started_by_name' => $cp->startedByUser?->name,
             'waktu_penerimaan_dokumen' => $cp->waktu_penerimaan_dokumen?->toIso8601String(),
             'waktu_start' => $cp->waktu_start?->toIso8601String(),
             'waktu_end' => $cp->waktu_end?->toIso8601String(),

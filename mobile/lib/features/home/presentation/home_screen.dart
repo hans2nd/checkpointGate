@@ -14,9 +14,10 @@ class HomeScreen extends ConsumerWidget {
         title: const Text('Checkpoint Gate'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.qr_code_scanner),
+            icon: const Icon(Icons.search),
+            tooltip: 'Cari Checkpoint',
             onPressed: () {
-              context.push('/scanner');
+              context.push('/search');
             },
           ),
           IconButton(

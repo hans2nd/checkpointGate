@@ -30,21 +30,46 @@ class CheckpointListScreen extends ConsumerWidget {
       ref.invalidate(activeCheckpointsProvider);
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(action == 'START' ? 'Pemuatan dimulai!' : 'Pemuatan selesai!'),
-            backgroundColor: Colors.green,
-          ),
+        _showResultDialog(
+          context,
+          title: 'Berhasil!',
+          message: action == 'START' ? 'Loading berhasil dimulai.' : 'Loading berhasil diselesaikan.',
+          isError: false,
         );
       }
     } catch (e) {
       if (context.mounted) Navigator.pop(context); // close loading overlay
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text(e.toString().replaceAll('Exception: ', '')), backgroundColor: Colors.red),
+        _showResultDialog(
+          context,
+          title: 'Gagal!',
+          message: e.toString().replaceAll('Exception: ', ''),
+          isError: true,
         );
       }
     }
+  }
+
+  void _showResultDialog(BuildContext context, {required String title, required String message, required bool isError}) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        icon: Icon(
+          isError ? Icons.error_outline : Icons.check_circle_outline,
+          color: isError ? Colors.red : Colors.green,
+          size: 48,
+        ),
+        title: Text(title, style: TextStyle(color: isError ? Colors.red : Colors.green, fontWeight: FontWeight.bold)),
+        content: Text(message, textAlign: TextAlign.center),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   String _formatTime(String? dateStr) {

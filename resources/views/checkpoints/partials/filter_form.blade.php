@@ -16,18 +16,22 @@
                     class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white">
                     <option value="">Semua Aktivitas</option>
                     <option value="INBOUND" {{ request('aktivitas') == 'INBOUND' ? 'selected' : '' }}>Inbound</option>
-                    <option value="OUTBOUND" {{ request('aktivitas') == 'OUTBOUND' ? 'selected' : '' }}>Outbound</option>
+                    <option value="OUTBOUND" {{ request('aktivitas') == 'OUTBOUND' ? 'selected' : '' }}>Outbound
+                    </option>
                 </select>
                 <select name="jenis_barang"
                     class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white">
                     <option value="">Semua Barang</option>
                     <option value="FROZEN" {{ request('jenis_barang') == 'FROZEN' ? 'selected' : '' }}>Frozen</option>
                     <option value="DRY" {{ request('jenis_barang') == 'DRY' ? 'selected' : '' }}>Dry</option>
+                    <option value="CHILLED" {{ request('jenis_barang') == 'CHILLED' ? 'selected' : '' }}>Chilled
+                    </option>
                 </select>
                 <select name="status"
                     class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white">
                     <option value="">Semua Status</option>
-                    <option value="ON LOADING" {{ request('status') == 'ON LOADING' ? 'selected' : '' }}>On Loading</option>
+                    <option value="ON LOADING" {{ request('status') == 'ON LOADING' ? 'selected' : '' }}>On Loading
+                    </option>
                     <option value="FINISH" {{ request('status') == 'FINISH' ? 'selected' : '' }}>Finish</option>
                 </select>
                 <input type="date" name="tanggal" value="{{ request('tanggal') }}"

@@ -25,6 +25,9 @@ class Checkpoint extends Model
         'waktu_start',
         'waktu_end',
         'durasi',
+        'created_by',
+        'started_by',
+        'note',
     ];
 
     protected $casts = [
@@ -35,4 +38,20 @@ class Checkpoint extends Model
         'waktu_end' => 'datetime',
         'gate' => 'string',
     ];
+
+    /**
+     * User who created this checkpoint record.
+     */
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * User who started the loading process.
+     */
+    public function startedByUser()
+    {
+        return $this->belongsTo(User::class, 'started_by');
+    }
 }

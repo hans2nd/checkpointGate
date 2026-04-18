@@ -6,6 +6,7 @@ use App\Models\Checkpoint;
 use App\Models\Gate;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -69,10 +70,12 @@ class CheckpointController extends Controller
             'jenis_barang' => 'required|in:FROZEN,DRY,CHILLED',
             'aktivitas' => 'required|in:INBOUND,OUTBOUND',
             'gate' => 'nullable|string|max:30',
+            'note' => 'nullable|string|max:500',
         ]);
 
         $validated['tanggal'] = Carbon::today();
         $validated['status'] = 'START';
+        $validated['created_by'] = Auth::id();
 
         // Auto-insert Master Vehicle jika belum ada
         \App\Models\Vehicle::firstOrCreate(
@@ -119,6 +122,7 @@ class CheckpointController extends Controller
             'waktu_start' => 'nullable|date',
             'waktu_end' => 'nullable|date',
             'durasi' => 'nullable|string|max:20',
+            'note' => 'nullable|string|max:500',
         ]);
 
         $checkpoint->update($validated);
@@ -347,6 +351,7 @@ class CheckpointController extends Controller
         $checkpoint->update([
             'waktu_start' => Carbon::now(),
             'status' => 'ON LOADING',
+            'started_by' => Auth::id(),
         ]);
 
         return redirect()->back()
@@ -355,9 +360,18 @@ class CheckpointController extends Controller
 
     /**
      * Trigger: End Loading (auto-calculate durasi)
+     * Validates that the user ending the loading is the same who started it (unless admin).
      */
     public function triggerEnd(Checkpoint $checkpoint)
     {
+        // Validate: user who ends must be the same who started (unless admin)
+        $currentUser = Auth::user();
+        if ($checkpoint->started_by && $currentUser->id !== $checkpoint->started_by && !$currentUser->isAdmin()) {
+            $starterName = $checkpoint->startedByUser?->name ?? 'Unknown';
+            return redirect()->back()
+                             ->with('error', "Anda tidak dapat menyelesaikan loading ini. Loading dimulai oleh {$starterName}. Hanya user yang sama yang dapat menyelesaikan loading.");
+        }
+
         $now = Carbon::now();
         $durasi = null;
 

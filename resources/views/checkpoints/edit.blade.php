@@ -198,6 +198,13 @@
                     </div>
                 </div>
 
+                {{-- Note/Keterangan --}}
+                <div class="mt-5">
+                    <label for="note" class="block text-sm font-medium text-gray-700 mb-1.5">Catatan / Keterangan</label>
+                    <textarea id="note" name="note" rows="3" placeholder="Tambahkan catatan atau keterangan (opsional)..."
+                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none">{{ old('note', $checkpoint->note) }}</textarea>
+                </div>
+
                 {{-- Submit --}}
                 <div class="flex items-center gap-3 mt-8 pt-6 border-t border-gray-100">
                     <button type="submit"

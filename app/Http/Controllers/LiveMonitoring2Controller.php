@@ -42,8 +42,20 @@ class LiveMonitoring2Controller extends Controller
         // Activity summary: Loading = INBOUND, Unloading = OUTBOUND
         $activitySummary = [];
         foreach (['INBOUND', 'OUTBOUND'] as $aktivitas) {
-            foreach (['FROZEN', 'DRY'] as $jenis) {
-                $label = ($aktivitas === 'INBOUND' ? 'LOADING' : 'UNLOADING') . ' ' . $jenis;
+            foreach (['FROZEN', 'DRY', 'CHILLED'] as $jenis) {
+                $label = ($aktivitas === 'INBOUND' ? 'IN' : 'OUT') . ' ' . $jenis;
+                $parking = Checkpoint::whereDate('tanggal', $selectedDate)
+                    ->where('aktivitas', $aktivitas)
+                    ->where('jenis_barang', $jenis)
+                    ->where('waktu_penerimaan_dokumen', null)
+                    ->count();
+                $receiving = Checkpoint::whereDate('tanggal', $selectedDate)
+                    ->where('aktivitas', $aktivitas)
+                    ->where('jenis_barang', $jenis)
+                    ->where('status', 'START')
+                    ->whereNotNull('waktu_penerimaan_dokumen')
+                    ->whereNotNull('gate')
+                    ->count();
                 $onProcess = Checkpoint::whereDate('tanggal', $selectedDate)
                     ->where('aktivitas', $aktivitas)
                     ->where('jenis_barang', $jenis)
@@ -54,8 +66,11 @@ class LiveMonitoring2Controller extends Controller
                     ->where('jenis_barang', $jenis)
                     ->where('status', 'FINISH')
                     ->count();
+
                 $activitySummary[] = [
                     'label' => $label,
+                    'parking' => $parking,
+                    'receiving' => $receiving,
                     'on_process' => $onProcess,
                     'finish' => $finish,
                 ];
@@ -72,7 +87,7 @@ class LiveMonitoring2Controller extends Controller
 
         foreach ($vehicleTypes as $vt) {
             $row = ['jenis_kendaraan' => $vt];
-            foreach (['DRY', 'FROZEN'] as $jenis) {
+            foreach (['DRY', 'FROZEN', 'CHILLED'] as $jenis) {
                 $altAvg = Checkpoint::whereDate('tanggal', $selectedDate)
                     ->where('jenis_kendaraan', $vt)
                     ->where('jenis_barang', $jenis)
@@ -83,6 +98,16 @@ class LiveMonitoring2Controller extends Controller
 
                 $row["{$jenis}_ALT"] = $this->calculateAverage($altAvg);
 
+                $altAvgLmonth = Checkpoint::whereBetween('tanggal', [$selectedDate->copy()->subMonth(), $selectedDate])
+                    ->where('jenis_kendaraan', $vt)
+                    ->where('jenis_barang', $jenis)
+                    ->where('aktivitas', 'INBOUND')
+                    ->where('status', 'FINISH')
+                    ->whereNotNull('durasi')
+                    ->pluck('durasi');
+
+                $row["{$jenis}_ALT_LMONTH"] = $this->calculateAverage($altAvgLmonth);
+
                 $autAvg = Checkpoint::whereDate('tanggal', $selectedDate)
                     ->where('jenis_kendaraan', $vt)
                     ->where('jenis_barang', $jenis)
@@ -92,6 +117,16 @@ class LiveMonitoring2Controller extends Controller
                     ->pluck('durasi');
 
                 $row["{$jenis}_AUT"] = $this->calculateAverage($autAvg);
+
+                $autAvgLmonth = Checkpoint::whereBetween('tanggal', [$selectedDate->copy()->subMonth(), $selectedDate])
+                    ->where('jenis_kendaraan', $vt)
+                    ->where('jenis_barang', $jenis)
+                    ->where('aktivitas', 'OUTBOUND')
+                    ->where('status', 'FINISH')
+                    ->whereNotNull('durasi')
+                    ->pluck('durasi');
+
+                $row["{$jenis}_AUT_LMONTH"] = $this->calculateAverage($autAvgLmonth);
             }
             $avgTimes[] = $row;
         }
@@ -99,7 +134,7 @@ class LiveMonitoring2Controller extends Controller
         $periode = $selectedDate->format('d/m/Y');
         $tanggalValue = $selectedDate->format('Y-m-d');
 
-        return view('livemonitoring2', compact('gates', 'activitySummary', 'avgTimes', 'periode', 'tanggalValue', 'isToday'));
+        return view('livemonitoring', compact('gates', 'activitySummary', 'avgTimes', 'periode', 'tanggalValue', 'isToday'));
     }
 
     /**
@@ -139,8 +174,20 @@ class LiveMonitoring2Controller extends Controller
 
         $activitySummary = [];
         foreach (['INBOUND', 'OUTBOUND'] as $aktivitas) {
-            foreach (['FROZEN', 'DRY'] as $jenis) {
-                $label = ($aktivitas === 'INBOUND' ? 'LOADING' : 'UNLOADING') . ' ' . $jenis;
+            foreach (['FROZEN', 'DRY','CHILLED'] as $jenis) {
+                $label = ($aktivitas === 'INBOUND' ? 'IN' : 'OUT') . ' ' . $jenis;
+                $parking = Checkpoint::whereDate('tanggal', $selectedDate)
+                    ->where('aktivitas', $aktivitas)
+                    ->where('jenis_barang', $jenis)
+                    ->where('waktu_penerimaan_dokumen', null)
+                    ->count();
+                $receiving = Checkpoint::whereDate('tanggal', $selectedDate)
+                    ->where('aktivitas', $aktivitas)
+                    ->where('jenis_barang', $jenis)
+                    ->where('status', 'START')
+                    ->whereNotNull('waktu_penerimaan_dokumen')
+                    ->whereNotNull('gate')
+                    ->count();
                 $onProcess = Checkpoint::whereDate('tanggal', $selectedDate)
                     ->where('aktivitas', $aktivitas)
                     ->where('jenis_barang', $jenis)
@@ -151,7 +198,13 @@ class LiveMonitoring2Controller extends Controller
                     ->where('jenis_barang', $jenis)
                     ->where('status', 'FINISH')
                     ->count();
-                $activitySummary[] = compact('label', 'onProcess', 'finish');
+                $activitySummary[] = [
+                    'label' => $label,
+                    'parking' => $parking,
+                    'receiving' => $receiving,
+                    'on_process' => $onProcess,
+                    'finish' => $finish,
+                ];
             }
         }
 
@@ -165,7 +218,7 @@ class LiveMonitoring2Controller extends Controller
 
         foreach ($vehicleTypes as $vt) {
             $row = ['jenis_kendaraan' => $vt];
-            foreach (['DRY', 'FROZEN'] as $jenis) {
+            foreach (['DRY', 'FROZEN', 'CHILLED'] as $jenis) {
                 $altAvg = Checkpoint::whereDate('tanggal', $selectedDate)
                     ->where('jenis_kendaraan', $vt)
                     ->where('jenis_barang', $jenis)
@@ -176,6 +229,16 @@ class LiveMonitoring2Controller extends Controller
 
                 $row["{$jenis}_ALT"] = $this->calculateAverage($altAvg);
 
+                $altAvgLmonth = Checkpoint::whereBetween('tanggal', [$selectedDate->copy()->subMonth(), $selectedDate])
+                    ->where('jenis_kendaraan', $vt)
+                    ->where('jenis_barang', $jenis)
+                    ->where('aktivitas', 'INBOUND')
+                    ->where('status', 'FINISH')
+                    ->whereNotNull('durasi')
+                    ->pluck('durasi');
+
+                $row["{$jenis}_ALT_LMONTH"] = $this->calculateAverage($altAvgLmonth);
+
                 $autAvg = Checkpoint::whereDate('tanggal', $selectedDate)
                     ->where('jenis_kendaraan', $vt)
                     ->where('jenis_barang', $jenis)
@@ -185,6 +248,16 @@ class LiveMonitoring2Controller extends Controller
                     ->pluck('durasi');
 
                 $row["{$jenis}_AUT"] = $this->calculateAverage($autAvg);
+
+                $autAvgLmonth = Checkpoint::whereBetween('tanggal', [$selectedDate->copy()->subMonth(), $selectedDate])
+                    ->where('jenis_kendaraan', $vt)
+                    ->where('jenis_barang', $jenis)
+                    ->where('aktivitas', 'OUTBOUND')
+                    ->where('status', 'FINISH')
+                    ->whereNotNull('durasi')
+                    ->pluck('durasi');
+
+                $row["{$jenis}_AUT_LMONTH"] = $this->calculateAverage($autAvgLmonth);
             }
             $avgTimes[] = $row;
         }

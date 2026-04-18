@@ -141,6 +141,16 @@
                 </div>
 
                 <div>
+                    <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Dibuat Oleh</p>
+                    <p class="text-sm text-gray-900 mt-1 font-medium">{{ $checkpoint->createdByUser?->name ?? '-' }}</p>
+                </div>
+
+                <div>
+                    <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Start Loading Oleh</p>
+                    <p class="text-sm text-gray-900 mt-1 font-medium">{{ $checkpoint->startedByUser?->name ?? '-' }}</p>
+                </div>
+
+                <div>
                     <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Dibuat</p>
                     <p class="text-sm text-gray-900 mt-1 font-medium">{{ $checkpoint->created_at->format('d/m/Y H:i:s') }}</p>
                 </div>
@@ -150,6 +160,13 @@
                     <p class="text-sm text-gray-900 mt-1 font-medium">{{ $checkpoint->updated_at->format('d/m/Y H:i:s') }}</p>
                 </div>
             </div>
+
+            @if($checkpoint->note)
+            <div class="mt-6 pt-4 border-t border-gray-100">
+                <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Catatan / Keterangan</p>
+                <p class="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">{{ $checkpoint->note }}</p>
+            </div>
+            @endif
         </div>
     </div>
 </div>
