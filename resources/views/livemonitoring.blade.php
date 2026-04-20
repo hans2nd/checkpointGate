@@ -330,7 +330,7 @@
             {{-- Gate Section Header --}}
             <div class="px-4 py-2.5 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <p class="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                    {{-- <p class="text-xs font-bold text-gray-700 flex items-center gap-1.5">
                         <span class="w-2.5 h-2.5 rounded bg-blue-500 inline-block"></span>
                         Frozen Gate
                         <span class="text-gray-400 font-normal">(F-1 – F-16)</span>
@@ -340,10 +340,10 @@
                         <span class="w-2.5 h-2.5 rounded bg-amber-500 inline-block"></span>
                         Dry Gate
                         <span class="text-gray-400 font-normal">(D-1 – D-11)</span>
-                    </p>
+                    </p> --}}
                 </div>
                 <button onclick="toggleGateFullscreen()" id="gate-fs-btn"
-                    class="flex items-center gap-1.5 px-3 py-1 bg-gray-800 hover:bg-gray-900 text-white text-xs font-medium rounded-lg transition-colors">
+                    class="flex items-center gap-1.5 px-3 py-1 bg-gray-200 hover:bg-gray-400 text-gray-700 text-xs font-medium rounded-lg transition-colors">
                     <svg class="w-3.5 h-3.5" id="gate-fs-icon-expand" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -364,7 +364,7 @@
 
                     {{-- ===== FROZEN SIDE (left, 4 cols) ===== --}}
                     <div class="border-r border-gray-200 pr-3">
-                        <div class="text-center text-[11px] font-bold text-blue-600 mb-2 tracking-widest uppercase">
+                        <div class="text-center text-[14px] font-bold text-blue-600 mb-2 tracking-widest uppercase">
                             ❄️ Frozen
                         </div>
                         <div class="grid grid-cols-4 gap-1.5" id="frozen-grid-inner">
@@ -393,36 +393,36 @@
                                         <div class="gate-body-inner">
                                             @if ($cp)
                                                 <span
-                                                    class="text-[9px] font-bold px-1.5 py-0.5 rounded
+                                                    class="text-[14px] font-bold px-1.5 py-0.5 rounded
                                                     {{ $cp->aktivitas === 'INBOUND' ? 'bg-orange-100 text-orange-700' : ($cp->aktivitas === 'OUTBOUND' ? 'bg-indigo-100 text-indigo-700' : '') }}">
                                                     {{ $cp->aktivitas }}
                                                 </span>
                                                 <p
-                                                    class="text-[11px] font-bold text-gray-800 mt-0.5 leading-tight break-all">
+                                                    class="text-[16px] font-bold text-gray-800 mt-0.5 leading-tight break-all">
                                                     {{ $cp->no_polisi }}</p>
-                                                <p class="text-[9px] text-gray-500 leading-tight">{{ $cp->vendor }}</p>
+                                                <p class="text-[12px] text-gray-800 leading-tight">{{ $cp->vendor }}</p>
                                                 @if ($cp->waktu_penyerahan_dokumen)
                                                     <span
-                                                        class="gate-status mt-0.5 text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-purple-100 text-purple-700">✅
+                                                        class="gate-status mt-0.5 text-[12px] px-1.5 py-0.5 rounded-full font-bold bg-purple-100 text-purple-700">✅
                                                         COMPLETED</span>
                                                 @elseif($cp->waktu_end || $cp->status === 'FINISH')
                                                     <span
-                                                        class="static-timer mt-0.5 text-[8px] px-1.5 py-0.5 rounded font-mono bg-emerald-100 text-emerald-700"
+                                                        class="static-timer mt-0.5 text-[12px] px-1.5 py-0.5 rounded font-mono bg-emerald-100 text-emerald-700"
                                                         data-start="{{ $cp->waktu_start?->toIso8601String() ?? '' }}"
                                                         data-end="{{ $cp->waktu_end?->toIso8601String() ?? '' }}">DONE</span>
                                                     <span
-                                                        class="gate-status text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">🏁
+                                                        class="gate-status text-[12px] px-1.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">🏁
                                                         FINISH</span>
                                                 @elseif($cp->waktu_start || $cp->status === 'ON LOADING')
                                                     <span
-                                                        class="gate-timer mt-0.5 text-[8px] px-1.5 py-0.5 rounded font-mono bg-blue-100 text-blue-700"
+                                                        class="gate-timer mt-0.5 text-[12px] px-1.5 py-0.5 rounded font-mono bg-blue-100 text-blue-700"
                                                         data-start="{{ $cp->waktu_start?->toIso8601String() ?? '' }}">00:00:00</span>
                                                     <span
-                                                        class="gate-status text-[8px] px-1.5 py-0.5 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">⏳
+                                                        class="gate-status text-[12px] px-1.5 py-0.5 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">⏳
                                                         LOADING</span>
                                                 @elseif($cp->waktu_penerimaan_dokumen)
                                                     <span
-                                                        class="gate-status mt-0.5 text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-yellow-100 text-yellow-700">📋
+                                                        class="gate-status mt-0.5 text-[12px] px-1.5 py-0.5 rounded-full font-bold bg-yellow-100 text-yellow-700">📋
                                                         ASSIGN</span>
                                                 @endif
                                             @else
@@ -431,14 +431,16 @@
                                         </div>
                                         @if ($cp)
                                             <div class="gate-times">
-                                                <div
+                                                <div class="font-mono text-[11px]"
                                                     style="color: {{ $cp->waktu_penerimaan_dokumen ? '#4b5563' : '#d1d5db' }}">
                                                     📋 {{ $cp->waktu_penerimaan_dokumen?->format('H:i') ?? '--:--' }}</div>
-                                                <div style="color: {{ $cp->waktu_start ? '#4b5563' : '#d1d5db' }}">⏳
+                                                <div class="font-mono text-[11px]"
+                                                    style="color: {{ $cp->waktu_start ? '#4b5563' : '#d1d5db' }}">⏳
                                                     {{ $cp->waktu_start?->format('H:i') ?? '--:--' }}</div>
-                                                <div style="color: {{ $cp->waktu_end ? '#4b5563' : '#d1d5db' }}">🏁
+                                                <div class="font-mono text-[11px]"
+                                                    style="color: {{ $cp->waktu_end ? '#4b5563' : '#d1d5db' }}">🏁
                                                     {{ $cp->waktu_end?->format('H:i') ?? '--:--' }}</div>
-                                                <div
+                                                <div class="font-mono text-[11px]"
                                                     style="color: {{ $cp->waktu_penyerahan_dokumen ? '#4b5563' : '#d1d5db' }}">
                                                     ✅ {{ $cp->waktu_penyerahan_dokumen?->format('H:i') ?? '--:--' }}</div>
                                             </div>
@@ -451,7 +453,7 @@
 
                     {{-- ===== DRY SIDE (right, 4 cols) ===== --}}
                     <div>
-                        <div class="text-center text-[11px] font-bold text-amber-600 mb-2 tracking-widest uppercase">
+                        <div class="text-center text-[14px] font-bold text-amber-600 mb-2 tracking-widest uppercase">
                             🌡️ Dry
                         </div>
                         <div class="grid grid-cols-4 gap-1.5" id="dry-grid-inner">
@@ -481,36 +483,36 @@
                                         <div class="gate-body-inner">
                                             @if ($cp)
                                                 <span
-                                                    class="text-[9px] font-bold px-1.5 py-0.5 rounded
+                                                    class="text-[14px] font-bold px-1.5 py-0.5 rounded
                                                     {{ $cp->aktivitas === 'INBOUND' ? 'bg-orange-100 text-orange-700' : ($cp->aktivitas === 'OUTBOUND' ? 'bg-indigo-100 text-indigo-700' : '') }}">
                                                     {{ $cp->aktivitas }}
                                                 </span>
                                                 <p
-                                                    class="text-[11px] font-bold text-gray-800 mt-0.5 leading-tight break-all">
+                                                    class="text-[16px] font-bold text-gray-800 mt-0.5 leading-tight break-all">
                                                     {{ $cp->no_polisi }}</p>
-                                                <p class="text-[9px] text-gray-500 leading-tight">{{ $cp->vendor }}</p>
+                                                <p class="text-[12px] text-gray-500 leading-tight">{{ $cp->vendor }}</p>
                                                 @if ($cp->waktu_penyerahan_dokumen)
                                                     <span
-                                                        class="gate-status mt-0.5 text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-purple-100 text-purple-700">✅
+                                                        class="gate-status mt-0.5 text-[12px] px-1.5 py-0.5 rounded-full font-bold bg-purple-100 text-purple-700">✅
                                                         COMPLETED</span>
                                                 @elseif($cp->waktu_end || $cp->status === 'FINISH')
                                                     <span
-                                                        class="static-timer mt-0.5 text-[8px] px-1.5 py-0.5 rounded font-mono bg-emerald-100 text-emerald-700"
+                                                        class="static-timer mt-0.5 text-[12px] px-1.5 py-0.5 rounded font-mono bg-emerald-100 text-emerald-700"
                                                         data-start="{{ $cp->waktu_start?->toIso8601String() ?? '' }}"
                                                         data-end="{{ $cp->waktu_end?->toIso8601String() ?? '' }}">DONE</span>
                                                     <span
-                                                        class="gate-status text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">🏁
+                                                        class="gate-status text-[12px] px-1.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">🏁
                                                         FINISH</span>
                                                 @elseif($cp->waktu_start || $cp->status === 'ON LOADING')
                                                     <span
-                                                        class="gate-timer mt-0.5 text-[8px] px-1.5 py-0.5 rounded font-mono bg-blue-100 text-blue-700"
+                                                        class="gate-timer mt-0.5 text-[12px] px-1.5 py-0.5 rounded font-mono bg-blue-100 text-blue-700"
                                                         data-start="{{ $cp->waktu_start?->toIso8601String() ?? '' }}">00:00:00</span>
                                                     <span
-                                                        class="gate-status text-[8px] px-1.5 py-0.5 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">⏳
+                                                        class="gate-status text-[12px] px-1.5 py-0.5 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">⏳
                                                         LOADING</span>
                                                 @elseif($cp->waktu_penerimaan_dokumen)
                                                     <span
-                                                        class="gate-status mt-0.5 text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-yellow-100 text-yellow-700">📋
+                                                        class="gate-status mt-0.5 text-[12px] px-1.5 py-0.5 rounded-full font-bold bg-yellow-100 text-yellow-700">📋
                                                         ASSIGN</span>
                                                 @endif
                                             @else
@@ -519,14 +521,16 @@
                                         </div>
                                         @if ($cp)
                                             <div class="gate-times">
-                                                <div
+                                                <div class="font-mono text-[11px]"
                                                     style="color: {{ $cp->waktu_penerimaan_dokumen ? '#4b5563' : '#d1d5db' }}">
                                                     📋 {{ $cp->waktu_penerimaan_dokumen?->format('H:i') ?? '--:--' }}</div>
-                                                <div style="color: {{ $cp->waktu_start ? '#4b5563' : '#d1d5db' }}">⏳
+                                                <div class="font-mono text-[11px]"
+                                                    style="color: {{ $cp->waktu_start ? '#4b5563' : '#d1d5db' }}">⏳
                                                     {{ $cp->waktu_start?->format('H:i') ?? '--:--' }}</div>
-                                                <div style="color: {{ $cp->waktu_end ? '#4b5563' : '#d1d5db' }}">🏁
+                                                <div class="font-mono text-[11px]"
+                                                    style="color: {{ $cp->waktu_end ? '#4b5563' : '#d1d5db' }}">🏁
                                                     {{ $cp->waktu_end?->format('H:i') ?? '--:--' }}</div>
-                                                <div
+                                                <div class="font-mono text-[11px]"
                                                     style="color: {{ $cp->waktu_penyerahan_dokumen ? '#4b5563' : '#d1d5db' }}">
                                                     ✅ {{ $cp->waktu_penyerahan_dokumen?->format('H:i') ?? '--:--' }}</div>
                                             </div>
@@ -537,14 +541,62 @@
                             {{-- Pad odd number (11 gates → 1 empty slot) --}}
                             <div class="gate-card border-transparent opacity-0 pointer-events-none"></div>
                         </div>
-                    </div>
+                        <br>
+                        <div class="bg-white rounded-lg border border-gray-200 p-3">
+                            <p class="text-xs font-semibold text-gray-600 mb-2">Keterangan Status Gate:</p>
+                            <div class="flex flex-wrap gap-4 text-xs text-gray-500">
+                                <span class="flex items-center gap-1.5">
+                                    <span
+                                        class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-yellow-100 text-yellow-700">📋
+                                        ASSIGN</span>
+                                    Dokumen diterima, menunggu loading
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-100 text-blue-700">⏳
+                                        ON
+                                        LOADING</span>
+                                    Sedang proses loading
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <span
+                                        class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-700">🏁
+                                        FINISH
+                                        LOADING</span>
+                                    Loading selesai
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <span
+                                        class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-purple-100 text-purple-700">✅
+                                        COMPLETED</span>
+                                    Dokumen diserahkan
+                                </span>
+                            </div>
+                            <div class="flex flex-wrap gap-4 text-xs text-gray-500 mt-2 pt-2 border-t border-gray-100">
+                                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-blue-500"></span>
+                                    FROZEN (Gate F-1
+                                    – F-16)</span>
+                                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-500"></span>
+                                    DRY (Gate D-1 –
+                                    D-11)</span>
+                                <span class="flex items-center gap-1.5"><span
+                                        class="w-3 h-3 rounded bg-emerald-400"></span> Loading &lt;
+                                    30 menit</span>
+                                <span class="flex items-center gap-1.5"><span
+                                        class="w-3 h-3 rounded bg-yellow-400"></span> Loading 30–60
+                                    menit</span>
+                                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-red-500"></span>
+                                    Loading &gt; 60
+                                    menit</span>
+                            </div>
+                        </div>
 
+                    </div>
                 </div>
             </div>
         </div>
 
         {{-- Legend --}}
-        <div class="bg-white rounded-lg border border-gray-200 p-3">
+        {{-- <div class="bg-white rounded-lg border border-gray-200 p-3">
             <p class="text-xs font-semibold text-gray-600 mb-2">Keterangan Status Gate:</p>
             <div class="flex flex-wrap gap-4 text-xs text-gray-500">
                 <span class="flex items-center gap-1.5">
@@ -580,7 +632,7 @@
                 <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-red-500"></span> Loading &gt; 60
                     menit</span>
             </div>
-        </div>
+        </div> --}}
 
     </div>
 
@@ -598,7 +650,7 @@
 
         function formatDuration(startISO, endISO) {
             const totalSec = Math.max(0, Math.floor(((endISO ? new Date(endISO) : new Date()) - new Date(startISO)) /
-            1000));
+                1000));
             const h = Math.floor(totalSec / 3600);
             const m = Math.floor((totalSec % 3600) / 60);
             const s = totalSec % 60;
@@ -632,7 +684,7 @@
             });
             document.querySelectorAll('.static-timer').forEach(t => {
                 if (t.dataset.start && t.dataset.end) t.textContent = formatDuration(t.dataset.start, t.dataset
-                .end);
+                    .end);
             });
             document.querySelectorAll('.gate-timer').forEach(t => {
                 if (t.dataset.start) t.textContent = formatDuration(t.dataset.start, null);
@@ -668,16 +720,16 @@
         // ===== GATE CONTENT BUILDER (for live refresh) =====
         function getStatusHtml(gate) {
             if (gate.waktu_penyerahan)
-                return '<span class="gate-status mt-0.5 text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-purple-100 text-purple-700">✅ COMPLETED</span>';
+                return '<span class="gate-status mt-0.5 text-[12px] px-1.5 py-0.5 rounded-full font-bold bg-purple-100 text-purple-700">✅ COMPLETED</span>';
             if (gate.waktu_end) {
                 const dur = gate.waktu_start ? formatDuration(gate.waktu_start, gate.waktu_end) : 'DONE';
-                return `<span class="static-timer mt-0.5 text-[8px] px-1.5 py-0.5 rounded font-mono bg-emerald-100 text-emerald-700" data-start="${gate.waktu_start||''}" data-end="${gate.waktu_end}">${dur}</span><span class="gate-status text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">🏁 FINISH</span>`;
+                return `<span class="static-timer mt-0.5 text-[12px] px-1.5 py-0.5 rounded font-mono bg-emerald-100 text-emerald-700" data-start="${gate.waktu_start||''}" data-end="${gate.waktu_end}">${dur}</span><span class="gate-status text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">🏁 FINISH</span>`;
             }
             if (gate.waktu_start) {
-                return `<span class="gate-timer mt-0.5 text-[8px] px-1.5 py-0.5 rounded font-mono bg-blue-100 text-blue-700" data-start="${gate.waktu_start}">${formatDuration(gate.waktu_start, null)}</span><span class="gate-status text-[8px] px-1.5 py-0.5 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">⏳ LOADING</span>`;
+                return `<span class="gate-timer mt-0.5 text-[12px] px-1.5 py-0.5 rounded font-mono bg-blue-100 text-blue-700" data-start="${gate.waktu_start}">${formatDuration(gate.waktu_start, null)}</span><span class="gate-status text-[8px] px-1.5 py-0.5 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">⏳ LOADING</span>`;
             }
             if (gate.waktu_penerimaan)
-                return '<span class="gate-status mt-0.5 text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-yellow-100 text-yellow-700">📋 ASSIGN</span>';
+                return '<span class="gate-status mt-0.5 text-[12px] px-1.5 py-0.5 rounded-full font-bold bg-yellow-100 text-yellow-700">📋 ASSIGN</span>';
             return '';
         }
 
@@ -707,25 +759,25 @@
             const act = (gate.aktivitas || '').toUpperCase();
             let aktHtml = '';
             if (act === 'INBOUND') aktHtml =
-                '<span class="text-[8px] font-bold px-1.5 py-0.5 rounded bg-orange-100 text-orange-700">INBOUND</span>';
+                '<span class="text-[16px] font-bold px-1.5 py-0.5 rounded bg-orange-100 text-orange-700">INBOUND</span>';
             else if (act === 'OUTBOUND') aktHtml =
-                '<span class="text-[8px] font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700">OUTBOUND</span>';
+                '<span class="text-[16px] font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700">OUTBOUND</span>';
             else if (gate.aktivitas) aktHtml =
-                `<span class="text-[8px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-700">${gate.aktivitas}</span>`;
+                `<span class="text-[16px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-700">${gate.aktivitas}</span>`;
 
             const timesHtml = `
                 <div class="gate-times">
-                    <div style="color:${gate.waktu_penerimaan?'#4b5563':'#d1d5db'}">📋 ${gate.waktu_penerimaan ? formatTime(gate.waktu_penerimaan) : '--:--'}</div>
-                    <div style="color:${gate.waktu_start?'#4b5563':'#d1d5db'}">⏳ ${gate.waktu_start ? formatTime(gate.waktu_start) : '--:--'}</div>
-                    <div style="color:${gate.waktu_end?'#4b5563':'#d1d5db'}">🏁 ${gate.waktu_end ? formatTime(gate.waktu_end) : '--:--'}</div>
-                    <div style="color:${gate.waktu_penyerahan?'#4b5563':'#d1d5db'}">✅ ${gate.waktu_penyerahan ? formatTime(gate.waktu_penyerahan) : '--:--'}</div>
+                    <div class="font-mono text-[11px]" style="color:${gate.waktu_penerimaan?'#4b5563':'#d1d5db'}">📋 ${gate.waktu_penerimaan ? formatTime(gate.waktu_penerimaan) : '--:--'}</div>
+                    <div class="font-mono text-[11px]" style="color:${gate.waktu_start?'#4b5563':'#d1d5db'}">⏳ ${gate.waktu_start ? formatTime(gate.waktu_start) : '--:--'}</div>
+                    <div class="font-mono text-[11px]" style="color:${gate.waktu_end?'#4b5563':'#d1d5db'}">🏁 ${gate.waktu_end ? formatTime(gate.waktu_end) : '--:--'}</div>
+                    <div class="font-mono text-[11px]" style="color:${gate.waktu_penyerahan?'#4b5563':'#d1d5db'}">✅ ${gate.waktu_penyerahan ? formatTime(gate.waktu_penyerahan) : '--:--'}</div>
                 </div>`;
 
             body.innerHTML = `
                 <div class="gate-body-inner">
                     ${aktHtml}
-                    <p style="font-size:11px;font-weight:700;color:#1f2937;margin-top:2px;line-height:1.2;word-break:break-all">${gate.no_polisi}</p>
-                    <p style="font-size:9px;color:#6b7280;line-height:1.2">${gate.vendor || ''}</p>
+                    <p style="font-size:16px;font-weight:700;color:#1f2937;margin-top:2px;line-height:1.2;word-break:break-all">${gate.no_polisi}</p>
+                    <p style="font-size:12px;color:#6b7280;line-height:1.2">${gate.vendor || ''}</p>
                     ${getStatusHtml(gate)}
                 </div>
                 ${timesHtml}`;
