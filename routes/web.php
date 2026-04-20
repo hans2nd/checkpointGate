@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::post('checkpoints/{checkpoint}/trigger-penyerahan', [CheckpointController::class, 'triggerPenyerahan'])->name('checkpoints.trigger-penyerahan')->middleware('permission:checkpoint.trigger');
     Route::post('checkpoints/{checkpoint}/trigger-start', [CheckpointController::class, 'triggerStart'])->name('checkpoints.trigger-start')->middleware('permission:checkpoint.trigger');
     Route::post('checkpoints/{checkpoint}/trigger-end', [CheckpointController::class, 'triggerEnd'])->name('checkpoints.trigger-end')->middleware('permission:checkpoint.trigger');
+    Route::post('checkpoints/{checkpoint}/cancel', [CheckpointController::class, 'cancel'])->name('checkpoints.cancel')->middleware('permission:checkpoint.edit');
 
     Route::resource('gates', GateController::class)->except(['show', 'destroy']);
     Route::resource('vehicles', VehicleController::class)->except(['show', 'destroy']);

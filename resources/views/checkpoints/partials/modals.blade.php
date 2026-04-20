@@ -45,6 +45,45 @@
         </div>
     </div>
 
+    <!-- Cancel Modal -->
+    <div id="cancelModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black/50" onclick="closeCancelModal()"></div>
+            <div class="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6 z-10">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900">Cancel Checkpoint</h3>
+                        <p class="text-sm text-gray-500 mt-0.5" id="cancelModalSubtitle"></p>
+                    </div>
+                    <button type="button" onclick="closeCancelModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form id="cancelForm" method="POST" action="">
+                    @csrf
+                    <div class="mb-4">
+                        <label for="cancel_note" class="block text-sm font-medium text-gray-700 mb-2">Catatan Cancel <span
+                                class="text-red-400">*</span></label>
+                        <textarea id="cancel_note" name="cancel_note" rows="4" required minlength="5" maxlength="500"
+                            placeholder="Tuliskan alasan cancel agar data tetap informatif..."
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all resize-none"></textarea>
+                        <p class="text-xs text-gray-400 mt-1">Catatan ini akan tampil di tabel, detail, dan export Excel.</p>
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <button type="button" onclick="closeCancelModal()"
+                            class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-lg">Batal</button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg">Cancel Checkpoint</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Gate Selection Modal -->
     <div id="gateModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4">

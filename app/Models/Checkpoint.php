@@ -28,6 +28,9 @@ class Checkpoint extends Model
         'created_by',
         'started_by',
         'note',
+        'cancel_note',
+        'canceled_at',
+        'canceled_by',
     ];
 
     protected $casts = [
@@ -36,6 +39,7 @@ class Checkpoint extends Model
         'waktu_penyerahan_dokumen' => 'datetime',
         'waktu_start' => 'datetime',
         'waktu_end' => 'datetime',
+        'canceled_at' => 'datetime',
         'gate' => 'string',
     ];
 
@@ -53,5 +57,13 @@ class Checkpoint extends Model
     public function startedByUser()
     {
         return $this->belongsTo(User::class, 'started_by');
+    }
+
+    /**
+     * User who canceled this checkpoint record.
+     */
+    public function canceledByUser()
+    {
+        return $this->belongsTo(User::class, 'canceled_by');
     }
 }

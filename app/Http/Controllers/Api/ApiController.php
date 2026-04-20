@@ -196,6 +196,7 @@ class ApiController extends Controller
 
         $activeCheckpoints = Checkpoint::whereDate('tanggal', $date)
             ->whereNotNull('gate')
+            ->where('status', '!=', 'CANCEL')
             ->orderBy('gate')
             ->orderBy('created_at', 'desc')
             ->get()
@@ -451,6 +452,7 @@ class ApiController extends Controller
     {
         $occupiedGates = Checkpoint::whereDate('tanggal', Carbon::today())
             ->whereNotNull('gate')
+            ->where('status', '!=', 'CANCEL')
             ->where(function ($q) {
                 $q->whereNull('waktu_penyerahan_dokumen')
                   ->orWhere('status', '!=', 'FINISH');
@@ -525,6 +527,10 @@ class ApiController extends Controller
             'durasi' => $cp->durasi,
             'durasi_dokumen' => $durasiDokumen,
             'note' => $cp->note,
+            'cancel_note' => $cp->cancel_note,
+            'canceled_at' => $cp->canceled_at?->toIso8601String(),
+            'canceled_by' => $cp->canceled_by,
+            'canceled_by_name' => $cp->canceledByUser?->name,
             'created_by' => $cp->created_by,
             'created_by_name' => $cp->createdByUser?->name,
             'started_by' => $cp->started_by,

@@ -22,6 +22,7 @@ class LiveMonitoring2Controller extends Controller
         // Get all active checkpoints for selected date (grouped by gate)
         $activeCheckpoints = Checkpoint::whereDate('tanggal', $selectedDate)
             ->whereNotNull('gate')
+            ->where('status', '!=', 'CANCEL')
             ->orderBy('gate')
             ->orderBy('created_at', 'desc')
             ->get()
@@ -47,6 +48,7 @@ class LiveMonitoring2Controller extends Controller
                 $parking = Checkpoint::whereDate('tanggal', $selectedDate)
                     ->where('aktivitas', $aktivitas)
                     ->where('jenis_barang', $jenis)
+                    ->where('status', '!=', 'CANCEL')
                     ->where('waktu_penerimaan_dokumen', null)
                     ->count();
                 $receiving = Checkpoint::whereDate('tanggal', $selectedDate)
@@ -148,6 +150,7 @@ class LiveMonitoring2Controller extends Controller
 
         $activeCheckpoints = Checkpoint::whereDate('tanggal', $selectedDate)
             ->whereNotNull('gate')
+            ->where('status', '!=', 'CANCEL')
             ->orderBy('gate')
             ->orderBy('created_at', 'desc')
             ->get()
@@ -179,6 +182,7 @@ class LiveMonitoring2Controller extends Controller
                 $parking = Checkpoint::whereDate('tanggal', $selectedDate)
                     ->where('aktivitas', $aktivitas)
                     ->where('jenis_barang', $jenis)
+                    ->where('status', '!=', 'CANCEL')
                     ->where('waktu_penerimaan_dokumen', null)
                     ->count();
                 $receiving = Checkpoint::whereDate('tanggal', $selectedDate)

@@ -110,6 +110,17 @@
             });
         </script>
     @endif
+    @if ($errors->any())
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Validasi gagal!',
+                html: @json($errors->all()).map(error => `<div>${error}</div>`).join(''),
+                showConfirmButton: true,
+                position: 'center'
+            });
+        </script>
+    @endif
 
     {{-- Reusable SweetAlert helpers --}}
     <script>

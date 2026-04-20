@@ -46,6 +46,9 @@
                             <th data-col="col-status"
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
                                 Status</th>
+                            <th data-col="col-catatan"
+                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                Catatan</th>
                             <th data-col="col-durasi"
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
                                 Durasi<br><span class="text-[10px] font-normal normal-case text-gray-400">Loading</span>
@@ -84,7 +87,8 @@
                                 data-cp-kendaraan="{{ $cp->jenis_kendaraan }}" data-cp-barang="{{ $cp->jenis_barang }}"
                                 data-cp-aktivitas="{{ $cp->aktivitas }}" data-cp-gate="{{ $cp->gate ?? '-' }}"
                                 data-cp-tanggal="{{ $cp->tanggal->format('d/m/Y') }}"
-                                data-cp-penerimaan="{{ $cp->waktu_penerimaan_dokumen?->format('d/m/Y H:i:s') ?? '' }}">
+                                data-cp-penerimaan="{{ $cp->waktu_penerimaan_dokumen?->format('d/m/Y H:i:s') ?? '' }}"
+                                data-cp-cancel-note="{{ $cp->cancel_note ?? '' }}">
                                 @if (Auth::user()->hasPermission('checkpoint.delete'))
                                     <td class="px-3 py-2.5"><input type="checkbox" data-id="{{ $cp->id }}"
                                             class="row-checkbox rounded border-gray-300 text-orange-500 focus:ring-orange-500"
@@ -113,9 +117,9 @@
                                     @if ($cp->waktu_penerimaan_dokumen)
                                         <span
                                             class="text-xs text-gray-600">{{ $cp->waktu_penerimaan_dokumen->format('H:i:s') }}</span>
-                                    @elseif(Auth::user()->hasPermission('checkpoint.trigger'))
+                                    @elseif($cp->status !== 'CANCEL' && Auth::user()->hasPermission('checkpoint.trigger'))
                                         <button type="button"
-                                            onclick="openGateModal({{ $cp->id }}, '{{ $cp->no_polisi }}')"
+                                            onclick="openGateModal({{ $cp->id }}, @js($cp->no_polisi))"
                                             class="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">📥
                                             Terima</button>
                                     @else
@@ -126,7 +130,7 @@
                                     @if ($cp->waktu_start)
                                         <span
                                             class="text-xs text-gray-600">{{ $cp->waktu_start->format('H:i:s') }}</span>
-                                    @elseif($cp->waktu_penerimaan_dokumen && $cp->gate && Auth::user()->hasPermission('checkpoint.trigger'))
+                                    @elseif($cp->status !== 'CANCEL' && $cp->waktu_penerimaan_dokumen && $cp->gate && Auth::user()->hasPermission('checkpoint.trigger'))
                                         <form method="POST" action="{{ route('checkpoints.trigger-start', $cp) }}"
                                             class="inline">@csrf
                                             <button type="submit"
@@ -141,7 +145,7 @@
                                     @if ($cp->waktu_end)
                                         <span
                                             class="text-xs text-gray-600">{{ $cp->waktu_end->format('H:i:s') }}</span>
-                                    @elseif($cp->waktu_start && Auth::user()->hasPermission('checkpoint.trigger'))
+                                    @elseif($cp->status !== 'CANCEL' && $cp->waktu_start && Auth::user()->hasPermission('checkpoint.trigger'))
                                         <form method="POST" action="{{ route('checkpoints.trigger-end', $cp) }}"
                                             class="inline">@csrf
                                             <button type="submit"
@@ -156,7 +160,13 @@
                                     {{ $gateLabel ?? '-' }}</td>
 
                                 <td data-col="col-status" class="px-3 py-2.5 whitespace-nowrap">
-                                    @if ($cp->status === 'FINISH')
+                                    @if ($cp->status === 'CANCEL')
+                                        <span
+                                            class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-red-50 text-red-700">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                            CANCEL
+                                        </span>
+                                    @elseif ($cp->status === 'FINISH')
                                         <span
                                             class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700">
                                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
@@ -176,6 +186,18 @@
                                         </span>
                                     @endif
                                 </td>
+                                <td data-col="col-catatan" class="px-3 py-2.5 text-gray-500 text-xs max-w-[220px]">
+                                    @if ($cp->status === 'CANCEL' && $cp->cancel_note)
+                                        <span class="block truncate text-red-700" title="{{ $cp->cancel_note }}">{{ $cp->cancel_note }}</span>
+                                        @if ($cp->canceled_at)
+                                            <span class="block text-[10px] text-gray-400">{{ $cp->canceled_at->format('d/m/Y H:i') }}</span>
+                                        @endif
+                                    @elseif($cp->note)
+                                        <span class="block truncate" title="{{ $cp->note }}">{{ $cp->note }}</span>
+                                    @else
+                                        <span class="text-gray-300">-</span>
+                                    @endif
+                                </td>
                                 <td data-col="col-durasi"
                                     class="px-3 py-2.5 text-gray-500 font-mono text-xs whitespace-nowrap">
                                     {{ $cp->durasi ?? '-' }}</td>
@@ -183,7 +205,7 @@
                                     @if ($cp->waktu_penyerahan_dokumen)
                                         <span
                                             class="text-xs text-gray-600">{{ $cp->waktu_penyerahan_dokumen->format('H:i:s') }}</span>
-                                    @elseif($cp->waktu_end && Auth::user()->hasPermission('checkpoint.trigger'))
+                                    @elseif($cp->status !== 'CANCEL' && $cp->waktu_end && Auth::user()->hasPermission('checkpoint.trigger'))
                                         <form method="POST"
                                             action="{{ route('checkpoints.trigger-penyerahan', $cp) }}"
                                             class="inline">@csrf
@@ -231,6 +253,19 @@
                                                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
                                             </a>
+                                            @if (!in_array($cp->status, ['FINISH', 'CANCEL']))
+                                                <button type="button"
+                                                    onclick="openCancelModal({{ $cp->id }}, @js($cp->no_polisi))"
+                                                    class="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-all"
+                                                    title="Cancel">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                </button>
+                                            @endif
                                         @endif
                                         @if (Auth::user()->hasPermission('checkpoint.delete'))
                                             <form id="deleteForm{{ $cp->id }}" method="POST"
@@ -254,7 +289,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="17" class="px-4 py-12 text-center">
+                                <td colspan="{{ Auth::user()->hasPermission('checkpoint.delete') ? 18 : 17 }}" class="px-4 py-12 text-center">
                                     <div class="text-gray-400">
                                         <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none"
                                             stroke="currentColor" viewBox="0 0 24 24">

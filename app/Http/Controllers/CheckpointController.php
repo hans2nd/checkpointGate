@@ -118,12 +118,22 @@ class CheckpointController extends Controller
             'jenis_barang' => 'required|in:FROZEN,DRY,CHILLED',
             'aktivitas' => 'required|in:INBOUND,OUTBOUND',
             'gate' => 'nullable|string|max:30',
-            'status' => 'required|in:START,FINISH',
+            'status' => 'required|in:START,FINISH,ON LOADING,CANCEL',
             'waktu_start' => 'nullable|date',
             'waktu_end' => 'nullable|date',
             'durasi' => 'nullable|string|max:20',
             'note' => 'nullable|string|max:500',
+            'cancel_note' => 'required_if:status,CANCEL|nullable|string|max:500',
         ]);
+
+        if ($validated['status'] === 'CANCEL') {
+            $validated['canceled_at'] = $checkpoint->canceled_at ?? Carbon::now();
+            $validated['canceled_by'] = $checkpoint->canceled_by ?? Auth::id();
+        } elseif ($checkpoint->status === 'CANCEL') {
+            $validated['cancel_note'] = null;
+            $validated['canceled_at'] = null;
+            $validated['canceled_by'] = null;
+        }
 
         $checkpoint->update($validated);
 
@@ -183,23 +193,21 @@ class CheckpointController extends Controller
             $query->whereDate('tanggal', $date);
         }
 
-        $data = $query->orderBy('tanggal', 'desc')
-                      ->orderBy('waktu_penerimaan_dokumen', 'desc')
-                      ->get();
+        $data = $query->orderBy('created_at', 'desc')->get();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Data Checkpoint');
 
         // Header
-        $headers = ['No', 'Tanggal', 'No Polisi', 'Vendor', 'Driver', 'Tipe', 'Jenis Kendaraan', 'Jenis Barang', 'Aktivitas', 'Gate', 'Penerimaan Dokumen', 'Penyerahan Dokumen', 'Durasi Dokumen', 'Waktu Start', 'Waktu End', 'Status', 'Durasi Loading'];
+        $headers = ['No', 'Tanggal', 'No Polisi', 'Vendor', 'Kendaraan', 'Barang', 'Aktivitas', 'Penerimaan Dokumen', 'Start Loading', 'End Loading', 'Gate', 'Status', 'Catatan', 'Durasi Loading', 'Penyerahan Dokumen', 'Durasi Dokumen'];
         foreach ($headers as $col => $header) {
             $cell = chr(65 + $col) . '1';
             $sheet->setCellValue($cell, $header);
         }
 
         // Style header
-        $headerRange = 'A1:Q1';
+        $headerRange = 'A1:P1';
         $sheet->getStyle($headerRange)->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '10B981']],
@@ -215,49 +223,30 @@ class CheckpointController extends Controller
             $sheet->setCellValue('B' . $row, $cp->tanggal ? $cp->tanggal->format('d/m/Y') : '');
             $sheet->setCellValue('C' . $row, $cp->no_polisi);
             $sheet->setCellValue('D' . $row, $cp->vendor);
-            $sheet->setCellValue('E' . $row, $cp->driver);
-            $sheet->setCellValue('F' . $row, $cp->tipe);
-            $sheet->setCellValue('G' . $row, $cp->jenis_kendaraan);
-            $sheet->setCellValue('H' . $row, $cp->jenis_barang);
-            $sheet->setCellValue('I' . $row, $cp->aktivitas);
-            // $sheet->setCellValue('J' . $row, $cp->gate);
-            $gateLabel = '';
-
-            if ($cp->gate >= 1 && $cp->gate <= 16) {
-                $gateLabel = 'F-' . $cp->gate;
-            } elseif ($cp->gate >= 17 && $cp->gate <= 27) {
-                $gateLabel = 'D-' . ($cp->gate - 16);
-            } else {
-                $gateLabel = 'Gate-' . $cp->gate;
-            }
-
-            $sheet->setCellValue('J' . $row, $gateLabel);
-            $sheet->setCellValue('K' . $row, $cp->waktu_penerimaan_dokumen ? $cp->waktu_penerimaan_dokumen->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('L' . $row, $cp->waktu_penyerahan_dokumen ? $cp->waktu_penyerahan_dokumen->format('d/m/Y H:i:s') : '');
-            // Durasi Dokumen (penerimaan -> penyerahan)
-            $durasiDokumen = '';
-            if ($cp->waktu_penerimaan_dokumen && $cp->waktu_penyerahan_dokumen) {
-                $diff = $cp->waktu_penerimaan_dokumen->diff($cp->waktu_penyerahan_dokumen);
-                $hours = ($diff->days * 24) + $diff->h;
-                $durasiDokumen = sprintf('%02d:%02d:%02d', $hours, $diff->i, $diff->s);
-            }
-            $sheet->setCellValue('M' . $row, $durasiDokumen);
-            $sheet->setCellValue('N' . $row, $cp->waktu_start ? $cp->waktu_start->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('O' . $row, $cp->waktu_end ? $cp->waktu_end->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('P' . $row, $cp->status);
-            $sheet->setCellValue('Q' . $row, $cp->durasi);
+            $sheet->setCellValue('E' . $row, $cp->jenis_kendaraan);
+            $sheet->setCellValue('F' . $row, $cp->jenis_barang);
+            $sheet->setCellValue('G' . $row, $cp->aktivitas);
+            $sheet->setCellValue('H' . $row, $cp->waktu_penerimaan_dokumen ? $cp->waktu_penerimaan_dokumen->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('I' . $row, $cp->waktu_start ? $cp->waktu_start->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('J' . $row, $cp->waktu_end ? $cp->waktu_end->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('K' . $row, $this->formatGateLabel($cp->gate));
+            $sheet->setCellValue('L' . $row, $cp->status);
+            $sheet->setCellValue('M' . $row, $cp->status === 'CANCEL' ? $cp->cancel_note : $cp->note);
+            $sheet->setCellValue('N' . $row, $cp->durasi);
+            $sheet->setCellValue('O' . $row, $cp->waktu_penyerahan_dokumen ? $cp->waktu_penyerahan_dokumen->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('P' . $row, $this->calculateDurasiDokumen($cp));
             $row++;
         }
 
         // Data borders
         if ($row > 2) {
-            $sheet->getStyle('A2:Q' . ($row - 1))->applyFromArray([
+            $sheet->getStyle('A2:P' . ($row - 1))->applyFromArray([
                 'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
             ]);
         }
 
         // Auto-size columns
-        foreach (range('A', 'Q') as $col) {
+        foreach (range('A', 'P') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
@@ -275,6 +264,16 @@ class CheckpointController extends Controller
      */
     public function triggerPenerimaan(Request $request, Checkpoint $checkpoint)
     {
+        if ($checkpoint->status === 'CANCEL') {
+            return redirect()->back()
+                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
+        }
+
+        if ($checkpoint->status === 'FINISH') {
+            return redirect()->back()
+                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah selesai.");
+        }
+
         $request->validate([
             'gate' => 'required|integer|min:1|max:27',
         ]);
@@ -284,8 +283,9 @@ class CheckpointController extends Controller
         // Check if gate is already in use today (has active loading)
         $gateInUse = Checkpoint::whereDate('tanggal', Carbon::today())
             ->where('gate', $gateNumber)
-            ->where('status', 'START')
-            ->whereNotNull('waktu_start')
+            ->whereKeyNot($checkpoint->id)
+            ->where('status', '!=', 'CANCEL')
+            ->whereNotNull('waktu_penerimaan_dokumen')
             ->whereNull('waktu_end')
             ->exists();
 
@@ -312,6 +312,7 @@ class CheckpointController extends Controller
         $occupiedGates = Checkpoint::whereDate('tanggal', Carbon::today())
             ->whereNotNull('gate')
             ->whereNotNull('waktu_penerimaan_dokumen')
+            ->where('status', '!=', 'CANCEL')
             ->whereNull('waktu_end')
             ->pluck('gate')
             ->unique()
@@ -335,6 +336,11 @@ class CheckpointController extends Controller
      */
     public function triggerPenyerahan(Checkpoint $checkpoint)
     {
+        if ($checkpoint->status === 'CANCEL') {
+            return redirect()->back()
+                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
+        }
+
         $checkpoint->update([
             'waktu_penyerahan_dokumen' => Carbon::now(),
         ]);
@@ -348,6 +354,16 @@ class CheckpointController extends Controller
      */
     public function triggerStart(Checkpoint $checkpoint)
     {
+        if ($checkpoint->status === 'CANCEL') {
+            return redirect()->back()
+                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
+        }
+
+        if ($checkpoint->status === 'FINISH') {
+            return redirect()->back()
+                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah selesai.");
+        }
+
         $checkpoint->update([
             'waktu_start' => Carbon::now(),
             'status' => 'ON LOADING',
@@ -364,6 +380,11 @@ class CheckpointController extends Controller
      */
     public function triggerEnd(Checkpoint $checkpoint)
     {
+        if ($checkpoint->status === 'CANCEL') {
+            return redirect()->back()
+                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
+        }
+
         // Validate: user who ends must be the same who started (unless admin)
         $currentUser = Auth::user();
         if ($checkpoint->started_by && $currentUser->id !== $checkpoint->started_by && !$currentUser->isAdmin()) {
@@ -389,6 +410,40 @@ class CheckpointController extends Controller
 
         return redirect()->back()
                          ->with('success', "Loading {$checkpoint->no_polisi} selesai. Durasi: {$durasi}");
+    }
+
+    /**
+     * Cancel checkpoint data with a required explanatory note.
+     */
+    public function cancel(Request $request, Checkpoint $checkpoint)
+    {
+        if ($checkpoint->status === 'CANCEL') {
+            return redirect()->back()
+                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
+        }
+
+        if ($checkpoint->status === 'FINISH') {
+            return redirect()->back()
+                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah selesai dan tidak dapat dibatalkan.");
+        }
+
+        $validated = $request->validate([
+            'cancel_note' => 'required|string|min:5|max:500',
+        ], [
+            'cancel_note.required' => 'Catatan cancel wajib diisi.',
+            'cancel_note.min' => 'Catatan cancel minimal 5 karakter.',
+            'cancel_note.max' => 'Catatan cancel maksimal 500 karakter.',
+        ]);
+
+        $checkpoint->update([
+            'status' => 'CANCEL',
+            'cancel_note' => $validated['cancel_note'],
+            'canceled_at' => Carbon::now(),
+            'canceled_by' => Auth::id(),
+        ]);
+
+        return redirect()->back()
+                         ->with('success', "Checkpoint {$checkpoint->no_polisi} berhasil dibatalkan.");
     }
 
     /**
@@ -507,5 +562,36 @@ class CheckpointController extends Controller
         $writer->save($temp);
 
         return response()->download($temp, $filename)->deleteFileAfterSend(true);
+    }
+
+    private function formatGateLabel($gate): string
+    {
+        if (!$gate) {
+            return '-';
+        }
+
+        $gateNumber = (int) $gate;
+
+        if ($gateNumber >= 1 && $gateNumber <= 16) {
+            return 'F-' . $gateNumber;
+        }
+
+        if ($gateNumber >= 17 && $gateNumber <= 27) {
+            return 'D-' . ($gateNumber - 16);
+        }
+
+        return 'Gate-' . $gate;
+    }
+
+    private function calculateDurasiDokumen(Checkpoint $checkpoint): string
+    {
+        if (!$checkpoint->waktu_penerimaan_dokumen || !$checkpoint->waktu_penyerahan_dokumen) {
+            return '';
+        }
+
+        $diff = $checkpoint->waktu_penerimaan_dokumen->diff($checkpoint->waktu_penyerahan_dokumen);
+        $hours = ($diff->days * 24) + $diff->h;
+
+        return sprintf('%02d:%02d:%02d', $hours, $diff->i, $diff->s);
     }
 }

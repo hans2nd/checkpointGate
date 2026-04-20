@@ -167,8 +167,13 @@
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white transition-all">
                             <option value="START" {{ old('status', $checkpoint->status) == 'START' ? 'selected' : '' }}>
                                 START</option>
+                            <option value="ON LOADING"
+                                {{ old('status', $checkpoint->status) == 'ON LOADING' ? 'selected' : '' }}>ON LOADING
+                            </option>
                             <option value="FINISH" {{ old('status', $checkpoint->status) == 'FINISH' ? 'selected' : '' }}>
                                 FINISH</option>
+                            <option value="CANCEL" {{ old('status', $checkpoint->status) == 'CANCEL' ? 'selected' : '' }}>
+                                CANCEL</option>
                         </select>
                     </div>
 
@@ -203,6 +208,12 @@
                     <label for="note" class="block text-sm font-medium text-gray-700 mb-1.5">Catatan / Keterangan</label>
                     <textarea id="note" name="note" rows="3" placeholder="Tambahkan catatan atau keterangan (opsional)..."
                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none">{{ old('note', $checkpoint->note) }}</textarea>
+                </div>
+
+                <div class="mt-5">
+                    <label for="cancel_note" class="block text-sm font-medium text-gray-700 mb-1.5">Catatan Cancel</label>
+                    <textarea id="cancel_note" name="cancel_note" rows="3" placeholder="Diisi jika status checkpoint CANCEL..."
+                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none">{{ old('cancel_note', $checkpoint->cancel_note) }}</textarea>
                 </div>
 
                 {{-- Submit --}}

@@ -42,8 +42,8 @@
                     {{ $checkpoint->aktivitas }}
                 </span>
                 <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium
-                    {{ $checkpoint->status === 'FINISH' ? 'bg-blue-50 text-blue-700' : 'bg-yellow-50 text-yellow-700' }}">
-                    <span class="w-1.5 h-1.5 rounded-full {{ $checkpoint->status === 'FINISH' ? 'bg-blue-500' : 'bg-yellow-500' }}"></span>
+                    {{ $checkpoint->status === 'CANCEL' ? 'bg-red-50 text-red-700' : ($checkpoint->status === 'FINISH' ? 'bg-blue-50 text-blue-700' : 'bg-yellow-50 text-yellow-700') }}">
+                    <span class="w-1.5 h-1.5 rounded-full {{ $checkpoint->status === 'CANCEL' ? 'bg-red-500' : ($checkpoint->status === 'FINISH' ? 'bg-blue-500' : 'bg-yellow-500') }}"></span>
                     {{ $checkpoint->status }}
                 </span>
             </div>
@@ -151,6 +151,16 @@
                 </div>
 
                 <div>
+                    <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Cancel Oleh</p>
+                    <p class="text-sm text-gray-900 mt-1 font-medium">{{ $checkpoint->canceledByUser?->name ?? '-' }}</p>
+                </div>
+
+                <div>
+                    <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Waktu Cancel</p>
+                    <p class="text-sm text-gray-900 mt-1 font-medium">{{ $checkpoint->canceled_at?->format('d/m/Y H:i:s') ?? '-' }}</p>
+                </div>
+
+                <div>
                     <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Dibuat</p>
                     <p class="text-sm text-gray-900 mt-1 font-medium">{{ $checkpoint->created_at->format('d/m/Y H:i:s') }}</p>
                 </div>
@@ -165,6 +175,13 @@
             <div class="mt-6 pt-4 border-t border-gray-100">
                 <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Catatan / Keterangan</p>
                 <p class="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">{{ $checkpoint->note }}</p>
+            </div>
+            @endif
+
+            @if($checkpoint->cancel_note)
+            <div class="mt-6 pt-4 border-t border-gray-100">
+                <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Catatan Cancel</p>
+                <p class="text-sm text-red-700 bg-red-50 rounded-lg p-3">{{ $checkpoint->cancel_note }}</p>
             </div>
             @endif
         </div>

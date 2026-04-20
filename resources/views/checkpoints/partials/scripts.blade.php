@@ -2,8 +2,8 @@
         // ===== COLUMN VISIBILITY =====
         const STORAGE_KEY = 'checkpoint_col_prefs';
         const ALL_COLS = ['col-tanggal', 'col-nopol', 'col-vendor', 'col-kendaraan', 'col-barang', 'col-aktivitas',
-            'col-penerimaan', 'col-start', 'col-end', 'col-gate', 'col-status', 'col-durasi', 'col-penyerahan',
-            'col-durasi-dok'
+            'col-penerimaan', 'col-start', 'col-end', 'col-gate', 'col-status', 'col-catatan', 'col-durasi',
+            'col-penyerahan', 'col-durasi-dok'
         ];
 
         function getColPrefs() {
@@ -188,6 +188,24 @@
 
         function closeGateModal() {
             document.getElementById('gateModal').classList.add('hidden');
+        }
+
+        // ===== CANCEL MODAL =====
+        function openCancelModal(checkpointId, noPolisi) {
+            const modal = document.getElementById('cancelModal');
+            const form = document.getElementById('cancelForm');
+            const subtitle = document.getElementById('cancelModalSubtitle');
+            const note = document.getElementById('cancel_note');
+
+            form.action = '{{ url('checkpoints') }}/' + checkpointId + '/cancel';
+            subtitle.textContent = 'Cancel checkpoint: ' + noPolisi;
+            note.value = '';
+            modal.classList.remove('hidden');
+            note.focus();
+        }
+
+        function closeCancelModal() {
+            document.getElementById('cancelModal').classList.add('hidden');
         }
 
         // ===== PRINT TICKET =====

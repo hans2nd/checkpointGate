@@ -119,6 +119,24 @@
         #gate-section.gate-fullscreen #gate-unified-grid {
             gap: 24px;
         }
+
+        /* ===== PAGE FULLSCREEN: KEEP NORMAL DATA, SCALE TO ONE VIEWPORT ===== */
+        body.fullscreen-mode {
+            overflow: hidden;
+        }
+
+        body.fullscreen-mode .fullscreen-main>main {
+            overflow: hidden !important;
+            padding: 6px !important;
+        }
+
+        body.fullscreen-mode #monitoring-container {
+            transform: scale(var(--monitoring-fullscreen-scale, 1));
+            transform-origin: top left;
+            width: var(--monitoring-fullscreen-width, 100%);
+            min-width: var(--monitoring-fullscreen-width, 100%);
+            transition: transform 120ms ease;
+        }
     </style>
 
     {{-- Global fullscreen exit button (page-level) --}}
@@ -134,7 +152,7 @@
     <div class="space-y-3" id="monitoring-container">
 
         {{-- Header with Date Picker --}}
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2" id="monitoring-header">
             <div class="flex items-center gap-3">
                 <label class="text-sm text-gray-500">Periode:</label>
                 <input type="date" id="tanggal-picker" value="{{ $tanggalValue }}"
@@ -167,7 +185,7 @@
         </div>
 
         {{-- ===== Activity Summary (full width, stacked) ===== --}}
-        <div class="border border-gray-200 rounded-lg overflow-hidden bg-white">
+        <div class="border border-gray-200 rounded-lg overflow-hidden bg-white" id="activity-card">
             <div class="p-4">
                 <p class="text-sm font-bold text-gray-800 mb-0.5">Activity Summary</p>
                 <p class="text-[10px] text-gray-400 mb-3">Periode: {{ $periode }}</p>
@@ -209,7 +227,7 @@
         </div>
 
         {{-- ===== Average Loading Time (full width, stacked) ===== --}}
-        <div class="border border-gray-200 rounded-lg overflow-hidden bg-white">
+        <div class="border border-gray-200 rounded-lg overflow-hidden bg-white" id="avg-card">
             <div class="p-4 overflow-x-auto">
                 <p class="text-sm font-bold text-gray-800 mb-3">Average Loading Time</p>
                 <table class="w-full text-xs border-collapse">
@@ -663,6 +681,44 @@
             return '#D1FAE5';
         }
 
+        // ===== PAGE FULLSCREEN FIT =====
+        function fitMonitoringFullscreen() {
+            const container = document.getElementById('monitoring-container');
+            const main = document.querySelector('.fullscreen-main > main');
+            if (!container || !main) return;
+
+            if (!document.body.classList.contains('fullscreen-mode') || gateIsFullscreen) {
+                container.style.removeProperty('--monitoring-fullscreen-scale');
+                container.style.removeProperty('--monitoring-fullscreen-width');
+                container.style.transform = '';
+                container.style.width = '';
+                container.style.minWidth = '';
+                return;
+            }
+
+            container.style.setProperty('--monitoring-fullscreen-scale', '1');
+            container.style.setProperty('--monitoring-fullscreen-width', main.clientWidth + 'px');
+
+            requestAnimationFrame(() => {
+                const availableWidth = Math.max(1, main.clientWidth);
+                const availableHeight = Math.max(1, main.clientHeight);
+                const naturalWidth = Math.max(container.scrollWidth, availableWidth);
+                const naturalHeight = Math.max(container.scrollHeight, availableHeight);
+                const scale = Math.min(availableWidth / naturalWidth, availableHeight / naturalHeight, 1);
+
+                container.style.setProperty('--monitoring-fullscreen-scale', scale.toFixed(4));
+                container.style.setProperty('--monitoring-fullscreen-width', naturalWidth + 'px');
+            });
+        }
+
+        const fullscreenClassObserver = new MutationObserver(fitMonitoringFullscreen);
+        fullscreenClassObserver.observe(document.body, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+        window.addEventListener('resize', fitMonitoringFullscreen);
+        window.addEventListener('load', fitMonitoringFullscreen);
+
         // ===== GATE COLOR INIT =====
         function applyGateColors() {
             document.querySelectorAll('.gate-body').forEach(body => {
@@ -711,6 +767,7 @@
             document.getElementById('gate-fs-icon-compress').classList.toggle('hidden', !gateIsFullscreen);
             document.getElementById('gate-fs-label').textContent = gateIsFullscreen ? 'Keluar' : 'Fullscreen';
             document.body.style.overflow = gateIsFullscreen ? 'hidden' : '';
+            fitMonitoringFullscreen();
         }
 
         document.addEventListener('keydown', function(e) {
@@ -723,10 +780,10 @@
                 return '<span class="gate-status mt-0.5 text-[12px] px-1.5 py-0.5 rounded-full font-bold bg-purple-100 text-purple-700">✅ COMPLETED</span>';
             if (gate.waktu_end) {
                 const dur = gate.waktu_start ? formatDuration(gate.waktu_start, gate.waktu_end) : 'DONE';
-                return `<span class="static-timer mt-0.5 text-[12px] px-1.5 py-0.5 rounded font-mono bg-emerald-100 text-emerald-700" data-start="${gate.waktu_start||''}" data-end="${gate.waktu_end}">${dur}</span><span class="gate-status text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">🏁 FINISH</span>`;
+                return `<span class="static-timer mt-0.5 text-[12px] px-1.5 py-0.5 rounded font-mono bg-emerald-100 text-emerald-700" data-start="${gate.waktu_start||''}" data-end="${gate.waktu_end}">${dur}</span><span class="gate-status text-[12px] px-1.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">🏁 FINISH</span>`;
             }
             if (gate.waktu_start) {
-                return `<span class="gate-timer mt-0.5 text-[12px] px-1.5 py-0.5 rounded font-mono bg-blue-100 text-blue-700" data-start="${gate.waktu_start}">${formatDuration(gate.waktu_start, null)}</span><span class="gate-status text-[8px] px-1.5 py-0.5 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">⏳ LOADING</span>`;
+                return `<span class="gate-timer mt-0.5 text-[12px] px-1.5 py-0.5 rounded font-mono bg-blue-100 text-blue-700" data-start="${gate.waktu_start}">${formatDuration(gate.waktu_start, null)}</span><span class="gate-status text-[12px] px-1.5 py-0.5 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">⏳ LOADING</span>`;
             }
             if (gate.waktu_penerimaan)
                 return '<span class="gate-status mt-0.5 text-[12px] px-1.5 py-0.5 rounded-full font-bold bg-yellow-100 text-yellow-700">📋 ASSIGN</span>';
@@ -793,6 +850,7 @@
 
         // ===== INIT =====
         applyGateColors();
+        fitMonitoringFullscreen();
         setInterval(updateTimers, 1000);
 
         document.getElementById('tanggal-picker').addEventListener('change', function() {
@@ -850,6 +908,7 @@
 
                         document.getElementById('last-update').textContent = 'Terakhir: ' + new Date()
                             .toLocaleTimeString('id-ID');
+                        fitMonitoringFullscreen();
                     })
                     .catch(err => console.error('Refresh error:', err));
             }, 5000);
