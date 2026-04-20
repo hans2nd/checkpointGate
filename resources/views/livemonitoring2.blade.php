@@ -21,17 +21,41 @@
 
     <style>
         /* ===== AUTO-SCROLL SLIDER ===== */
+        .gate-slider-container {
+            position: relative;
+        }
+
         .gate-slider-wrapper {
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
             position: relative;
             border-radius: 8px;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f5f9;
+        }
+
+        .gate-slider-wrapper::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .gate-slider-wrapper::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        .gate-slider-wrapper::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .gate-slider-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
 
         .gate-slider-track {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            will-change: transform;
         }
 
         /* Gate card — auto height, content drives size */
@@ -43,15 +67,16 @@
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
+            height: 270px;
         }
 
         .gate-card-header {
             text-align: center;
-            padding: 6px 8px 4px;
+            padding: 8px 10px 6px;
         }
 
         .gate-card-header .gate-number {
-            font-size: 22px;
+            font-size: 36px;
             font-weight: 800;
             line-height: 1.1;
             color: #fff;
@@ -59,7 +84,7 @@
         }
 
         .gate-card-header .gate-type {
-            font-size: 10px;
+            font-size: 14px;
             font-weight: 600;
             color: rgba(255, 255, 255, 0.92);
             letter-spacing: 0.5px;
@@ -85,15 +110,15 @@
         }
 
         .gate-times {
-            width: 68px;
+            width: 100px;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 4px;
+            gap: 8px;
             border-left: 1px solid #e5e7eb;
-            padding-left: 8px;
-            font-size: 10px;
+            padding-left: 10px;
+            font-size: 13px;
             line-height: 1.3;
             color: #6b7280;
         }
@@ -101,7 +126,7 @@
         .gate-empty {
             color: #d1d5db;
             font-style: italic;
-            font-size: 11px;
+            font-size: 16px;
         }
 
         /* Progress bar at bottom */
@@ -119,7 +144,7 @@
         .slider-pause-hint {
             position: absolute;
             top: 6px;
-            right: 8px;
+            right: 14px;
             background: rgba(0, 0, 0, 0.45);
             color: #fff;
             font-size: 9px;
@@ -132,7 +157,7 @@
             backdrop-filter: blur(3px);
         }
 
-        .gate-slider-wrapper:hover .slider-pause-hint {
+        .gate-slider-container:hover .slider-pause-hint {
             opacity: 1;
         }
     </style>
@@ -183,20 +208,31 @@
 
         {{-- ===== TOP: Activity Summary + Average Loading Time (flat, side-by-side) ===== --}}
         <div class="border border-gray-200 rounded-lg overflow-hidden">
-            <div class="flex divide-x divide-gray-200">
+            <div class="flex flex-col 2xl:flex-row divide-y 2xl:divide-y-0 2xl:divide-x divide-gray-200">
 
                 {{-- Activity Summary --}}
-                <div class="flex-none w-[380px] p-4">
+                <div class="flex-none 2xl:w-[480px] p-4">
                     <p class="text-xs font-bold text-gray-700 mb-0.5">Activity Summary</p>
                     <p class="text-[10px] text-gray-400 mb-2">Periode: {{ $periode }}</p>
                     <table class="w-full text-xs">
                         <thead>
                             <tr>
-                                <th class="text-left font-semibold text-gray-600 py-1 pr-3">Activity</th>
-                                <th class="text-center font-semibold text-gray-600 py-1 px-2">Parking</th>
-                                <th class="text-center font-semibold text-gray-600 py-1 px-2">Doc In</th>
-                                <th class="text-center font-semibold text-gray-600 py-1 px-2">Loading/Unloading</th>
-                                <th class="text-center font-semibold text-gray-600 py-1 px-2">Finish</th>
+                                <th
+                                    class="text-left font-semibold text-[14px] text-gray-600 py-1 pr-3 border-b border-gray-200">
+                                    Activity</th>
+                                <th
+                                    class="text-center font-semibold text-[14px] text-gray-600 py-1 px-2 border-b border-gray-200">
+                                    Parking</th>
+                                <th
+                                    class="text-center font-semibold text-[14px] text-gray-600 py-1 px-2 border-b border-gray-200">
+                                    Doc
+                                    In</th>
+                                <th
+                                    class="text-center font-semibold text-[14px] text-gray-600 py-1 px-2 border-b border-gray-200">
+                                    Loading/Unloading</th>
+                                <th
+                                    class="text-center font-semibold text-[14px] text-gray-600 py-1 px-2 border-b border-gray-200">
+                                    Finish</th>
                             </tr>
                         </thead>
                         <tbody id="activity-summary-body" class="divide-y divide-gray-50">
@@ -226,116 +262,118 @@
                 </div>
 
                 {{-- Average Loading Time --}}
-                <div class="flex-1 p-4 overflow-x-auto">
+                <div class="flex-1 p-4 overflow-x-auto w-full min-w-0">
                     <p class="text-xs font-bold text-gray-700 mb-2">Average Loading Time</p>
-                    <table class="w-full text-xs border-collapse">
-                        <thead>
-                            <tr>
-                                <th rowspan="3"
-                                    class="text-left font-semibold text-gray-600 py-1 pr-3 align-bottom border-r border-gray-200 whitespace-nowrap">
-                                    Kendaraan</th>
-                                <th colspan="4"
-                                    class="text-center font-semibold text-green-700 bg-green-50 py-1 border border-gray-200">
-                                    DRY</th>
-                                <th colspan="4"
-                                    class="text-center font-semibold text-blue-700 bg-blue-50 py-1 border border-gray-200">
-                                    FROZEN</th>
-                                <th colspan="4"
-                                    class="text-center font-semibold text-amber-700 bg-amber-50 py-1 border border-gray-200">
-                                    CHILLED</th>
-                            </tr>
-                            <tr>
-                                <th colspan="2"
-                                    class="text-center font-semibold text-green-600 bg-green-50 py-0.5 text-[10px] border border-gray-200">
-                                    ALT</th>
-                                <th colspan="2"
-                                    class="text-center font-semibold text-green-600 bg-green-50 py-0.5 text-[10px] border border-gray-200">
-                                    AUT</th>
-                                <th colspan="2"
-                                    class="text-center font-semibold text-blue-600 bg-blue-50 py-0.5 text-[10px] border border-gray-200">
-                                    ALT</th>
-                                <th colspan="2"
-                                    class="text-center font-semibold text-blue-600 bg-blue-50 py-0.5 text-[10px] border border-gray-200">
-                                    AUT</th>
-                                <th colspan="2"
-                                    class="text-center font-semibold text-amber-600 bg-amber-50 py-0.5 text-[10px] border border-gray-200">
-                                    ALT</th>
-                                <th colspan="2"
-                                    class="text-center font-semibold text-amber-600 bg-amber-50 py-0.5 text-[10px] border border-gray-200">
-                                    AUT</th>
-                            </tr>
-                            <tr>
-                                @foreach (['text-green-600 bg-green-50', 'text-green-600 bg-green-50', 'text-green-600 bg-green-50', 'text-green-600 bg-green-50', 'text-blue-600 bg-blue-50', 'text-blue-600 bg-blue-50', 'text-blue-600 bg-blue-50', 'text-blue-600 bg-blue-50', 'text-amber-600 bg-amber-50', 'text-amber-600 bg-amber-50', 'text-amber-600 bg-amber-50', 'text-amber-600 bg-amber-50'] as $idx => $cls)
-                                    <th
-                                        class="text-center {{ $cls }} py-0.5 text-[10px] border border-gray-200 font-medium px-2">
-                                        {{ $idx % 2 === 0 ? 'Today' : 'L.Month' }}
-                                    </th>
-                                @endforeach
-                            </tr>
-                        </thead>
-                        <tbody id="avg-times-body" class="divide-y divide-gray-50">
-                            @foreach ($avgTimes as $row)
-                                @php
-                                    $gc = function ($t, $lm) {
-                                        if (!$t) {
-                                            return 'text-gray-300';
-                                        }
-                                        if (!$lm) {
-                                            return 'text-gray-700';
-                                        }
-                                        if ($t > $lm) {
-                                            return 'text-red-600';
-                                        }
-                                        if ($t < $lm) {
-                                            return 'text-green-600';
-                                        }
-                                        return 'text-gray-700';
-                                    };
-                                @endphp
-                                <tr class="hover:bg-gray-50/50">
-                                    <td
-                                        class="py-1 pr-3 font-medium text-gray-700 border-r border-gray-200 whitespace-nowrap">
-                                        {{ $row['jenis_kendaraan'] }}</td>
-                                    <td
-                                        class="py-1 px-2 text-center font-mono {{ $gc($row['DRY_ALT'] ?? null, $row['DRY_ALT_LMONTH'] ?? null) }}">
-                                        {{ $row['DRY_ALT'] ?? '—' }}</td>
-                                    <td
-                                        class="py-1 px-2 text-center font-mono {{ isset($row['DRY_ALT_LMONTH']) ? 'text-gray-500' : 'text-gray-300' }}">
-                                        {{ $row['DRY_ALT_LMONTH'] ?? '—' }}</td>
-                                    <td
-                                        class="py-1 px-2 text-center font-mono {{ $gc($row['DRY_AUT'] ?? null, $row['DRY_AUT_LMONTH'] ?? null) }}">
-                                        {{ $row['DRY_AUT'] ?? '—' }}</td>
-                                    <td
-                                        class="py-1 px-2 text-center font-mono {{ isset($row['DRY_AUT_LMONTH']) ? 'text-gray-500' : 'text-gray-300' }}">
-                                        {{ $row['DRY_AUT_LMONTH'] ?? '—' }}</td>
-                                    <td
-                                        class="py-1 px-2 text-center font-mono {{ $gc($row['FROZEN_ALT'] ?? null, $row['FROZEN_ALT_LMONTH'] ?? null) }}">
-                                        {{ $row['FROZEN_ALT'] ?? '—' }}</td>
-                                    <td
-                                        class="py-1 px-2 text-center font-mono {{ isset($row['FROZEN_ALT_LMONTH']) ? 'text-gray-500' : 'text-gray-300' }}">
-                                        {{ $row['FROZEN_ALT_LMONTH'] ?? '—' }}</td>
-                                    <td
-                                        class="py-1 px-2 text-center font-mono {{ $gc($row['FROZEN_AUT'] ?? null, $row['FROZEN_AUT_LMONTH'] ?? null) }}">
-                                        {{ $row['FROZEN_AUT'] ?? '—' }}</td>
-                                    <td
-                                        class="py-1 px-2 text-center font-mono {{ isset($row['FROZEN_AUT_LMONTH']) ? 'text-gray-500' : 'text-gray-300' }}">
-                                        {{ $row['FROZEN_AUT_LMONTH'] ?? '—' }}</td>
-                                    <td
-                                        class="py-1 px-2 text-center font-mono {{ $gc($row['CHILLED_ALT'] ?? null, $row['CHILLED_ALT_LMONTH'] ?? null) }}">
-                                        {{ $row['CHILLED_ALT'] ?? '—' }}</td>
-                                    <td
-                                        class="py-1 px-2 text-center font-mono {{ isset($row['CHILLED_ALT_LMONTH']) ? 'text-gray-500' : 'text-gray-300' }}">
-                                        {{ $row['CHILLED_ALT_LMONTH'] ?? '—' }}</td>
-                                    <td
-                                        class="py-1 px-2 text-center font-mono {{ $gc($row['CHILLED_AUT'] ?? null, $row['CHILLED_AUT_LMONTH'] ?? null) }}">
-                                        {{ $row['CHILLED_AUT'] ?? '—' }}</td>
-                                    <td
-                                        class="py-1 px-2 text-center font-mono {{ isset($row['CHILLED_AUT_LMONTH']) ? 'text-gray-500' : 'text-gray-300' }}">
-                                        {{ $row['CHILLED_AUT_LMONTH'] ?? '—' }}</td>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs border-collapse min-w-[700px]">
+                            <thead>
+                                <tr>
+                                    <th rowspan="3"
+                                        class="text-left  font-semibold text-[14px] text-gray-600 py-1 pr-3 align-center border-r border-gray-200 whitespace-nowrap">
+                                        Vehicle</th>
+                                    <th colspan="4"
+                                        class="text-center font-semibold text-green-700 bg-green-50 py-1 border border-gray-200">
+                                        DRY</th>
+                                    <th colspan="4"
+                                        class="text-center font-semibold text-blue-700 bg-blue-50 py-1 border border-gray-200">
+                                        FROZEN</th>
+                                    <th colspan="4"
+                                        class="text-center font-semibold text-amber-700 bg-amber-50 py-1 border border-gray-200">
+                                        CHILLED</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                <tr>
+                                    <th colspan="2"
+                                        class="text-center font-semibold text-green-600 bg-green-50 py-0.5 text-[10px] border border-gray-200">
+                                        ALT</th>
+                                    <th colspan="2"
+                                        class="text-center font-semibold text-green-600 bg-green-50 py-0.5 text-[10px] border border-gray-200">
+                                        AUT</th>
+                                    <th colspan="2"
+                                        class="text-center font-semibold text-blue-600 bg-blue-50 py-0.5 text-[10px] border border-gray-200">
+                                        ALT</th>
+                                    <th colspan="2"
+                                        class="text-center font-semibold text-blue-600 bg-blue-50 py-0.5 text-[10px] border border-gray-200">
+                                        AUT</th>
+                                    <th colspan="2"
+                                        class="text-center font-semibold text-amber-600 bg-amber-50 py-0.5 text-[10px] border border-gray-200">
+                                        ALT</th>
+                                    <th colspan="2"
+                                        class="text-center font-semibold text-amber-600 bg-amber-50 py-0.5 text-[10px] border border-gray-200">
+                                        AUT</th>
+                                </tr>
+                                <tr>
+                                    @foreach (['text-green-600 bg-green-50', 'text-green-600 bg-green-50', 'text-green-600 bg-green-50', 'text-green-600 bg-green-50', 'text-blue-600 bg-blue-50', 'text-blue-600 bg-blue-50', 'text-blue-600 bg-blue-50', 'text-blue-600 bg-blue-50', 'text-amber-600 bg-amber-50', 'text-amber-600 bg-amber-50', 'text-amber-600 bg-amber-50', 'text-amber-600 bg-amber-50'] as $idx => $cls)
+                                        <th
+                                            class="text-center {{ $cls }} py-0.5 text-[10px] border border-gray-200 font-medium px-2">
+                                            {{ $idx % 2 === 0 ? 'Today' : 'L.Month' }}
+                                        </th>
+                                    @endforeach
+                                </tr>
+                            </thead>
+                            <tbody id="avg-times-body" class="divide-y divide-gray-50">
+                                @foreach ($avgTimes as $row)
+                                    @php
+                                        $gc = function ($t, $lm) {
+                                            if (!$t) {
+                                                return 'text-gray-300';
+                                            }
+                                            if (!$lm) {
+                                                return 'text-gray-700';
+                                            }
+                                            if ($t > $lm) {
+                                                return 'text-red-600';
+                                            }
+                                            if ($t < $lm) {
+                                                return 'text-green-600';
+                                            }
+                                            return 'text-gray-700';
+                                        };
+                                    @endphp
+                                    <tr class="hover:bg-gray-50/50">
+                                        <td
+                                            class="py-1 pr-3 font-medium text-gray-700 border-r border-gray-200 whitespace-nowrap">
+                                            {{ $row['jenis_kendaraan'] }}</td>
+                                        <td
+                                            class="py-1 px-2 text-center font-mono {{ $gc($row['DRY_ALT'] ?? null, $row['DRY_ALT_LMONTH'] ?? null) }}">
+                                            {{ $row['DRY_ALT'] ?? '—' }}</td>
+                                        <td
+                                            class="py-1 px-2 text-center font-mono {{ isset($row['DRY_ALT_LMONTH']) ? 'text-gray-500' : 'text-gray-300' }}">
+                                            {{ $row['DRY_ALT_LMONTH'] ?? '—' }}</td>
+                                        <td
+                                            class="py-1 px-2 text-center font-mono {{ $gc($row['DRY_AUT'] ?? null, $row['DRY_AUT_LMONTH'] ?? null) }}">
+                                            {{ $row['DRY_AUT'] ?? '—' }}</td>
+                                        <td
+                                            class="py-1 px-2 text-center font-mono {{ isset($row['DRY_AUT_LMONTH']) ? 'text-gray-500' : 'text-gray-300' }}">
+                                            {{ $row['DRY_AUT_LMONTH'] ?? '—' }}</td>
+                                        <td
+                                            class="py-1 px-2 text-center font-mono {{ $gc($row['FROZEN_ALT'] ?? null, $row['FROZEN_ALT_LMONTH'] ?? null) }}">
+                                            {{ $row['FROZEN_ALT'] ?? '—' }}</td>
+                                        <td
+                                            class="py-1 px-2 text-center font-mono {{ isset($row['FROZEN_ALT_LMONTH']) ? 'text-gray-500' : 'text-gray-300' }}">
+                                            {{ $row['FROZEN_ALT_LMONTH'] ?? '—' }}</td>
+                                        <td
+                                            class="py-1 px-2 text-center font-mono {{ $gc($row['FROZEN_AUT'] ?? null, $row['FROZEN_AUT_LMONTH'] ?? null) }}">
+                                            {{ $row['FROZEN_AUT'] ?? '—' }}</td>
+                                        <td
+                                            class="py-1 px-2 text-center font-mono {{ isset($row['FROZEN_AUT_LMONTH']) ? 'text-gray-500' : 'text-gray-300' }}">
+                                            {{ $row['FROZEN_AUT_LMONTH'] ?? '—' }}</td>
+                                        <td
+                                            class="py-1 px-2 text-center font-mono {{ $gc($row['CHILLED_ALT'] ?? null, $row['CHILLED_ALT_LMONTH'] ?? null) }}">
+                                            {{ $row['CHILLED_ALT'] ?? '—' }}</td>
+                                        <td
+                                            class="py-1 px-2 text-center font-mono {{ isset($row['CHILLED_ALT_LMONTH']) ? 'text-gray-500' : 'text-gray-300' }}">
+                                            {{ $row['CHILLED_ALT_LMONTH'] ?? '—' }}</td>
+                                        <td
+                                            class="py-1 px-2 text-center font-mono {{ $gc($row['CHILLED_AUT'] ?? null, $row['CHILLED_AUT_LMONTH'] ?? null) }}">
+                                            {{ $row['CHILLED_AUT'] ?? '—' }}</td>
+                                        <td
+                                            class="py-1 px-2 text-center font-mono {{ isset($row['CHILLED_AUT_LMONTH']) ? 'text-gray-500' : 'text-gray-300' }}">
+                                            {{ $row['CHILLED_AUT_LMONTH'] ?? '—' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
             </div>
@@ -358,9 +396,9 @@
                             scroll
                         </span>
                     </div>
-                    <div class="p-3">
-                        <div class="gate-slider-wrapper" id="frozen-wrapper" style="height:430px;">
-                            <div class="slider-pause-hint">⏸ Paused</div>
+                    <div class="p-3 gate-slider-container">
+                        <div class="slider-pause-hint">⏸ Paused / Manual Scroll</div>
+                        <div class="gate-slider-wrapper" id="frozen-wrapper" style="height:540px;">
                             <div class="gate-slider-track" id="frozen-track">
                                 @php
                                     $frozenPairs = array_chunk(range(1, 16), 2);
@@ -392,37 +430,37 @@
                                                     <div class="gate-body-inner">
                                                         @if ($cp)
                                                             <span
-                                                                class="text-[11px] font-bold px-2 py-0.5 rounded
+                                                                class="text-[14px] font-bold px-3 py-1 rounded
                                                                 {{ $cp->aktivitas === 'INBOUND' ? 'bg-orange-100 text-orange-700' : ($cp->aktivitas === 'OUTBOUND' ? 'bg-indigo-100 text-indigo-700' : '') }}">
                                                                 {{ $cp->aktivitas }}
                                                             </span>
                                                             <p
-                                                                class="text-[15px] font-bold text-gray-800 mt-0.5 leading-tight break-all">
+                                                                class="text-[24px] font-bold text-gray-800 mt-2 leading-tight break-all">
                                                                 {{ $cp->no_polisi }}</p>
-                                                            <p class="text-[11px] text-gray-500 leading-tight">
+                                                            <p class="text-[14px] text-gray-500 mt-1 leading-tight">
                                                                 {{ $cp->vendor }}</p>
                                                             @if ($cp->waktu_penyerahan_dokumen)
                                                                 <span
-                                                                    class="gate-status mt-1 text-[9px] px-2 py-0.5 rounded-full font-bold bg-purple-100 text-purple-700">✅
+                                                                    class="gate-status mt-2 text-[12px] px-3 py-1 rounded-full font-bold bg-purple-100 text-purple-700">✅
                                                                     COMPLETED</span>
                                                             @elseif($cp->waktu_end || $cp->status === 'FINISH')
                                                                 <span
-                                                                    class="static-timer mt-1 text-[9px] px-2 py-0.5 rounded font-mono bg-emerald-100 text-emerald-700"
+                                                                    class="static-timer mt-2 text-[12px] px-3 py-1 rounded font-mono bg-emerald-100 text-emerald-700"
                                                                     data-start="{{ $cp->waktu_start?->toIso8601String() ?? '' }}"
                                                                     data-end="{{ $cp->waktu_end?->toIso8601String() ?? '' }}">DONE</span>
                                                                 <span
-                                                                    class="gate-status text-[9px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">🏁
+                                                                    class="gate-status mt-1 text-[12px] px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-700">🏁
                                                                     FINISH</span>
                                                             @elseif($cp->waktu_start || $cp->status === 'ON LOADING')
                                                                 <span
-                                                                    class="gate-timer mt-1 text-[9px] px-2 py-0.5 rounded font-mono bg-blue-100 text-blue-700"
+                                                                    class="gate-timer mt-2 text-[12px] px-3 py-1 rounded font-mono bg-blue-100 text-blue-700"
                                                                     data-start="{{ $cp->waktu_start?->toIso8601String() ?? '' }}">00:00:00</span>
                                                                 <span
-                                                                    class="gate-status text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">⏳
+                                                                    class="gate-status mt-1 text-[12px] px-3 py-1 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">⏳
                                                                     LOADING</span>
                                                             @elseif($cp->waktu_penerimaan_dokumen)
                                                                 <span
-                                                                    class="gate-status mt-1 text-[9px] px-2 py-0.5 rounded-full font-bold bg-yellow-100 text-yellow-700">📋
+                                                                    class="gate-status mt-2 text-[12px] px-3 py-1 rounded-full font-bold bg-yellow-100 text-yellow-700">📋
                                                                     ASSIGN</span>
                                                             @endif
                                                         @else
@@ -455,9 +493,9 @@
                                     </div>
                                 @endforeach
                             </div>
-                            <div class="slider-progress-bar" id="frozen-progress"
-                                style="width:0%;background:linear-gradient(90deg,#3b82f6,#06b6d4)"></div>
                         </div>
+                        <div class="slider-progress-bar" id="frozen-progress"
+                            style="width:0%;background:linear-gradient(90deg,#3b82f6,#06b6d4)"></div>
                     </div>
                 </div>
 
@@ -474,9 +512,9 @@
                             scroll
                         </span>
                     </div>
-                    <div class="p-3">
-                        <div class="gate-slider-wrapper" id="dry-wrapper" style="height:430px;">
-                            <div class="slider-pause-hint">⏸ Paused</div>
+                    <div class="p-3 gate-slider-container">
+                        <div class="slider-pause-hint">⏸ Paused / Manual Scroll</div>
+                        <div class="gate-slider-wrapper" id="dry-wrapper" style="height:540px;">
                             <div class="gate-slider-track" id="dry-track">
                                 @php
                                     $dryPairs = array_chunk(range(17, 27), 2);
@@ -509,37 +547,37 @@
                                                     <div class="gate-body-inner">
                                                         @if ($cp)
                                                             <span
-                                                                class="text-[11px] font-bold px-2 py-0.5 rounded
+                                                                class="text-[14px] font-bold px-3 py-1 rounded
                                                                 {{ $cp->aktivitas === 'INBOUND' ? 'bg-orange-100 text-orange-700' : ($cp->aktivitas === 'OUTBOUND' ? 'bg-indigo-100 text-indigo-700' : '') }}">
                                                                 {{ $cp->aktivitas }}
                                                             </span>
                                                             <p
-                                                                class="text-[15px] font-bold text-gray-800 mt-0.5 leading-tight break-all">
+                                                                class="text-[24px] font-bold text-gray-800 mt-2 leading-tight break-all">
                                                                 {{ $cp->no_polisi }}</p>
-                                                            <p class="text-[11px] text-gray-500 leading-tight">
+                                                            <p class="text-[14px] text-gray-500 mt-1 leading-tight">
                                                                 {{ $cp->vendor }}</p>
                                                             @if ($cp->waktu_penyerahan_dokumen)
                                                                 <span
-                                                                    class="gate-status mt-1 text-[9px] px-2 py-0.5 rounded-full font-bold bg-purple-100 text-purple-700">✅
+                                                                    class="gate-status mt-2 text-[12px] px-3 py-1 rounded-full font-bold bg-purple-100 text-purple-700">✅
                                                                     COMPLETED</span>
                                                             @elseif($cp->waktu_end || $cp->status === 'FINISH')
                                                                 <span
-                                                                    class="static-timer mt-1 text-[9px] px-2 py-0.5 rounded font-mono bg-emerald-100 text-emerald-700"
+                                                                    class="static-timer mt-2 text-[12px] px-3 py-1 rounded font-mono bg-emerald-100 text-emerald-700"
                                                                     data-start="{{ $cp->waktu_start?->toIso8601String() ?? '' }}"
                                                                     data-end="{{ $cp->waktu_end?->toIso8601String() ?? '' }}">DONE</span>
                                                                 <span
-                                                                    class="gate-status text-[9px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">🏁
+                                                                    class="gate-status mt-1 text-[12px] px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-700">🏁
                                                                     FINISH</span>
                                                             @elseif($cp->waktu_start || $cp->status === 'ON LOADING')
                                                                 <span
-                                                                    class="gate-timer mt-1 text-[9px] px-2 py-0.5 rounded font-mono bg-blue-100 text-blue-700"
+                                                                    class="gate-timer mt-2 text-[12px] px-3 py-1 rounded font-mono bg-blue-100 text-blue-700"
                                                                     data-start="{{ $cp->waktu_start?->toIso8601String() ?? '' }}">00:00:00</span>
                                                                 <span
-                                                                    class="gate-status text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">⏳
+                                                                    class="gate-status mt-1 text-[12px] px-3 py-1 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">⏳
                                                                     LOADING</span>
                                                             @elseif($cp->waktu_penerimaan_dokumen)
                                                                 <span
-                                                                    class="gate-status mt-1 text-[9px] px-2 py-0.5 rounded-full font-bold bg-yellow-100 text-yellow-700">📋
+                                                                    class="gate-status mt-2 text-[12px] px-3 py-1 rounded-full font-bold bg-yellow-100 text-yellow-700">📋
                                                                     ASSIGN</span>
                                                             @endif
                                                         @else
@@ -576,9 +614,9 @@
                                     </div>
                                 @endforeach
                             </div>
-                            <div class="slider-progress-bar" id="dry-progress"
-                                style="width:0%;background:linear-gradient(90deg,#f59e0b,#fb923c)"></div>
                         </div>
+                        <div class="slider-progress-bar" id="dry-progress"
+                            style="width:0%;background:linear-gradient(90deg,#f59e0b,#fb923c)"></div>
                     </div>
                 </div>
 
@@ -588,30 +626,31 @@
         {{-- Legend --}}
         <div class="bg-white rounded-lg border border-gray-200 p-3">
             <p class="text-xs font-semibold text-gray-600 mb-2">Keterangan Status Gate:</p>
-            <div class="flex flex-wrap gap-4 text-xs text-gray-500">
+            <div class="flex flex-wrap gap-4 text-sm text-gray-500">
                 <span class="flex items-center gap-1.5"><span
-                        class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-yellow-100 text-yellow-700">📋
+                        class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-yellow-100 text-yellow-700">📋
                         ASSIGN</span> Dokumen diterima, menunggu loading</span>
                 <span class="flex items-center gap-1.5"><span
-                        class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-100 text-blue-700">⏳ ON LOADING</span>
+                        class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-700">⏳ ON
+                        LOADING</span>
                     Sedang proses loading</span>
                 <span class="flex items-center gap-1.5"><span
-                        class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-700">🏁 FINISH
+                        class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700">🏁 FINISH
                         LOADING</span> Loading selesai</span>
                 <span class="flex items-center gap-1.5"><span
-                        class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-purple-100 text-purple-700">✅
+                        class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-purple-100 text-purple-700">✅
                         COMPLETED</span> Dokumen diserahkan</span>
             </div>
-            <div class="flex flex-wrap gap-4 text-xs text-gray-500 mt-2 pt-2 border-t border-gray-100">
-                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-blue-500"></span> FROZEN (Gate F-1
+            <div class="flex flex-wrap gap-4 text-sm text-gray-500 mt-2 pt-2 border-t border-gray-100">
+                <span class="flex items-center gap-1.5"><span class="w-4 h-4 rounded bg-blue-500"></span> FROZEN (Gate F-1
                     – F-16)</span>
-                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-500"></span> DRY (Gate D-1 –
+                <span class="flex items-center gap-1.5"><span class="w-4 h-4 rounded bg-amber-500"></span> DRY (Gate D-1 –
                     D-11)</span>
-                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-400"></span> Loading &lt;
+                <span class="flex items-center gap-1.5"><span class="w-4 h-4 rounded bg-emerald-400"></span> Loading &lt;
                     30 menit</span>
-                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-yellow-400"></span> Loading 30–60
+                <span class="flex items-center gap-1.5"><span class="w-4 h-4 rounded bg-yellow-400"></span> Loading 30–60
                     menit</span>
-                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-red-500"></span> Loading &gt; 60
+                <span class="flex items-center gap-1.5"><span class="w-4 h-4 rounded bg-red-500"></span> Loading &gt; 60
                     menit</span>
             </div>
         </div>
@@ -699,7 +738,7 @@
             }
 
             function applyTransform() {
-                track.style.transform = `translateY(-${offset}px)`;
+                wrapper.scrollTop = offset;
                 const max = getMaxScroll();
                 if (prog) prog.style.width = max > 0 ? ((offset / max) * 100) + '%' : '0%';
             }
@@ -745,11 +784,22 @@
                 raf = requestAnimationFrame(tick);
             }
 
-            wrapper.addEventListener('mouseenter', () => {
+            const container = wrapper.closest('.gate-slider-container') || wrapper;
+
+            container.addEventListener('mouseenter', () => {
                 paused = true;
             });
-            wrapper.addEventListener('mouseleave', () => {
+            container.addEventListener('mouseleave', () => {
                 paused = false;
+                offset = wrapper.scrollTop; // sync offset back after manual scroll
+            });
+
+            wrapper.addEventListener('scroll', () => {
+                if (paused) {
+                    offset = wrapper.scrollTop; // Manual scroll updates offset
+                    const max = getMaxScroll();
+                    if (prog) prog.style.width = max > 0 ? ((offset / max) * 100) + '%' : '0%';
+                }
             });
 
             // Delay start so layout is settled
@@ -761,16 +811,16 @@
         // ===== GATE CONTENT BUILDER =====
         function getStatusHtml(gate) {
             if (gate.waktu_penyerahan)
-                return '<span class="gate-status mt-1 text-[9px] px-2 py-0.5 rounded-full font-bold bg-purple-100 text-purple-700">✅ COMPLETED</span>';
+                return '<span class="gate-status mt-2 text-[12px] px-3 py-1 rounded-full font-bold bg-purple-100 text-purple-700">✅ COMPLETED</span>';
             if (gate.waktu_end) {
                 const dur = gate.waktu_start ? formatDuration(gate.waktu_start, gate.waktu_end) : 'DONE';
-                return `<span class="static-timer mt-1 text-[9px] px-2 py-0.5 rounded font-mono bg-emerald-100 text-emerald-700" data-start="${gate.waktu_start||''}" data-end="${gate.waktu_end}">${dur}</span><span class="gate-status text-[9px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">🏁 FINISH</span>`;
+                return `<span class="static-timer mt-2 text-[12px] px-3 py-1 rounded font-mono bg-emerald-100 text-emerald-700" data-start="${gate.waktu_start||''}" data-end="${gate.waktu_end}">${dur}</span><span class="gate-status mt-1 text-[12px] px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-700">🏁 FINISH</span>`;
             }
             if (gate.waktu_start) {
-                return `<span class="gate-timer mt-1 text-[9px] px-2 py-0.5 rounded font-mono bg-blue-100 text-blue-700" data-start="${gate.waktu_start}">${formatDuration(gate.waktu_start, null)}</span><span class="gate-status text-[9px] px-2 py-0.5 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">⏳ LOADING</span>`;
+                return `<span class="gate-timer mt-2 text-[12px] px-3 py-1 rounded font-mono bg-blue-100 text-blue-700" data-start="${gate.waktu_start}">${formatDuration(gate.waktu_start, null)}</span><span class="gate-status mt-1 text-[12px] px-3 py-1 rounded-full font-bold animate-pulse bg-blue-100 text-blue-700">⏳ LOADING</span>`;
             }
             if (gate.waktu_penerimaan)
-                return '<span class="gate-status mt-1 text-[9px] px-2 py-0.5 rounded-full font-bold bg-yellow-100 text-yellow-700">📋 ASSIGN</span>';
+                return '<span class="gate-status mt-2 text-[12px] px-3 py-1 rounded-full font-bold bg-yellow-100 text-yellow-700">📋 ASSIGN</span>';
             return '';
         }
 
@@ -800,11 +850,11 @@
             const act = (gate.aktivitas || '').toUpperCase();
             let aktHtml = '';
             if (act === 'INBOUND') aktHtml =
-                '<span class="text-[9px] font-bold px-2 py-0.5 rounded bg-orange-100 text-orange-700">INBOUND</span>';
+                '<span class="text-[14px] font-bold px-3 py-1 rounded bg-orange-100 text-orange-700">INBOUND</span>';
             else if (act === 'OUTBOUND') aktHtml =
-                '<span class="text-[9px] font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-700">OUTBOUND</span>';
+                '<span class="text-[14px] font-bold px-3 py-1 rounded bg-indigo-100 text-indigo-700">OUTBOUND</span>';
             else if (gate.aktivitas) aktHtml =
-                `<span class="text-[9px] font-bold px-2 py-0.5 rounded bg-gray-100 text-gray-700">${gate.aktivitas}</span>`;
+                `<span class="text-[14px] font-bold px-3 py-1 rounded bg-gray-100 text-gray-700">${gate.aktivitas}</span>`;
 
             const timesHtml = `
                 <div class="gate-times">
@@ -817,8 +867,8 @@
             body.innerHTML = `
                 <div class="gate-body-inner">
                     ${aktHtml}
-                    <p style="font-size:14px;font-weight:700;color:#1f2937;margin-top:2px;line-height:1.2;word-break:break-all">${gate.no_polisi}</p>
-                    <p style="font-size:10px;color:#6b7280;line-height:1.2">${gate.vendor || ''}</p>
+                    <p style="font-size:24px;font-weight:700;color:#1f2937;margin-top:8px;line-height:1.2;word-break:break-all">${gate.no_polisi}</p>
+                    <p style="font-size:14px;color:#6b7280;line-height:1.2;margin-top:4px">${gate.vendor || ''}</p>
                     ${getStatusHtml(gate)}
                 </div>
                 ${timesHtml}`;
@@ -836,9 +886,9 @@
         applyGateColors();
         setInterval(updateTimers, 1000);
 
-        // Start sliders (px per animation frame ~60fps → 0.4px/frame ≈ 24px/s)
-        createSlider('frozen-wrapper', 'frozen-track', 'frozen-progress', 0.38);
-        createSlider('dry-wrapper', 'dry-track', 'dry-progress', 0.45);
+        // Start sliders (px per animation frame ~60fps)
+        createSlider('frozen-wrapper', 'frozen-track', 'frozen-progress', 0.15);
+        createSlider('dry-wrapper', 'dry-track', 'dry-progress', 0.18);
 
         document.getElementById('tanggal-picker').addEventListener('change', function() {
             if (this.value) window.location.href = '{{ route('livemonitoring') }}?tanggal=' + this.value;
