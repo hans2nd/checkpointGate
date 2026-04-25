@@ -373,10 +373,34 @@ class ApiController extends Controller
     public function triggerStart(Request $request, $id)
     {
         $cp = Checkpoint::findOrFail($id);
+        $currentUser = $request->user();
+
+        // Must have checkpoint.trigger permission
+        if (!$currentUser->hasPermission('checkpoint.trigger') && !$currentUser->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki izin untuk melakukan start loading.',
+            ], 403);
+        }
+
+        if ($cp->status === 'CANCEL') {
+            return response()->json([
+                'success' => false,
+                'message' => "Checkpoint {$cp->no_polisi} sudah dibatalkan.",
+            ], 422);
+        }
+
+        if ($cp->status === 'FINISH') {
+            return response()->json([
+                'success' => false,
+                'message' => "Checkpoint {$cp->no_polisi} sudah selesai.",
+            ], 422);
+        }
+
         $cp->update([
             'waktu_start' => Carbon::now(),
             'status' => 'ON LOADING',
-            'started_by' => $request->user()->id,
+            'started_by' => $currentUser->id,
         ]);
 
         return response()->json([
@@ -394,13 +418,33 @@ class ApiController extends Controller
         $cp = Checkpoint::findOrFail($id);
         $currentUser = $request->user();
 
-        // Validate: user who ends must be the same who started (unless admin)
-        if ($cp->started_by && $currentUser->id !== $cp->started_by && !$currentUser->isAdmin()) {
-            $starterName = $cp->startedByUser?->name ?? 'Unknown';
+        // Must have checkpoint.trigger permission
+        if (!$currentUser->hasPermission('checkpoint.trigger') && !$currentUser->isAdmin()) {
             return response()->json([
                 'success' => false,
-                'message' => "Anda tidak dapat menyelesaikan loading ini. Loading dimulai oleh {$starterName}. Hanya user yang sama atau Administrator yang dapat menyelesaikan loading.",
+                'message' => 'Anda tidak memiliki izin untuk melakukan end loading.',
             ], 403);
+        }
+
+        if ($cp->status === 'CANCEL') {
+            return response()->json([
+                'success' => false,
+                'message' => "Checkpoint {$cp->no_polisi} sudah dibatalkan.",
+            ], 422);
+        }
+
+        // Validate: user who ends must be the same who started
+        // Exception: supervisor_admin with checkpoint.trigger, or administrator
+        if ($cp->started_by && $currentUser->id !== $cp->started_by) {
+            $isSupervisorWithTrigger = $currentUser->hasRole('supervisor_admin') && $currentUser->hasPermission('checkpoint.trigger');
+
+            if (!$currentUser->isAdmin() && !$isSupervisorWithTrigger) {
+                $starterName = $cp->startedByUser?->name ?? 'Unknown';
+                return response()->json([
+                    'success' => false,
+                    'message' => "Anda tidak dapat menyelesaikan loading ini. Loading dimulai oleh {$starterName}. Hanya user yang sama atau Supervisor yang dapat menyelesaikan loading.",
+                ], 403);
+            }
         }
 
         $durasi = null;

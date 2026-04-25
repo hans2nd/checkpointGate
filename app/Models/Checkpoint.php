@@ -31,6 +31,10 @@ class Checkpoint extends Model
         'cancel_note',
         'canceled_at',
         'canceled_by',
+        'cancel_status',
+        'cancel_reason',
+        'cancel_requested_by',
+        'cancel_approved_by',
     ];
 
     protected $casts = [
@@ -65,5 +69,21 @@ class Checkpoint extends Model
     public function canceledByUser()
     {
         return $this->belongsTo(User::class, 'canceled_by');
+    }
+
+    /**
+     * User who requested the cancel.
+     */
+    public function cancelRequester()
+    {
+        return $this->belongsTo(User::class, 'cancel_requested_by');
+    }
+
+    /**
+     * User who approved the cancel.
+     */
+    public function cancelApprover()
+    {
+        return $this->belongsTo(User::class, 'cancel_approved_by');
     }
 }

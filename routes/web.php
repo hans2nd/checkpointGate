@@ -9,6 +9,7 @@ use App\Http\Controllers\GateController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\LiveMonitoringController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,11 +67,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('vehicles/{vehicle}', [VehicleController::class, 'destroy'])->name('vehicles.destroy')->middleware('permission:vehicle.manage');
 
     Route::resource('checkpoints', CheckpointController::class)->except(['destroy']);
-    Route::post('checkpoints/{checkpoint}/trigger-penerimaan', [CheckpointController::class, 'triggerPenerimaan'])->name('checkpoints.trigger-penerimaan')->middleware('permission:checkpoint.trigger');
-    Route::post('checkpoints/{checkpoint}/trigger-penyerahan', [CheckpointController::class, 'triggerPenyerahan'])->name('checkpoints.trigger-penyerahan')->middleware('permission:checkpoint.trigger');
+    Route::post('checkpoints/{checkpoint}/trigger-penerimaan', [CheckpointController::class, 'triggerPenerimaan'])->name('checkpoints.trigger-penerimaan')->middleware('permission:checkpoint.trigger_terima');
+    Route::post('checkpoints/{checkpoint}/trigger-penyerahan', [CheckpointController::class, 'triggerPenyerahan'])->name('checkpoints.trigger-penyerahan')->middleware('permission:checkpoint.trigger_serah');
     Route::post('checkpoints/{checkpoint}/trigger-start', [CheckpointController::class, 'triggerStart'])->name('checkpoints.trigger-start')->middleware('permission:checkpoint.trigger');
     Route::post('checkpoints/{checkpoint}/trigger-end', [CheckpointController::class, 'triggerEnd'])->name('checkpoints.trigger-end')->middleware('permission:checkpoint.trigger');
-    Route::post('checkpoints/{checkpoint}/cancel', [CheckpointController::class, 'cancel'])->name('checkpoints.cancel')->middleware('permission:checkpoint.edit');
+    Route::post('checkpoints/{checkpoint}/cancel', [CheckpointController::class, 'cancel'])->name('checkpoints.cancel')->middleware('permission:checkpoint.request_cancel');
+    Route::post('checkpoints/{checkpoint}/approve-cancel', [CheckpointController::class, 'approveCancel'])->name('checkpoints.approve-cancel')->middleware('permission:checkpoint.approve_cancel');
+    Route::post('checkpoints/{checkpoint}/reject-cancel', [CheckpointController::class, 'rejectCancel'])->name('checkpoints.reject-cancel')->middleware('permission:checkpoint.approve_cancel');
 
     Route::resource('gates', GateController::class)->except(['show', 'destroy']);
     Route::resource('vehicles', VehicleController::class)->except(['show', 'destroy']);
@@ -78,8 +81,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/web-data/vehicles/lookup', [VehicleController::class, 'getByNoPolisi'])->name('vehicles.lookup');
     Route::get('/web-data/gates/available', [CheckpointController::class, 'getAvailableGates'])->name('gates.available');
 
-    // User Management (Admin only)
-    Route::middleware('role:admin')->group(function () {
+    // Report
+    Route::get('report', [ReportController::class, 'index'])->name('report.index')->middleware('permission:report.view');
+    Route::get('report/export', [ReportController::class, 'export'])->name('report.export')->middleware('permission:report.export');
+
+    // User Management (Administrator only)
+    Route::middleware('role:administrator')->group(function () {
         Route::post('users/bulk-delete', [UserManagementController::class, 'bulkDelete'])->name('users.bulk-delete');
         Route::get('users/export', [UserManagementController::class, 'export'])->name('users.export');
         Route::post('users/import', [UserManagementController::class, 'import'])->name('users.import');

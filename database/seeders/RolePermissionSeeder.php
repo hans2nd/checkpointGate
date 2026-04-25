@@ -12,19 +12,19 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
         // Create Roles
-        $admin = Role::firstOrCreate(['name' => 'admin'], [
+        $admin = Role::firstOrCreate(['name' => 'administrator'], [
             'display_name' => 'Administrator',
-            'description' => 'Full access to all features including user management',
+            'description' => 'Akses penuh ke semua fitur',
         ]);
 
-        $operator = Role::firstOrCreate(['name' => 'operator'], [
-            'display_name' => 'Operator',
-            'description' => 'Can manage checkpoints, vehicles, and operational features',
+        $supervisor = Role::firstOrCreate(['name' => 'supervisor_admin'], [
+            'display_name' => 'Supervisor Admin',
+            'description' => 'Akses operasional dan approve cancel',
         ]);
 
-        $viewer = Role::firstOrCreate(['name' => 'viewer'], [
-            'display_name' => 'Viewer',
-            'description' => 'Read-only access to dashboard, monitoring, and data',
+        $staff = Role::firstOrCreate(['name' => 'staff_admin'], [
+            'display_name' => 'Staff Admin',
+            'description' => 'Akses tambah dan lihat data checkpoint, tanpa hapus dan approve',
         ]);
 
         // Create Permissions
@@ -38,6 +38,10 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'checkpoint.edit', 'display_name' => 'Edit Checkpoint', 'group' => 'Checkpoint'],
             ['name' => 'checkpoint.delete', 'display_name' => 'Hapus Checkpoint', 'group' => 'Checkpoint'],
             ['name' => 'checkpoint.trigger', 'display_name' => 'Trigger Aksi Checkpoint', 'group' => 'Checkpoint'],
+            ['name' => 'checkpoint.trigger_terima', 'display_name' => 'Trigger Terima', 'group' => 'Checkpoint'],
+            ['name' => 'checkpoint.trigger_serah', 'display_name' => 'Trigger Serah', 'group' => 'Checkpoint'],
+            ['name' => 'checkpoint.request_cancel', 'display_name' => 'Request Cancel', 'group' => 'Checkpoint'],
+            ['name' => 'checkpoint.approve_cancel', 'display_name' => 'Approve Cancel', 'group' => 'Checkpoint'],
             ['name' => 'checkpoint.export', 'display_name' => 'Export Checkpoint', 'group' => 'Checkpoint'],
             ['name' => 'checkpoint.import', 'display_name' => 'Import Checkpoint', 'group' => 'Checkpoint'],
 
@@ -51,6 +55,10 @@ class RolePermissionSeeder extends Seeder
             // User Management
             ['name' => 'user.view', 'display_name' => 'Lihat User', 'group' => 'User Management'],
             ['name' => 'user.manage', 'display_name' => 'Kelola User', 'group' => 'User Management'],
+
+            // Report
+            ['name' => 'report.view', 'display_name' => 'Lihat Report', 'group' => 'Report'],
+            ['name' => 'report.export', 'display_name' => 'Export Report', 'group' => 'Report'],
         ];
 
         foreach ($permissions as $perm) {
@@ -64,32 +72,38 @@ class RolePermissionSeeder extends Seeder
         $allPermissions = Permission::all();
         $admin->permissions()->sync($allPermissions->pluck('id'));
 
-        // Assign permissions to Operator
-        $operatorPermissions = Permission::whereIn('name', [
-            'dashboard.view',
-            'checkpoint.view', 'checkpoint.create', 'checkpoint.edit', 'checkpoint.delete',
-            'checkpoint.trigger', 'checkpoint.export', 'checkpoint.import',
-            'vehicle.view', 'vehicle.manage',
-            'monitoring.view',
+        // Assign permissions to Supervisor Admin
+        $supervisorPermissions = Permission::whereNotIn('group', [
+            'User Management',
+            'Role Management',
+            'Permission Management'      // Just in case it's named something else
+        ])->whereNotIn('name', [
+            'role.manage', 'permission.manage', 'user.view', 'user.manage'
         ])->get();
-        $operator->permissions()->sync($operatorPermissions->pluck('id'));
+        $supervisor->permissions()->sync($supervisorPermissions->pluck('id'));
 
-        // Assign permissions to Viewer
-        $viewerPermissions = Permission::whereIn('name', [
-            'dashboard.view',
-            'checkpoint.view', 'checkpoint.export',
-            'vehicle.view',
-            'monitoring.view',
+        // Assign permissions to Staff Admin
+        $staffPermissions = Permission::whereIn('name', [
+            'checkpoint.create',
+            'checkpoint.export',
+            'checkpoint.view',
+            'checkpoint.trigger_terima',
+            'checkpoint.trigger_serah',
+            'checkpoint.request_cancel',
+            'report.view',
+            'report.export',
         ])->get();
-        $viewer->permissions()->sync($viewerPermissions->pluck('id'));
+        $staff->permissions()->sync($staffPermissions->pluck('id'));
 
-        // Assign roles to existing users
-        // First user gets admin, rest get operator
-        $users = User::whereNull('role_id')->get();
-        foreach ($users as $index => $user) {
-            $user->update([
-                'role_id' => $index === 0 ? $admin->id : $operator->id,
+        // Assign roles to existing user admin
+        $adminUser = User::where('email', 'admin@checkpoint.com')->first();
+        if ($adminUser) {
+            $adminUser->update([
+                'role_id' => $admin->id,
             ]);
         }
+
+        // Delete other sample users
+        User::where('email', '!=', 'admin@checkpoint.com')->delete();
     }
 }

@@ -117,7 +117,7 @@
                                     @if ($cp->waktu_penerimaan_dokumen)
                                         <span
                                             class="text-xs text-gray-600">{{ $cp->waktu_penerimaan_dokumen->format('H:i:s') }}</span>
-                                    @elseif($cp->status !== 'CANCEL' && Auth::user()->hasPermission('checkpoint.trigger'))
+                                    @elseif($cp->status !== 'CANCEL' && $cp->cancel_status !== 'pending' && Auth::user()->hasPermission('checkpoint.trigger_terima'))
                                         <button type="button"
                                             onclick="openGateModal({{ $cp->id }}, @js($cp->no_polisi))"
                                             class="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">📥
@@ -130,7 +130,7 @@
                                     @if ($cp->waktu_start)
                                         <span
                                             class="text-xs text-gray-600">{{ $cp->waktu_start->format('H:i:s') }}</span>
-                                    @elseif($cp->status !== 'CANCEL' && $cp->waktu_penerimaan_dokumen && $cp->gate && Auth::user()->hasPermission('checkpoint.trigger'))
+                                    @elseif($cp->status !== 'CANCEL' && $cp->cancel_status !== 'pending' && $cp->waktu_penerimaan_dokumen && $cp->gate && Auth::user()->hasPermission('checkpoint.trigger'))
                                         <form method="POST" action="{{ route('checkpoints.trigger-start', $cp) }}"
                                             class="inline">@csrf
                                             <button type="submit"
@@ -145,7 +145,7 @@
                                     @if ($cp->waktu_end)
                                         <span
                                             class="text-xs text-gray-600">{{ $cp->waktu_end->format('H:i:s') }}</span>
-                                    @elseif($cp->status !== 'CANCEL' && $cp->waktu_start && Auth::user()->hasPermission('checkpoint.trigger'))
+                                    @elseif($cp->status !== 'CANCEL' && $cp->cancel_status !== 'pending' && $cp->waktu_start && Auth::user()->hasPermission('checkpoint.trigger'))
                                         <form method="POST" action="{{ route('checkpoints.trigger-end', $cp) }}"
                                             class="inline">@csrf
                                             <button type="submit"
@@ -185,6 +185,11 @@
                                             {{ $cp->status }}
                                         </span>
                                     @endif
+                                    @if ($cp->cancel_status === 'pending')
+                                        <span class="block mt-1 text-[10px] font-semibold text-orange-500">Wait Approval Cancel</span>
+                                    @elseif($cp->cancel_status === 'rejected')
+                                        <span class="block mt-1 text-[10px] font-semibold text-red-500">Cancel Rejected</span>
+                                    @endif
                                 </td>
                                 <td data-col="col-catatan" class="px-3 py-2.5 text-gray-500 text-xs max-w-[220px]">
                                     @if ($cp->status === 'CANCEL' && $cp->cancel_note)
@@ -205,7 +210,7 @@
                                     @if ($cp->waktu_penyerahan_dokumen)
                                         <span
                                             class="text-xs text-gray-600">{{ $cp->waktu_penyerahan_dokumen->format('H:i:s') }}</span>
-                                    @elseif($cp->status !== 'CANCEL' && $cp->waktu_end && Auth::user()->hasPermission('checkpoint.trigger'))
+                                    @elseif($cp->status !== 'CANCEL' && $cp->cancel_status !== 'pending' && $cp->waktu_end && Auth::user()->hasPermission('checkpoint.trigger_serah'))
                                         <form method="POST"
                                             action="{{ route('checkpoints.trigger-penyerahan', $cp) }}"
                                             class="inline">@csrf
@@ -253,7 +258,24 @@
                                                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
                                             </a>
-                                            @if (!in_array($cp->status, ['FINISH', 'CANCEL']))
+                                        @endif
+                                        @if (!in_array($cp->status, ['FINISH', 'CANCEL']))
+                                            @if ($cp->cancel_status === 'pending')
+                                                @if (Auth::user()->hasPermission('checkpoint.approve_cancel') || Auth::user()->isAdmin())
+                                                    <form id="approveCancelForm{{ $cp->id }}" method="POST" action="{{ route('checkpoints.approve-cancel', $cp) }}" class="inline">@csrf</form>
+                                                    <form id="rejectCancelForm{{ $cp->id }}" method="POST" action="{{ route('checkpoints.reject-cancel', $cp) }}" class="inline">@csrf</form>
+                                                    <button type="button" onclick="document.getElementById('approveCancelForm{{ $cp->id }}').submit()" class="p-1 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-all" title="Approve Cancel">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                                    </button>
+                                                    <button type="button" onclick="document.getElementById('rejectCancelForm{{ $cp->id }}').submit()" class="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-all" title="Reject Cancel">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                    </button>
+                                                @else
+                                                    <span class="p-1 text-orange-400" title="Menunggu approval cancel">
+                                                        <svg class="w-3.5 h-3.5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                    </span>
+                                                @endif
+                                            @elseif (Auth::user()->hasPermission('checkpoint.request_cancel') || Auth::user()->hasPermission('checkpoint.approve_cancel') || Auth::user()->hasPermission('checkpoint.delete'))
                                                 <button type="button"
                                                     onclick="openCancelModal({{ $cp->id }}, @js($cp->no_polisi))"
                                                     class="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-all"

@@ -218,6 +218,7 @@ class CheckpointController extends Controller
         // Data
         $row = 2;
 
+        /** @var Checkpoint $cp */
         foreach ($data as $index => $cp) {
             $sheet->setCellValue('A' . $row, $index + 1);
             $sheet->setCellValue('B' . $row, $cp->tanggal ? $cp->tanggal->format('d/m/Y') : '');
@@ -354,6 +355,14 @@ class CheckpointController extends Controller
      */
     public function triggerStart(Checkpoint $checkpoint)
     {
+        $currentUser = Auth::user();
+
+        // Must have checkpoint.trigger permission
+        if (!$currentUser->hasPermission('checkpoint.trigger') && !$currentUser->isAdmin()) {
+            return redirect()->back()
+                             ->with('error', 'Anda tidak memiliki izin untuk melakukan start loading.');
+        }
+
         if ($checkpoint->status === 'CANCEL') {
             return redirect()->back()
                              ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
@@ -380,17 +389,29 @@ class CheckpointController extends Controller
      */
     public function triggerEnd(Checkpoint $checkpoint)
     {
+        $currentUser = Auth::user();
+
+        // Must have checkpoint.trigger permission
+        if (!$currentUser->hasPermission('checkpoint.trigger') && !$currentUser->isAdmin()) {
+            return redirect()->back()
+                             ->with('error', 'Anda tidak memiliki izin untuk melakukan end loading.');
+        }
+
         if ($checkpoint->status === 'CANCEL') {
             return redirect()->back()
                              ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
         }
 
-        // Validate: user who ends must be the same who started (unless admin)
-        $currentUser = Auth::user();
-        if ($checkpoint->started_by && $currentUser->id !== $checkpoint->started_by && !$currentUser->isAdmin()) {
-            $starterName = $checkpoint->startedByUser?->name ?? 'Unknown';
-            return redirect()->back()
-                             ->with('error', "Anda tidak dapat menyelesaikan loading ini. Loading dimulai oleh {$starterName}. Hanya user yang sama yang dapat menyelesaikan loading.");
+        // Validate: user who ends must be the same who started
+        // Exception: supervisor_admin with checkpoint.trigger, or administrator
+        if ($checkpoint->started_by && $currentUser->id !== $checkpoint->started_by) {
+            $isSupervisorWithTrigger = $currentUser->hasRole('supervisor_admin') && $currentUser->hasPermission('checkpoint.trigger');
+
+            if (!$currentUser->isAdmin() && !$isSupervisorWithTrigger) {
+                $starterName = $checkpoint->startedByUser?->name ?? 'Unknown';
+                return redirect()->back()
+                                 ->with('error', "Anda tidak dapat menyelesaikan loading ini. Loading dimulai oleh {$starterName}. Hanya user yang sama atau Supervisor yang dapat menyelesaikan loading.");
+            }
         }
 
         $now = Carbon::now();
@@ -413,18 +434,16 @@ class CheckpointController extends Controller
     }
 
     /**
-     * Cancel checkpoint data with a required explanatory note.
+     * Cancel checkpoint data (Request or Direct)
      */
     public function cancel(Request $request, Checkpoint $checkpoint)
     {
         if ($checkpoint->status === 'CANCEL') {
-            return redirect()->back()
-                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
+            return redirect()->back()->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
         }
 
         if ($checkpoint->status === 'FINISH') {
-            return redirect()->back()
-                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah selesai dan tidak dapat dibatalkan.");
+            return redirect()->back()->with('error', "Checkpoint {$checkpoint->no_polisi} sudah selesai dan tidak dapat dibatalkan.");
         }
 
         $validated = $request->validate([
@@ -435,15 +454,80 @@ class CheckpointController extends Controller
             'cancel_note.max' => 'Catatan cancel maksimal 500 karakter.',
         ]);
 
+        $user = Auth::user();
+
+        // If user can approve cancel, they can direct cancel
+        if ($user->hasPermission('checkpoint.approve_cancel') || $user->isAdmin()) {
+            $checkpoint->update([
+                'status' => 'CANCEL',
+                'cancel_status' => 'approved',
+                'cancel_reason' => $validated['cancel_note'],
+                'cancel_note' => $validated['cancel_note'],
+                'canceled_at' => Carbon::now(),
+                'canceled_by' => $user->id,
+                'cancel_requested_by' => $user->id,
+                'cancel_approved_by' => $user->id,
+            ]);
+            return redirect()->back()->with('success', "Checkpoint {$checkpoint->no_polisi} berhasil dibatalkan secara langsung.");
+        }
+
+        // Otherwise (e.g. staff_admin), they can only request cancel
         $checkpoint->update([
-            'status' => 'CANCEL',
-            'cancel_note' => $validated['cancel_note'],
-            'canceled_at' => Carbon::now(),
-            'canceled_by' => Auth::id(),
+            'cancel_status' => 'pending',
+            'cancel_reason' => $validated['cancel_note'],
+            'cancel_requested_by' => $user->id,
         ]);
 
-        return redirect()->back()
-                         ->with('success', "Checkpoint {$checkpoint->no_polisi} berhasil dibatalkan.");
+        return redirect()->back()->with('success', "Request pembatalan untuk checkpoint {$checkpoint->no_polisi} berhasil dikirim dan menunggu approval.");
+    }
+
+    /**
+     * Approve a cancel request
+     */
+    public function approveCancel(Checkpoint $checkpoint)
+    {
+        $user = Auth::user();
+
+        if (!$user->hasPermission('checkpoint.approve_cancel') && !$user->isAdmin()) {
+            abort(403);
+        }
+
+        if ($checkpoint->cancel_status !== 'pending') {
+            return redirect()->back()->with('error', "Status tidak valid untuk di-approve.");
+        }
+
+        $checkpoint->update([
+            'status' => 'CANCEL',
+            'cancel_status' => 'approved',
+            'cancel_note' => $checkpoint->cancel_reason,
+            'canceled_at' => Carbon::now(),
+            'canceled_by' => $user->id,
+            'cancel_approved_by' => $user->id,
+        ]);
+
+        return redirect()->back()->with('success', "Request pembatalan disetujui, checkpoint telah dibatalkan.");
+    }
+
+    /**
+     * Reject a cancel request
+     */
+    public function rejectCancel(Checkpoint $checkpoint)
+    {
+        $user = Auth::user();
+
+        if (!$user->hasPermission('checkpoint.approve_cancel') && !$user->isAdmin()) {
+            abort(403);
+        }
+
+        if ($checkpoint->cancel_status !== 'pending') {
+            return redirect()->back()->with('error', "Status tidak valid untuk di-reject.");
+        }
+
+        $checkpoint->update([
+            'cancel_status' => 'rejected',
+        ]);
+
+        return redirect()->back()->with('success', "Request pembatalan ditolak.");
     }
 
     /**

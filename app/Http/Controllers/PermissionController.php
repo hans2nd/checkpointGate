@@ -38,16 +38,46 @@ class PermissionController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:100|unique:permissions,name|regex:/^[a-z_.]+$/',
-            'display_name' => 'required|string|max:150',
+        $request->validate([
+            'resource' => 'required|string|max:50|regex:/^[a-z_]+$/',
+            'resource_name' => 'required|string|max:100',
             'group' => 'required|string|max:50',
+            'actions' => 'required|array',
         ]);
 
-        Permission::create($validated);
+        $actionDisplayNames = [
+            'view' => 'Lihat',
+            'index' => 'View',
+            'create' => 'Tambah',
+            'edit' => 'Edit',
+            'delete' => 'Hapus',
+            'export' => 'Export',
+            'import' => 'Import',
+            'approve' => 'Approve',
+            'trigger' => 'Trigger',
+        ];
+
+        $createdCount = 0;
+        foreach ($request->actions as $action) {
+            $permissionName = $request->resource . '.' . $action;
+            $actionName = $actionDisplayNames[$action] ?? ucfirst($action);
+            $displayName = $actionName . ' ' . $request->resource_name;
+
+            $permission = Permission::firstOrCreate(
+                ['name' => $permissionName],
+                [
+                    'display_name' => $displayName,
+                    'group' => $request->group
+                ]
+            );
+            
+            if ($permission->wasRecentlyCreated) {
+                $createdCount++;
+            }
+        }
 
         return redirect()->route('permissions.index')
-                         ->with('success', "Permission '{$validated['display_name']}' berhasil ditambahkan.");
+                            ->with('success', "Berhasil men-generate {$createdCount} permission baru untuk modul '{$request->resource_name}'.");
     }
 
     public function edit(Permission $permission)

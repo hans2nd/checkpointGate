@@ -8,7 +8,6 @@ use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Nette\NotImplementedException;
 
 class LiveMonitoringController extends Controller
 {
@@ -19,11 +18,28 @@ class LiveMonitoringController extends Controller
             : Carbon::today();
 
         $isToday = $selectedDate->isToday();
+        $yesterday = $selectedDate->copy()->subDay();
 
-        // Get all active checkpoints for selected date (grouped by gate)
-        $activeCheckpoints = Checkpoint::whereDate('tanggal', $selectedDate)
-            ->whereNotNull('gate')
-            ->where('status', '!=', 'CANCEL')
+        // Get all active checkpoints for selected date + overnight from yesterday
+        $activeCheckpoints = Checkpoint::where(function ($q) use ($selectedDate) {
+                $q->whereDate('tanggal', $selectedDate)
+                  ->whereNotNull('gate')
+                  ->where('status', '!=', 'CANCEL');
+            })
+            ->orWhere(function ($q) use ($yesterday, $selectedDate) {
+                // Overnight: started yesterday, still ON LOADING or finished after midnight today
+                $q->whereDate('tanggal', $yesterday)
+                  ->whereNotNull('gate')
+                  ->where('status', '!=', 'CANCEL')
+                  ->where(function ($inner) use ($selectedDate) {
+                      $inner->where('status', 'ON LOADING')
+                            ->orWhere(function ($fin) use ($selectedDate) {
+                                $fin->where('status', 'FINISH')
+                                    ->whereNotNull('waktu_end')
+                                    ->where('waktu_end', '>=', $selectedDate->copy()->startOfDay());
+                            });
+                  });
+            })
             ->orderBy('gate')
             ->orderBy('created_at', 'desc')
             ->get()
@@ -41,44 +57,8 @@ class LiveMonitoringController extends Controller
             ];
         }
 
-        // Activity summary: Loading = INBOUND, Unloading = OUTBOUND
-        $activitySummary = [];
-        foreach (['INBOUND', 'OUTBOUND'] as $aktivitas) {
-            foreach (['FROZEN', 'DRY', 'CHILLED'] as $jenis) {
-                $label = ($aktivitas === 'INBOUND' ? 'IN' : 'OUT') . ' ' . $jenis;
-                $parking = Checkpoint::whereDate('tanggal', $selectedDate)
-                    ->where('aktivitas', $aktivitas)
-                    ->where('jenis_barang', $jenis)
-                    ->where('status', '!=', 'CANCEL')
-                    ->where('waktu_penerimaan_dokumen', null)
-                    ->count();
-                $receiving = Checkpoint::whereDate('tanggal', $selectedDate)
-                    ->where('aktivitas', $aktivitas)
-                    ->where('jenis_barang', $jenis)
-                    ->where('status', 'START')
-                    ->whereNotNull('waktu_penerimaan_dokumen')
-                    ->whereNotNull('gate')
-                    ->count();
-                $onProcess = Checkpoint::whereDate('tanggal', $selectedDate)
-                    ->where('aktivitas', $aktivitas)
-                    ->where('jenis_barang', $jenis)
-                    ->where('status', 'ON LOADING')
-                    ->count();
-                $finish = Checkpoint::whereDate('tanggal', $selectedDate)
-                    ->where('aktivitas', $aktivitas)
-                    ->where('jenis_barang', $jenis)
-                    ->where('status', 'FINISH')
-                    ->count();
-
-                $activitySummary[] = [
-                    'label' => $label,
-                    'parking' => $parking,
-                    'receiving' => $receiving,
-                    'on_process' => $onProcess,
-                    'finish' => $finish,
-                ];
-            }
-        }
+        // Activity summary with total count + overnight vehicles
+        $activitySummary = $this->buildActivitySummary($selectedDate, $yesterday);
 
         // Average loading time per vehicle type × jenis_barang × aktivitas
         $vehicleTypes = Vehicle::select('jenis_kendaraan')
@@ -149,9 +129,26 @@ class LiveMonitoringController extends Controller
             ? Carbon::parse($request->input('tanggal'))
             : Carbon::today();
 
-        $activeCheckpoints = Checkpoint::whereDate('tanggal', $selectedDate)
-            ->whereNotNull('gate')
-            ->where('status', '!=', 'CANCEL')
+        $yesterday = $selectedDate->copy()->subDay();
+
+        $activeCheckpoints = Checkpoint::where(function ($q) use ($selectedDate) {
+                $q->whereDate('tanggal', $selectedDate)
+                  ->whereNotNull('gate')
+                  ->where('status', '!=', 'CANCEL');
+            })
+            ->orWhere(function ($q) use ($yesterday, $selectedDate) {
+                $q->whereDate('tanggal', $yesterday)
+                  ->whereNotNull('gate')
+                  ->where('status', '!=', 'CANCEL')
+                  ->where(function ($inner) use ($selectedDate) {
+                      $inner->where('status', 'ON LOADING')
+                            ->orWhere(function ($fin) use ($selectedDate) {
+                                $fin->where('status', 'FINISH')
+                                    ->whereNotNull('waktu_end')
+                                    ->where('waktu_end', '>=', $selectedDate->copy()->startOfDay());
+                            });
+                  });
+            })
             ->orderBy('gate')
             ->orderBy('created_at', 'desc')
             ->get()
@@ -176,42 +173,7 @@ class LiveMonitoringController extends Controller
             ];
         }
 
-        $activitySummary = [];
-        foreach (['INBOUND', 'OUTBOUND'] as $aktivitas) {
-            foreach (['FROZEN', 'DRY','CHILLED'] as $jenis) {
-                $label = ($aktivitas === 'INBOUND' ? 'IN' : 'OUT') . ' ' . $jenis;
-                $parking = Checkpoint::whereDate('tanggal', $selectedDate)
-                    ->where('aktivitas', $aktivitas)
-                    ->where('jenis_barang', $jenis)
-                    ->where('status', '!=', 'CANCEL')
-                    ->where('waktu_penerimaan_dokumen', null)
-                    ->count();
-                $receiving = Checkpoint::whereDate('tanggal', $selectedDate)
-                    ->where('aktivitas', $aktivitas)
-                    ->where('jenis_barang', $jenis)
-                    ->where('status', 'START')
-                    ->whereNotNull('waktu_penerimaan_dokumen')
-                    ->whereNotNull('gate')
-                    ->count();
-                $onProcess = Checkpoint::whereDate('tanggal', $selectedDate)
-                    ->where('aktivitas', $aktivitas)
-                    ->where('jenis_barang', $jenis)
-                    ->where('status', 'ON LOADING')
-                    ->count();
-                $finish = Checkpoint::whereDate('tanggal', $selectedDate)
-                    ->where('aktivitas', $aktivitas)
-                    ->where('jenis_barang', $jenis)
-                    ->where('status', 'FINISH')
-                    ->count();
-                $activitySummary[] = [
-                    'label' => $label,
-                    'parking' => $parking,
-                    'receiving' => $receiving,
-                    'on_process' => $onProcess,
-                    'finish' => $finish,
-                ];
-            }
-        }
+        $activitySummary = $this->buildActivitySummary($selectedDate, $yesterday);
 
         // Average loading time per vehicle type (dynamic from master)
         $vehicleTypes = Vehicle::select('jenis_kendaraan')
@@ -268,6 +230,69 @@ class LiveMonitoringController extends Controller
         }
 
         return response()->json(compact('gates', 'activitySummary', 'avgTimes'));
+    }
+
+    /**
+     * Build activity summary with total count and overnight vehicle tracking.
+     */
+    private function buildActivitySummary(Carbon $selectedDate, Carbon $yesterday): array
+    {
+        $activitySummary = [];
+
+        foreach (['INBOUND', 'OUTBOUND'] as $aktivitas) {
+            foreach (['FROZEN', 'DRY', 'CHILLED'] as $jenis) {
+                $label = ($aktivitas === 'INBOUND' ? 'IN' : 'OUT') . ' ' . $jenis;
+
+                // Today's data
+                $todayBase = Checkpoint::whereDate('tanggal', $selectedDate)
+                    ->where('aktivitas', $aktivitas)
+                    ->where('jenis_barang', $jenis)
+                    ->where('status', '!=', 'CANCEL');
+
+                // Overnight: still ON LOADING from yesterday
+                $overnightOnLoading = Checkpoint::whereDate('tanggal', $yesterday)
+                    ->where('aktivitas', $aktivitas)
+                    ->where('jenis_barang', $jenis)
+                    ->where('status', 'ON LOADING');
+
+                // Overnight: finished after midnight today (started yesterday)
+                $overnightFinished = Checkpoint::whereDate('tanggal', $yesterday)
+                    ->where('aktivitas', $aktivitas)
+                    ->where('jenis_barang', $jenis)
+                    ->where('status', 'FINISH')
+                    ->whereNotNull('waktu_end')
+                    ->where('waktu_end', '>=', $selectedDate->copy()->startOfDay());
+
+                $parking = (clone $todayBase)->whereNull('waktu_penerimaan_dokumen')->count();
+
+                $receiving = (clone $todayBase)->where('status', 'START')
+                    ->whereNotNull('waktu_penerimaan_dokumen')
+                    ->whereNotNull('gate')
+                    ->count();
+
+                $onProcess = (clone $todayBase)->where('status', 'ON LOADING')->count()
+                    + (clone $overnightOnLoading)->count();
+
+                $finish = (clone $todayBase)->where('status', 'FINISH')->count()
+                    + (clone $overnightFinished)->count();
+
+                // Total = all non-cancelled vehicles for this activity today + overnight carry-overs
+                $total = (clone $todayBase)->count()
+                    + (clone $overnightOnLoading)->count()
+                    + (clone $overnightFinished)->count();
+
+                $activitySummary[] = [
+                    'label' => $label,
+                    'parking' => $parking,
+                    'receiving' => $receiving,
+                    'on_process' => $onProcess,
+                    'finish' => $finish,
+                    'total' => $total,
+                ];
+            }
+        }
+
+        return $activitySummary;
     }
 
     private function calculateAverage($durations)
