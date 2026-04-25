@@ -173,11 +173,17 @@
         document.querySelector('.fs-icon-compress').style.display = isFs ? '' : 'none';
         const exitBtn = document.querySelector('.fs-exit-btn');
         if (exitBtn) exitBtn.style.display = isFs ? 'flex' : 'none';
+        
         const container = document.getElementById('monitoring-container');
+        const footer = document.querySelector('footer');
+        const footerHeight = footer ? footer.offsetHeight : 0;
+        
         if (isFs) {
-            container.style.height = '100vh';
+            // 24px accounts for main padding (12px top and bot)
+            container.style.height = `calc(100vh - ${24 + footerHeight}px)`;
         } else {
-            container.style.height = 'calc(100vh - 120px)';
+            // Previously 120px accounted for header and standard padding
+            container.style.height = `calc(100vh - ${120 + footerHeight}px)`;
         }
     });
 
