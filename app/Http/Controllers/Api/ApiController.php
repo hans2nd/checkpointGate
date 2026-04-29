@@ -312,6 +312,8 @@ class ApiController extends Controller
             'jenis_barang' => 'required|in:FROZEN,DRY,CHILLED',
             'aktivitas' => 'required|in:INBOUND,OUTBOUND',
             'note' => 'nullable|string|max:500',
+            'no_surat_jalan' => 'nullable|string|max:100',
+            'purchase_order' => 'nullable|string|max:100',
         ]);
 
         if ($validator->fails()) {
@@ -321,6 +323,7 @@ class ApiController extends Controller
         $cp = Checkpoint::create(array_merge($request->only([
             'no_polisi', 'vendor', 'driver', 'tipe',
             'jenis_kendaraan', 'jenis_barang', 'aktivitas', 'note',
+            'no_surat_jalan', 'purchase_order',
         ]), [
             'tanggal' => Carbon::today(),
             'status' => 'START',
@@ -571,6 +574,8 @@ class ApiController extends Controller
             'durasi' => $cp->durasi,
             'durasi_dokumen' => $durasiDokumen,
             'note' => $cp->note,
+            'no_surat_jalan' => $cp->no_surat_jalan,
+            'purchase_order' => $cp->purchase_order,
             'cancel_note' => $cp->cancel_note,
             'canceled_at' => $cp->canceled_at?->toIso8601String(),
             'canceled_by' => $cp->canceled_by,

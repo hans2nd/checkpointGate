@@ -89,7 +89,7 @@ class ReportController extends Controller
         $sheet->setTitle('Report Checkpoint');
 
         // Title row
-        $sheet->mergeCells('A1:P1');
+        $sheet->mergeCells('A1:R1');
         $sheet->setCellValue('A1', 'LAPORAN DATA CHECKPOINT');
         $sheet->getStyle('A1')->applyFromArray([
             'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => '1F2937']],
@@ -97,7 +97,7 @@ class ReportController extends Controller
         ]);
 
         // Info row
-        $sheet->mergeCells('A2:P2');
+        $sheet->mergeCells('A2:R2');
         $periodLabel = Carbon::parse($startDate)->format('d/m/Y') . ' - ' . Carbon::parse($endDate)->format('d/m/Y');
         $filterLabels = [];
         if ($aktivitas) $filterLabels[] = "Aktivitas: {$aktivitas}";
@@ -111,13 +111,13 @@ class ReportController extends Controller
         ]);
 
         // Headers
-        $headers = ['No', 'Tanggal', 'No Polisi', 'Vendor', 'Kendaraan', 'Barang', 'Aktivitas', 'Penerimaan Dokumen', 'Start Loading', 'End Loading', 'Gate', 'Status', 'Catatan', 'Durasi Loading', 'Penyerahan Dokumen', 'Durasi Dokumen'];
+        $headers = ['No', 'Tanggal', 'No Polisi', 'Vendor', 'Kendaraan', 'Barang', 'Aktivitas', 'Penerimaan Dokumen', 'Start Loading', 'End Loading', 'Gate', 'Status', 'Catatan', 'Durasi Loading', 'Penyerahan Dokumen', 'Durasi Dokumen', 'No. Surat Jalan', 'Purchase Order'];
         foreach ($headers as $col => $header) {
             $cell = chr(65 + $col) . '4';
             $sheet->setCellValue($cell, $header);
         }
 
-        $sheet->getStyle('A4:P4')->applyFromArray([
+        $sheet->getStyle('A4:R4')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 10],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F97316']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
@@ -144,19 +144,21 @@ class ReportController extends Controller
             $sheet->setCellValue('N' . $row, $cp->durasi);
             $sheet->setCellValue('O' . $row, $cp->waktu_penyerahan_dokumen ? $cp->waktu_penyerahan_dokumen->format('d/m/Y H:i:s') : '');
             $sheet->setCellValue('P' . $row, $this->calculateDurasiDokumen($cp));
+            $sheet->setCellValue('Q' . $row, $cp->no_surat_jalan);
+            $sheet->setCellValue('R' . $row, $cp->purchase_order);
             $row++;
         }
 
         // Data borders
         if ($row > 5) {
-            $sheet->getStyle('A5:P' . ($row - 1))->applyFromArray([
+            $sheet->getStyle('A5:R' . ($row - 1))->applyFromArray([
                 'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 'font' => ['size' => 10],
             ]);
         }
 
         // Auto-size columns
-        foreach (range('A', 'P') as $col) {
+        foreach (range('A', 'R') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 

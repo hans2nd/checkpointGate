@@ -22,13 +22,13 @@ class LiveMonitoringController extends Controller
 
         // Get all active checkpoints for selected date + overnight from yesterday
         $activeCheckpoints = Checkpoint::where(function ($q) use ($selectedDate) {
-                $q->whereDate('tanggal', $selectedDate)
+                $q->whereDate('created_at', $selectedDate)
                   ->whereNotNull('gate')
                   ->where('status', '!=', 'CANCEL');
             })
             ->orWhere(function ($q) use ($yesterday, $selectedDate) {
                 // Overnight: started yesterday, still ON LOADING or finished after midnight today
-                $q->whereDate('tanggal', $yesterday)
+                $q->whereDate('created_at', $yesterday)
                   ->whereNotNull('gate')
                   ->where('status', '!=', 'CANCEL')
                   ->where(function ($inner) use ($selectedDate) {
@@ -132,12 +132,12 @@ class LiveMonitoringController extends Controller
         $yesterday = $selectedDate->copy()->subDay();
 
         $activeCheckpoints = Checkpoint::where(function ($q) use ($selectedDate) {
-                $q->whereDate('tanggal', $selectedDate)
+                $q->whereDate('created_at', $selectedDate)
                   ->whereNotNull('gate')
                   ->where('status', '!=', 'CANCEL');
             })
             ->orWhere(function ($q) use ($yesterday, $selectedDate) {
-                $q->whereDate('tanggal', $yesterday)
+                $q->whereDate('created_at', $yesterday)
                   ->whereNotNull('gate')
                   ->where('status', '!=', 'CANCEL')
                   ->where(function ($inner) use ($selectedDate) {
@@ -186,7 +186,7 @@ class LiveMonitoringController extends Controller
         foreach ($vehicleTypes as $vt) {
             $row = ['jenis_kendaraan' => $vt];
             foreach (['DRY', 'FROZEN', 'CHILLED'] as $jenis) {
-                $altAvg = Checkpoint::whereDate('tanggal', $selectedDate)
+                $altAvg = Checkpoint::whereDate('created_at', $selectedDate)
                     ->where('jenis_kendaraan', $vt)
                     ->where('jenis_barang', $jenis)
                     ->where('aktivitas', 'INBOUND')
@@ -196,7 +196,7 @@ class LiveMonitoringController extends Controller
 
                 $row["{$jenis}_ALT"] = $this->calculateAverage($altAvg);
 
-                $altAvgLmonth = Checkpoint::whereBetween('tanggal', [$selectedDate->copy()->subMonth(), $selectedDate])
+                $altAvgLmonth = Checkpoint::whereBetween('created_at', [$selectedDate->copy()->subMonth(), $selectedDate])
                     ->where('jenis_kendaraan', $vt)
                     ->where('jenis_barang', $jenis)
                     ->where('aktivitas', 'INBOUND')
@@ -206,7 +206,7 @@ class LiveMonitoringController extends Controller
 
                 $row["{$jenis}_ALT_LMONTH"] = $this->calculateAverage($altAvgLmonth);
 
-                $autAvg = Checkpoint::whereDate('tanggal', $selectedDate)
+                $autAvg = Checkpoint::whereDate('created_at', $selectedDate)
                     ->where('jenis_kendaraan', $vt)
                     ->where('jenis_barang', $jenis)
                     ->where('aktivitas', 'OUTBOUND')
@@ -216,7 +216,7 @@ class LiveMonitoringController extends Controller
 
                 $row["{$jenis}_AUT"] = $this->calculateAverage($autAvg);
 
-                $autAvgLmonth = Checkpoint::whereBetween('tanggal', [$selectedDate->copy()->subMonth(), $selectedDate])
+                $autAvgLmonth = Checkpoint::whereBetween('created_at', [$selectedDate->copy()->subMonth(), $selectedDate])
                     ->where('jenis_kendaraan', $vt)
                     ->where('jenis_barang', $jenis)
                     ->where('aktivitas', 'OUTBOUND')
@@ -244,19 +244,19 @@ class LiveMonitoringController extends Controller
                 $label = ($aktivitas === 'INBOUND' ? 'IN' : 'OUT') . ' ' . $jenis;
 
                 // Today's data
-                $todayBase = Checkpoint::whereDate('tanggal', $selectedDate)
+                $todayBase = Checkpoint::whereDate('created_at', $selectedDate)
                     ->where('aktivitas', $aktivitas)
                     ->where('jenis_barang', $jenis)
                     ->where('status', '!=', 'CANCEL');
 
                 // Overnight: still ON LOADING from yesterday
-                $overnightOnLoading = Checkpoint::whereDate('tanggal', $yesterday)
+                $overnightOnLoading = Checkpoint::whereDate('created_at', $yesterday)
                     ->where('aktivitas', $aktivitas)
                     ->where('jenis_barang', $jenis)
                     ->where('status', 'ON LOADING');
 
                 // Overnight: finished after midnight today (started yesterday)
-                $overnightFinished = Checkpoint::whereDate('tanggal', $yesterday)
+                $overnightFinished = Checkpoint::whereDate('created_at', $yesterday)
                     ->where('aktivitas', $aktivitas)
                     ->where('jenis_barang', $jenis)
                     ->where('status', 'FINISH')

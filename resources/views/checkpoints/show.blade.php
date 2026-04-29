@@ -171,6 +171,22 @@
                 </div>
             </div>
 
+            {{-- No. Surat Jalan & Purchase Order --}}
+            @if($checkpoint->no_surat_jalan || $checkpoint->purchase_order)
+            <div class="mt-6 pt-4 border-t border-gray-100">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">No. Surat Jalan</p>
+                        <p class="text-sm text-gray-900 mt-1 font-medium">{{ $checkpoint->no_surat_jalan ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Purchase Order</p>
+                        <p class="text-sm text-gray-900 mt-1 font-medium">{{ $checkpoint->purchase_order ?? '-' }}</p>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             @if($checkpoint->note)
             <div class="mt-6 pt-4 border-t border-gray-100">
                 <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Catatan / Keterangan</p>

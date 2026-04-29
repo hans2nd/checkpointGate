@@ -168,15 +168,34 @@
                     </div> --}}
                 </div>
 
+                {{-- No. Surat Jalan & Purchase Order --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+                    <div>
+                        <label for="no_surat_jalan" class="block text-sm font-medium text-gray-700 mb-1.5">No. Surat
+                            Jalan</label>
+                        <input type="text" id="no_surat_jalan" name="no_surat_jalan"
+                            value="{{ old('no_surat_jalan') }}" placeholder="Surat Jalan"
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
+                    </div>
+                    <div>
+                        <label for="purchase_order" class="block text-sm font-medium text-gray-700 mb-1.5">Purchase
+                            Order</label>
+                        <input type="text" id="purchase_order" name="purchase_order"
+                            value="{{ old('purchase_order') }}" placeholder="Purchase Order"
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
+                    </div>
+                </div>
+
                 {{-- Note/Keterangan --}}
                 <div class="mt-5">
-                    <label for="note" class="block text-sm font-medium text-gray-700 mb-1.5">Catatan / Keterangan</label>
-                    <textarea id="note" name="note" rows="3" placeholder="Tambahkan catatan atau keterangan (opsional)..."
+                    <label for="note" class="block text-sm font-medium text-gray-700 mb-1.5">Catatan /
+                        Keterangan</label>
+                    <textarea id="note" name="note" rows="3" placeholder="Contoh Inputan : Full Botan / 1.500 Ctn / 2 SKU"
                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none">{{ old('note') }}</textarea>
                 </div>
 
                 {{-- Info --}}
-                <div class="mt-5 px-4 py-3 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-700">
+                {{-- <div class="mt-5 px-4 py-3 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-700">
                     <p class="font-medium">💡 Setelah data disimpan:</p>
                     <ul class="mt-1 text-xs space-y-0.5 text-blue-600">
                         <li>• Gunakan tombol <strong>📥 Terima</strong> untuk mencatat waktu penerimaan dokumen</li>
@@ -184,7 +203,7 @@
                         <li>• Gunakan tombol <strong>▶ Start</strong> untuk mulai loading</li>
                         <li>• Gunakan tombol <strong>⏹ End</strong> untuk selesai loading (durasi otomatis dihitung)</li>
                     </ul>
-                </div>
+                </div> --}}
 
                 {{-- Submit --}}
                 <div class="flex items-center gap-3 mt-8 pt-6 border-t border-gray-100">

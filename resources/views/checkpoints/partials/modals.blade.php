@@ -14,7 +14,8 @@
                         </svg></button>
                 </div>
                 <div class="mb-4 p-3 bg-blue-50 rounded-lg">
-                    <p class="text-xs text-blue-700"><strong>Format kolom:</strong> Tanggal | No Polisi | Vendor | Driver |
+                    <p class="text-xs text-blue-700"><strong>Format kolom:</strong> Tanggal | No Polisi | Vendor |
+                        Driver |
                         Tipe (INTERNAL/EKSTERNAL) | Jenis Kendaraan | Jenis Barang (FROZEN/DRY) | Aktivitas
                         (INBOUND/OUTBOUND) | Gate</p>
                     <p class="text-xs text-blue-600 mt-1">Baris pertama = header (dilewati).</p>
@@ -66,18 +67,20 @@
                 <form id="cancelForm" method="POST" action="">
                     @csrf
                     <div class="mb-4">
-                        <label for="cancel_note" class="block text-sm font-medium text-gray-700 mb-2">Catatan Cancel <span
-                                class="text-red-400">*</span></label>
+                        <label for="cancel_note" class="block text-sm font-medium text-gray-700 mb-2">Catatan Cancel
+                            <span class="text-red-400">*</span></label>
                         <textarea id="cancel_note" name="cancel_note" rows="4" required minlength="5" maxlength="500"
                             placeholder="Tuliskan alasan cancel agar data tetap informatif..."
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all resize-none"></textarea>
-                        <p class="text-xs text-gray-400 mt-1">Catatan ini akan tampil di tabel, detail, dan export Excel.</p>
+                        <p class="text-xs text-gray-400 mt-1">Catatan ini akan tampil di tabel, detail, dan export
+                            Excel.</p>
                     </div>
                     <div class="flex justify-end gap-2">
                         <button type="button" onclick="closeCancelModal()"
                             class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-lg">Batal</button>
                         <button type="submit"
-                            class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg">Cancel Checkpoint</button>
+                            class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg">Cancel
+                            Checkpoint</button>
                     </div>
                 </form>
             </div>
@@ -133,7 +136,7 @@
                                 <p class="text-sm text-gray-600">Gate terpilih: <span id="selectedGateLabel"
                                         class="font-bold text-orange-600">-</span></p>
                                 <label class="flex items-center gap-2 mt-2 cursor-pointer">
-                                    <input type="checkbox" id="printTicketCheck" checked
+                                    <input type="checkbox" id="printTicketCheck"
                                         class="rounded border-gray-300 text-blue-500 focus:ring-blue-500">
                                     <span class="text-xs text-gray-600">🖨️ Print Ticket Gate setelah terima</span>
                                 </label>

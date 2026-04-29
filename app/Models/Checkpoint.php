@@ -28,6 +28,8 @@ class Checkpoint extends Model
         'created_by',
         'started_by',
         'note',
+        'no_surat_jalan',
+        'purchase_order',
         'cancel_note',
         'canceled_at',
         'canceled_by',
@@ -35,10 +37,12 @@ class Checkpoint extends Model
         'cancel_reason',
         'cancel_requested_by',
         'cancel_approved_by',
+        'created_at',
     ];
 
     protected $casts = [
         'tanggal' => 'date',
+        'created_at' => 'date',
         'waktu_penerimaan_dokumen' => 'datetime',
         'waktu_penyerahan_dokumen' => 'datetime',
         'waktu_start' => 'datetime',

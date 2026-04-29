@@ -170,7 +170,7 @@ class CheckpointListScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Tanggal: $tanggal',
+                        'Kedatangan: $tanggal',
                         style: const TextStyle(color: Colors.grey),
                       ),
                       Text('Driver: ${item['driver'] ?? '-'}', style: const TextStyle(color: Colors.grey)),

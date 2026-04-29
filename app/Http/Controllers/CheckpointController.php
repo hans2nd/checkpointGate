@@ -71,6 +71,8 @@ class CheckpointController extends Controller
             'aktivitas' => 'required|in:INBOUND,OUTBOUND',
             'gate' => 'nullable|string|max:30',
             'note' => 'nullable|string|max:500',
+            'no_surat_jalan' => 'nullable|string|max:100',
+            'purchase_order' => 'nullable|string|max:100',
         ]);
 
         $validated['tanggal'] = Carbon::today();
@@ -123,6 +125,8 @@ class CheckpointController extends Controller
             'waktu_end' => 'nullable|date',
             'durasi' => 'nullable|string|max:20',
             'note' => 'nullable|string|max:500',
+            'no_surat_jalan' => 'nullable|string|max:100',
+            'purchase_order' => 'nullable|string|max:100',
             'cancel_note' => 'required_if:status,CANCEL|nullable|string|max:500',
         ]);
 
@@ -200,14 +204,14 @@ class CheckpointController extends Controller
         $sheet->setTitle('Data Checkpoint');
 
         // Header
-        $headers = ['No', 'Tanggal', 'No Polisi', 'Vendor', 'Kendaraan', 'Barang', 'Aktivitas', 'Penerimaan Dokumen', 'Start Loading', 'End Loading', 'Gate', 'Status', 'Catatan', 'Durasi Loading', 'Penyerahan Dokumen', 'Durasi Dokumen'];
+        $headers = ['No', 'Tanggal', 'No Polisi', 'Vendor', 'Kendaraan', 'Barang', 'Aktivitas', 'Penerimaan Dokumen', 'Start Loading', 'End Loading', 'Gate', 'Status', 'Catatan', 'Durasi Loading', 'Penyerahan Dokumen', 'Durasi Dokumen', 'No. Surat Jalan', 'Purchase Order'];
         foreach ($headers as $col => $header) {
             $cell = chr(65 + $col) . '1';
             $sheet->setCellValue($cell, $header);
         }
 
         // Style header
-        $headerRange = 'A1:P1';
+        $headerRange = 'A1:R1';
         $sheet->getStyle($headerRange)->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '10B981']],
@@ -236,18 +240,20 @@ class CheckpointController extends Controller
             $sheet->setCellValue('N' . $row, $cp->durasi);
             $sheet->setCellValue('O' . $row, $cp->waktu_penyerahan_dokumen ? $cp->waktu_penyerahan_dokumen->format('d/m/Y H:i:s') : '');
             $sheet->setCellValue('P' . $row, $this->calculateDurasiDokumen($cp));
+            $sheet->setCellValue('Q' . $row, $cp->no_surat_jalan);
+            $sheet->setCellValue('R' . $row, $cp->purchase_order);
             $row++;
         }
 
         // Data borders
         if ($row > 2) {
-            $sheet->getStyle('A2:P' . ($row - 1))->applyFromArray([
+            $sheet->getStyle('A2:R' . ($row - 1))->applyFromArray([
                 'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
             ]);
         }
 
         // Auto-size columns
-        foreach (range('A', 'P') as $col) {
+        foreach (range('A', 'R') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
@@ -282,7 +288,7 @@ class CheckpointController extends Controller
         $gateNumber = (int) $request->gate;
 
         // Check if gate is already in use today (has active loading)
-        $gateInUse = Checkpoint::whereDate('tanggal', Carbon::today())
+        $gateInUse = Checkpoint::whereDate('created_at', Carbon::today())
             ->where('gate', $gateNumber)
             ->whereKeyNot($checkpoint->id)
             ->where('status', '!=', 'CANCEL')
@@ -310,7 +316,7 @@ class CheckpointController extends Controller
     public function getAvailableGates()
     {
         // Gates currently occupied: has gate assigned, penerimaan done, but loading not finished yet
-        $occupiedGates = Checkpoint::whereDate('tanggal', Carbon::today())
+        $occupiedGates = Checkpoint::whereDate('created_at', Carbon::today())
             ->whereNotNull('gate')
             ->whereNotNull('waktu_penerimaan_dokumen')
             ->where('status', '!=', 'CANCEL')
