@@ -326,8 +326,8 @@ class CheckpointController extends Controller
     public function getAvailableGates()
     {
         // Gates currently occupied: has gate assigned, penerimaan done, but loading not finished yet
-        $occupiedGates = Checkpoint::whereDate('created_at', Carbon::today())
-            ->whereNotNull('gate')
+        // $occupiedGates = Checkpoint::whereDate('created_at', Carbon::today())
+            $occupiedGates = Checkpoint::whereNotNull('gate')
             ->whereNotNull('waktu_penerimaan_dokumen')
             ->where('status', '!=', 'CANCEL')
             ->whereNull('waktu_end')

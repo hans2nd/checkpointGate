@@ -4,7 +4,7 @@
     <div id="activity-card">
         <div class="inner">
             <p style="font-size:1em;font-weight:700;color:#1f2937;margin-bottom:0.5em">Activity Summary</p>
-            <p style="font-size:0.75em;color:#9ca3af;margin-bottom:1em">Periode: {{ $periode }}</p>
+            <p style="font-size:0.75em;color:#9ca3af;margin-bottom:1em">Periode: {{ now()->format('d/m/Y') }}</p>
             <table>
                 <thead>
                     <tr style="border-bottom:1px solid #f3f4f6">

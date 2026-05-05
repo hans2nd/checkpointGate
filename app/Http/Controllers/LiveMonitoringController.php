@@ -13,32 +13,23 @@ class LiveMonitoringController extends Controller
 {
     public function index(Request $request)
     {
-        $selectedDate = $request->input('tanggal')
-            ? Carbon::parse($request->input('tanggal'))
-            : Carbon::today();
+        $today = Carbon::today();
+        $yesterday = $today->copy()->subDay();
 
-        $isToday = $selectedDate->isToday();
-        $yesterday = $selectedDate->copy()->subDay();
-
-        // Get all active checkpoints for selected date + overnight from yesterday
-        $activeCheckpoints = Checkpoint::where(function ($q) use ($selectedDate) {
-                $q->whereDate('created_at', $selectedDate)
-                  ->whereNotNull('gate')
+        // Live monitoring: show all statuses EXCEPT COMPLETED and CANCEL
+        // COMPLETED means waktu_penyerahan_dokumen is not null
+        $activeCheckpoints = Checkpoint::where(function ($q) use ($today) {
+                // $q->whereDate('tanggal', $today)
+                  $q->whereNotNull('gate')
+                  ->whereNull('waktu_penyerahan_dokumen')
                   ->where('status', '!=', 'CANCEL');
             })
-            ->orWhere(function ($q) use ($yesterday, $selectedDate) {
-                // Overnight: started yesterday, still ON LOADING or finished after midnight today
-                $q->whereDate('created_at', $yesterday)
-                  ->whereNotNull('gate')
-                  ->where('status', '!=', 'CANCEL')
-                  ->where(function ($inner) use ($selectedDate) {
-                      $inner->where('status', 'ON LOADING')
-                            ->orWhere(function ($fin) use ($selectedDate) {
-                                $fin->where('status', 'FINISH')
-                                    ->whereNotNull('waktu_end')
-                                    ->where('waktu_end', '>=', $selectedDate->copy()->startOfDay());
-                            });
-                  });
+            ->orWhere(function ($q) use ($yesterday) {
+                // Overnight: any active checkpoint from yesterday that is not yet completed/cancelled
+                // $q->whereDate('tanggal', $yesterday)
+                  $q->whereNotNull('gate')
+                  ->whereNull('waktu_penyerahan_dokumen')
+                  ->where('status', '!=', 'CANCEL');
             })
             ->orderBy('gate')
             ->orderBy('created_at', 'desc')
@@ -57,8 +48,8 @@ class LiveMonitoringController extends Controller
             ];
         }
 
-        // Activity summary with total count + overnight vehicles
-        $activitySummary = $this->buildActivitySummary($selectedDate, $yesterday);
+        // Activity summary (still shows all statuses for counting purposes)
+        $activitySummary = $this->buildActivitySummary($today, $yesterday);
 
         // Average loading time per vehicle type × jenis_barang × aktivitas
         $vehicleTypes = Vehicle::select('jenis_kendaraan')
@@ -71,7 +62,7 @@ class LiveMonitoringController extends Controller
         foreach ($vehicleTypes as $vt) {
             $row = ['jenis_kendaraan' => $vt];
             foreach (['DRY', 'FROZEN', 'CHILLED'] as $jenis) {
-                $altAvg = Checkpoint::whereDate('tanggal', $selectedDate)
+                $altAvg = Checkpoint::whereDate('tanggal', $today)
                     ->where('jenis_kendaraan', $vt)
                     ->where('jenis_barang', $jenis)
                     ->where('aktivitas', 'INBOUND')
@@ -81,7 +72,7 @@ class LiveMonitoringController extends Controller
 
                 $row["{$jenis}_ALT"] = $this->calculateAverage($altAvg);
 
-                $altAvgLmonth = Checkpoint::whereBetween('tanggal', [$selectedDate->copy()->subMonth(), $selectedDate])
+                $altAvgLmonth = Checkpoint::whereBetween('tanggal', [$today->copy()->subMonth(), $today])
                     ->where('jenis_kendaraan', $vt)
                     ->where('jenis_barang', $jenis)
                     ->where('aktivitas', 'INBOUND')
@@ -91,7 +82,7 @@ class LiveMonitoringController extends Controller
 
                 $row["{$jenis}_ALT_LMONTH"] = $this->calculateAverage($altAvgLmonth);
 
-                $autAvg = Checkpoint::whereDate('tanggal', $selectedDate)
+                $autAvg = Checkpoint::whereDate('tanggal', $today)
                     ->where('jenis_kendaraan', $vt)
                     ->where('jenis_barang', $jenis)
                     ->where('aktivitas', 'OUTBOUND')
@@ -101,7 +92,7 @@ class LiveMonitoringController extends Controller
 
                 $row["{$jenis}_AUT"] = $this->calculateAverage($autAvg);
 
-                $autAvgLmonth = Checkpoint::whereBetween('tanggal', [$selectedDate->copy()->subMonth(), $selectedDate])
+                $autAvgLmonth = Checkpoint::whereBetween('tanggal', [$today->copy()->subMonth(), $today])
                     ->where('jenis_kendaraan', $vt)
                     ->where('jenis_barang', $jenis)
                     ->where('aktivitas', 'OUTBOUND')
@@ -114,10 +105,7 @@ class LiveMonitoringController extends Controller
             $avgTimes[] = $row;
         }
 
-        $periode = $selectedDate->format('d/m/Y');
-        $tanggalValue = $selectedDate->format('Y-m-d');
-
-        return view('livemonitoring', compact('gates', 'activitySummary', 'avgTimes', 'periode', 'tanggalValue', 'isToday'));
+        return view('livemonitoring', compact('gates', 'activitySummary', 'avgTimes'));
     }
 
     /**
@@ -125,29 +113,21 @@ class LiveMonitoringController extends Controller
      */
     public function data(Request $request)
     {
-        $selectedDate = $request->input('tanggal')
-            ? Carbon::parse($request->input('tanggal'))
-            : Carbon::today();
+        $today = Carbon::today();
+        $yesterday = $today->copy()->subDay();
 
-        $yesterday = $selectedDate->copy()->subDay();
-
-        $activeCheckpoints = Checkpoint::where(function ($q) use ($selectedDate) {
-                $q->whereDate('created_at', $selectedDate)
-                  ->whereNotNull('gate')
+        // Only show non-completed checkpoints (not COMPLETED, not CANCEL)
+        $activeCheckpoints = Checkpoint::where(function ($q) use ($today) {
+                // $q->whereDate('tanggal', $today)
+                  $q->whereNotNull('gate')
+                  ->whereNull('waktu_penyerahan_dokumen')
                   ->where('status', '!=', 'CANCEL');
             })
-            ->orWhere(function ($q) use ($yesterday, $selectedDate) {
-                $q->whereDate('created_at', $yesterday)
-                  ->whereNotNull('gate')
-                  ->where('status', '!=', 'CANCEL')
-                  ->where(function ($inner) use ($selectedDate) {
-                      $inner->where('status', 'ON LOADING')
-                            ->orWhere(function ($fin) use ($selectedDate) {
-                                $fin->where('status', 'FINISH')
-                                    ->whereNotNull('waktu_end')
-                                    ->where('waktu_end', '>=', $selectedDate->copy()->startOfDay());
-                            });
-                  });
+            ->orWhere(function ($q) use ($yesterday) {
+                // $q->whereDate('tanggal', $yesterday)
+                  $q->whereNotNull('gate')
+                  ->whereNull('waktu_penyerahan_dokumen')
+                  ->where('status', '!=', 'CANCEL');
             })
             ->orderBy('gate')
             ->orderBy('created_at', 'desc')
@@ -173,7 +153,7 @@ class LiveMonitoringController extends Controller
             ];
         }
 
-        $activitySummary = $this->buildActivitySummary($selectedDate, $yesterday);
+        $activitySummary = $this->buildActivitySummary($today, $yesterday);
 
         // Average loading time per vehicle type (dynamic from master)
         $vehicleTypes = Vehicle::select('jenis_kendaraan')
@@ -186,7 +166,7 @@ class LiveMonitoringController extends Controller
         foreach ($vehicleTypes as $vt) {
             $row = ['jenis_kendaraan' => $vt];
             foreach (['DRY', 'FROZEN', 'CHILLED'] as $jenis) {
-                $altAvg = Checkpoint::whereDate('created_at', $selectedDate)
+                $altAvg = Checkpoint::whereDate('tanggal', $today)
                     ->where('jenis_kendaraan', $vt)
                     ->where('jenis_barang', $jenis)
                     ->where('aktivitas', 'INBOUND')
@@ -196,7 +176,7 @@ class LiveMonitoringController extends Controller
 
                 $row["{$jenis}_ALT"] = $this->calculateAverage($altAvg);
 
-                $altAvgLmonth = Checkpoint::whereBetween('created_at', [$selectedDate->copy()->subMonth(), $selectedDate])
+                $altAvgLmonth = Checkpoint::whereBetween('tanggal', [$today->copy()->subMonth(), $today])
                     ->where('jenis_kendaraan', $vt)
                     ->where('jenis_barang', $jenis)
                     ->where('aktivitas', 'INBOUND')
@@ -206,7 +186,7 @@ class LiveMonitoringController extends Controller
 
                 $row["{$jenis}_ALT_LMONTH"] = $this->calculateAverage($altAvgLmonth);
 
-                $autAvg = Checkpoint::whereDate('created_at', $selectedDate)
+                $autAvg = Checkpoint::whereDate('tanggal', $today)
                     ->where('jenis_kendaraan', $vt)
                     ->where('jenis_barang', $jenis)
                     ->where('aktivitas', 'OUTBOUND')
@@ -216,7 +196,7 @@ class LiveMonitoringController extends Controller
 
                 $row["{$jenis}_AUT"] = $this->calculateAverage($autAvg);
 
-                $autAvgLmonth = Checkpoint::whereBetween('created_at', [$selectedDate->copy()->subMonth(), $selectedDate])
+                $autAvgLmonth = Checkpoint::whereBetween('tanggal', [$today->copy()->subMonth(), $today])
                     ->where('jenis_kendaraan', $vt)
                     ->where('jenis_barang', $jenis)
                     ->where('aktivitas', 'OUTBOUND')
@@ -235,7 +215,7 @@ class LiveMonitoringController extends Controller
     /**
      * Build activity summary with total count and overnight vehicle tracking.
      */
-    private function buildActivitySummary(Carbon $selectedDate, Carbon $yesterday): array
+    private function buildActivitySummary(Carbon $today, Carbon $yesterday): array
     {
         $activitySummary = [];
 
@@ -243,25 +223,11 @@ class LiveMonitoringController extends Controller
             foreach (['FROZEN', 'DRY', 'CHILLED'] as $jenis) {
                 $label = ($aktivitas === 'INBOUND' ? 'IN' : 'OUT') . ' ' . $jenis;
 
-                // Today's data
-                $todayBase = Checkpoint::whereDate('created_at', $selectedDate)
+                // Hitung murni berdasarkan 'tanggal' tabel checkpoint hari ini
+                $todayBase = Checkpoint::whereDate('tanggal', $today)
                     ->where('aktivitas', $aktivitas)
                     ->where('jenis_barang', $jenis)
                     ->where('status', '!=', 'CANCEL');
-
-                // Overnight: still ON LOADING from yesterday
-                $overnightOnLoading = Checkpoint::whereDate('created_at', $yesterday)
-                    ->where('aktivitas', $aktivitas)
-                    ->where('jenis_barang', $jenis)
-                    ->where('status', 'ON LOADING');
-
-                // Overnight: finished after midnight today (started yesterday)
-                $overnightFinished = Checkpoint::whereDate('created_at', $yesterday)
-                    ->where('aktivitas', $aktivitas)
-                    ->where('jenis_barang', $jenis)
-                    ->where('status', 'FINISH')
-                    ->whereNotNull('waktu_end')
-                    ->where('waktu_end', '>=', $selectedDate->copy()->startOfDay());
 
                 $parking = (clone $todayBase)->whereNull('waktu_penerimaan_dokumen')->count();
 
@@ -270,16 +236,12 @@ class LiveMonitoringController extends Controller
                     ->whereNotNull('gate')
                     ->count();
 
-                $onProcess = (clone $todayBase)->where('status', 'ON LOADING')->count()
-                    + (clone $overnightOnLoading)->count();
+                $onProcess = (clone $todayBase)->where('status', 'ON LOADING')->count();
 
-                $finish = (clone $todayBase)->where('status', 'FINISH')->count()
-                    + (clone $overnightFinished)->count();
+                $finish = (clone $todayBase)->where('status', 'FINISH')->count();
 
-                // Total = all non-cancelled vehicles for this activity today + overnight carry-overs
-                $total = (clone $todayBase)->count()
-                    + (clone $overnightOnLoading)->count()
-                    + (clone $overnightFinished)->count();
+                // Total = semua transaksi hari ini yang tidak cancel
+                $total = (clone $todayBase)->count();
 
                 $activitySummary[] = [
                     'label' => $label,

@@ -268,85 +268,67 @@
 
     setInterval(updateTimers, 1000);
 
-    document.getElementById('tanggal-picker').addEventListener('change', function() {
-        if (this.value) window.location.href = '{{ route('livemonitoring') }}?tanggal=' + this.value;
-    });
-
     // =============================================
-    // LIVE REFRESH (today only)
+    // LIVE REFRESH (always active — live monitoring is always real-time)
     // =============================================
-    @if ($isToday)
-        setInterval(function() {
-            const now = new Date();
-            const yyyy = now.getFullYear();
-            const mm = String(now.getMonth() + 1).padStart(2, '0');
-            const dd = String(now.getDate()).padStart(2, '0');
-            const curDate = `${yyyy}-${mm}-${dd}`;
+    setInterval(function() {
+        fetch('{{ route('livemonitoring.data') }}')
+            .then(r => r.json())
+            .then(data => {
+                for (let i = 1; i <= 27; i++) buildGateContent(data.gates[i], i);
 
-            // Update picker display if day changed (midnight rollover)
-            const picker = document.getElementById('tanggal-picker');
-            if (picker && picker.value !== curDate) {
-                picker.value = curDate;
-            }
-
-            fetch('{{ route('livemonitoring.data') }}?tanggal=' + curDate)
-                .then(r => r.json())
-                .then(data => {
-                    for (let i = 1; i <= 27; i++) buildGateContent(data.gates[i], i);
-
-                    if (data.activitySummary) {
-                        const rows = document.querySelectorAll('#activity-summary-body tr');
-                        data.activitySummary.forEach((item, idx) => {
-                            if (!rows[idx]) return;
-                            const cells = rows[idx].querySelectorAll('td');
-                            [item.parking ?? 0, item.receiving ?? 0, item.onProcess ?? item
-                                .on_process ?? 0, item.finish ?? 0, item.total ?? 0
-                            ].forEach((v, ci) => {
-                                if (cells[ci + 1]) {
-                                    const s = cells[ci + 1].querySelector('span');
-                                    if (s) {
-                                        s.textContent = v;
-                                        if (ci === 4) {
-                                            // Total column — bold amber
-                                            s.style.fontWeight = '700';
-                                            s.style.color = v > 0 ? '#f59e0b' : '#d1d5db';
-                                        } else {
-                                            s.className =
-                                                `stat-num ${v>0?'text-gray-800':'text-gray-300'}`;
-                                        }
+                if (data.activitySummary) {
+                    const rows = document.querySelectorAll('#activity-summary-body tr');
+                    data.activitySummary.forEach((item, idx) => {
+                        if (!rows[idx]) return;
+                        const cells = rows[idx].querySelectorAll('td');
+                        [item.parking ?? 0, item.receiving ?? 0, item.onProcess ?? item
+                            .on_process ?? 0, item.finish ?? 0, item.total ?? 0
+                        ].forEach((v, ci) => {
+                            if (cells[ci + 1]) {
+                                const s = cells[ci + 1].querySelector('span');
+                                if (s) {
+                                    s.textContent = v;
+                                    if (ci === 4) {
+                                        // Total column — bold amber
+                                        s.style.fontWeight = '700';
+                                        s.style.color = v > 0 ? '#f59e0b' : '#d1d5db';
+                                    } else {
+                                        s.className =
+                                            `stat-num ${v>0?'text-gray-800':'text-gray-300'}`;
                                     }
                                 }
-                            });
+                            }
                         });
-                    }
+                    });
+                }
 
-                    if (data.avgTimes) {
-                        const avgBody = document.getElementById('avg-times-body');
-                        if (avgBody) {
-                            const gc = (t, lm) => !t ? 'color:#d1d5db' : !lm ? 'color:#374151' : t > lm ?
-                                'color:#dc2626' : t < lm ? 'color:#16a34a' : 'color:#374151';
-                            avgBody.innerHTML = data.avgTimes.map(row => `
-                    <tr style="border-top:1px solid #f9fafb">
-                        <td style="padding:3px 8px 3px 0;font-weight:500;color:#374151;border-right:1px solid #e5e7eb;white-space:nowrap">${row.jenis_kendaraan}</td>
-                        <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${gc(row.DRY_ALT,row.DRY_ALT_LMONTH)}">${row.DRY_ALT??'—'}</td>
-                        <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${row.DRY_ALT_LMONTH?'color:#6b7280':'color:#d1d5db'}">${row.DRY_ALT_LMONTH??'—'}</td>
-                        <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${gc(row.DRY_AUT,row.DRY_AUT_LMONTH)}">${row.DRY_AUT??'—'}</td>
-                        <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${row.DRY_AUT_LMONTH?'color:#6b7280':'color:#d1d5db'}">${row.DRY_AUT_LMONTH??'—'}</td>
-                        <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${gc(row.FROZEN_ALT,row.FROZEN_ALT_LMONTH)}">${row.FROZEN_ALT??'—'}</td>
-                        <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${row.FROZEN_ALT_LMONTH?'color:#6b7280':'color:#d1d5db'}">${row.FROZEN_ALT_LMONTH??'—'}</td>
-                        <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${gc(row.FROZEN_AUT,row.FROZEN_AUT_LMONTH)}">${row.FROZEN_AUT??'—'}</td>
-                        <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${row.FROZEN_AUT_LMONTH?'color:#6b7280':'color:#d1d5db'}">${row.FROZEN_AUT_LMONTH??'—'}</td>
-                        <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${gc(row.CHILLED_ALT,row.CHILLED_ALT_LMONTH)}">${row.CHILLED_ALT??'—'}</td>
-                        <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${row.CHILLED_ALT_LMONTH?'color:#6b7280':'color:#d1d5db'}">${row.CHILLED_ALT_LMONTH??'—'}</td>
-                        <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${gc(row.CHILLED_AUT,row.CHILLED_AUT_LMONTH)}">${row.CHILLED_AUT??'—'}</td>
-                        <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${row.CHILLED_AUT_LMONTH?'color:#6b7280':'color:#d1d5db'}">${row.CHILLED_AUT_LMONTH??'—'}</td>
-                    </tr>`).join('');
-                        }
+                if (data.avgTimes) {
+                    const avgBody = document.getElementById('avg-times-body');
+                    if (avgBody) {
+                        const gc = (t, lm) => !t ? 'color:#d1d5db' : !lm ? 'color:#374151' : t > lm ?
+                            'color:#dc2626' : t < lm ? 'color:#16a34a' : 'color:#374151';
+                        avgBody.innerHTML = data.avgTimes.map(row => `
+                <tr style="border-top:1px solid #f9fafb">
+                    <td style="padding:3px 8px 3px 0;font-weight:500;color:#374151;border-right:1px solid #e5e7eb;white-space:nowrap">${row.jenis_kendaraan}</td>
+                    <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${gc(row.DRY_ALT,row.DRY_ALT_LMONTH)}">${row.DRY_ALT??'—'}</td>
+                    <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${row.DRY_ALT_LMONTH?'color:#6b7280':'color:#d1d5db'}">${row.DRY_ALT_LMONTH??'—'}</td>
+                    <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${gc(row.DRY_AUT,row.DRY_AUT_LMONTH)}">${row.DRY_AUT??'—'}</td>
+                    <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${row.DRY_AUT_LMONTH?'color:#6b7280':'color:#d1d5db'}">${row.DRY_AUT_LMONTH??'—'}</td>
+                    <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${gc(row.FROZEN_ALT,row.FROZEN_ALT_LMONTH)}">${row.FROZEN_ALT??'—'}</td>
+                    <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${row.FROZEN_ALT_LMONTH?'color:#6b7280':'color:#d1d5db'}">${row.FROZEN_ALT_LMONTH??'—'}</td>
+                    <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${gc(row.FROZEN_AUT,row.FROZEN_AUT_LMONTH)}">${row.FROZEN_AUT??'—'}</td>
+                    <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${row.FROZEN_AUT_LMONTH?'color:#6b7280':'color:#d1d5db'}">${row.FROZEN_AUT_LMONTH??'—'}</td>
+                    <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${gc(row.CHILLED_ALT,row.CHILLED_ALT_LMONTH)}">${row.CHILLED_ALT??'—'}</td>
+                    <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${row.CHILLED_ALT_LMONTH?'color:#6b7280':'color:#d1d5db'}">${row.CHILLED_ALT_LMONTH??'—'}</td>
+                    <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${gc(row.CHILLED_AUT,row.CHILLED_AUT_LMONTH)}">${row.CHILLED_AUT??'—'}</td>
+                    <td class="mono-val" style="text-align:center;padding:3px 6px;border:1px solid #f3f4f6;${row.CHILLED_AUT_LMONTH?'color:#6b7280':'color:#d1d5db'}">${row.CHILLED_AUT_LMONTH??'—'}</td>
+                </tr>`).join('');
                     }
-                    document.getElementById('last-update').textContent = 'Terakhir: ' + new Date()
-                        .toLocaleTimeString('id-ID');
-                })
-                .catch(err => console.error('Refresh error:', err));
-        }, 5000);
-    @endif
+                }
+                document.getElementById('last-update').textContent = 'Terakhir: ' + new Date()
+                    .toLocaleTimeString('id-ID');
+            })
+            .catch(err => console.error('Refresh error:', err));
+    }, 5000);
 </script>
