@@ -25,8 +25,24 @@ class ApiController extends Controller
     /**
      * POST /api/login
      * Login and return API token
+     * Supports: email+password (User Management) or employee_id only (Employee)
      */
     public function login(Request $request)
+    {
+        $loginMode = $request->input('login_mode', 'auto');
+
+        // Auto-detect: if employee_id is provided and no email, use employee login
+        if ($loginMode === 'employee' || ($request->filled('employee_id') && !$request->filled('email'))) {
+            return $this->loginWithEmployeeId($request);
+        }
+
+        return $this->loginWithEmail($request);
+    }
+
+    /**
+     * Traditional email + password login
+     */
+    protected function loginWithEmail(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
@@ -67,6 +83,78 @@ class ApiController extends Controller
                     'email' => $user->email,
                     'role' => $user->role->name ?? null,
                 ],
+                'auth_type' => 'user',
+                'token' => $token,
+                'token_type' => 'Bearer',
+            ],
+        ]);
+    }
+
+    /**
+     * Employee ID login (no password required)
+     */
+    protected function loginWithEmployeeId(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'employee_id' => 'required|string',
+            'device_name' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $employee = \App\Models\Employee::where('employee_id', $request->employee_id)->first();
+
+        if (!$employee) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Employee ID tidak ditemukan.',
+            ], 401);
+        }
+
+        if (!$employee->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun employee tidak aktif. Hubungi admin.',
+            ], 403);
+        }
+
+        // Find or create shadow user for this employee
+        $user = User::where('employee_id', $employee->id)->first();
+
+        if (!$user) {
+            $user = User::create([
+                'name' => $employee->name,
+                'email' => $employee->employee_id . '@employee.local',
+                'password' => Hash::make(\Illuminate\Support\Str::random(32)),
+                'role_id' => $employee->role_id,
+                'is_active' => true,
+                'employee_id' => $employee->id,
+            ]);
+        } else {
+            // Sync role from employee
+            $user->update([
+                'name' => $employee->name,
+                'role_id' => $employee->role_id,
+                'is_active' => $employee->is_active,
+            ]);
+        }
+
+        $deviceName = $request->device_name ?? 'flutter-app';
+        $token = $user->createToken($deviceName)->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Login berhasil.',
+            'data' => [
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $employee->name,
+                    'employee_id' => $employee->employee_id,
+                    'role' => $employee->role->name ?? null,
+                ],
+                'auth_type' => 'employee',
                 'token' => $token,
                 'token_type' => 'Bearer',
             ],

@@ -154,9 +154,26 @@
                     {{-- Gate --}}
                     <div>
                         <label for="gate" class="block text-sm font-medium text-gray-700 mb-1.5">Gate</label>
-                        <input type="number" id="gate" name="gate"
-                            value="{{ old('gate', $checkpoint->gate) }}"
-                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
+                        <select id="gate" name="gate"
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white transition-all">
+                            <option value="">-- Pilih Gate --</option>
+                            <optgroup label="🧊 Frozen (F-1 s/d F-16)" id="gateGroupFrozen">
+                                @for ($i = 1; $i <= 16; $i++)
+                                    <option value="{{ $i }}" data-jenis="FROZEN"
+                                        {{ old('gate', $checkpoint->gate) == $i ? 'selected' : '' }}>
+                                        F-{{ $i }}
+                                    </option>
+                                @endfor
+                            </optgroup>
+                            <optgroup label="📦 Dry (D-1 s/d D-11)" id="gateGroupDry">
+                                @for ($i = 17; $i <= 27; $i++)
+                                    <option value="{{ $i }}" data-jenis="DRY"
+                                        {{ old('gate', $checkpoint->gate) == $i ? 'selected' : '' }}>
+                                        D-{{ $i - 16 }}
+                                    </option>
+                                @endfor
+                            </optgroup>
+                        </select>
                     </div>
 
                     {{-- Status --}}
@@ -194,12 +211,21 @@
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
                     </div>
 
-                    {{-- Durasi --}}
+                    {{-- Durasi (Read-only, auto-calculated) --}}
                     <div>
-                        <label for="durasi" class="block text-sm font-medium text-gray-700 mb-1.5">Durasi</label>
-                        <input type="text" id="durasi" name="durasi"
-                            value="{{ old('durasi', $checkpoint->durasi) }}"
-                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Durasi Loading</label>
+                        <div class="w-full px-3 py-2 border border-gray-100 rounded-lg text-sm bg-gray-50 text-gray-600">
+                            @if($checkpoint->waktu_start && $checkpoint->waktu_end)
+                                @php
+                                    $diff = $checkpoint->waktu_start->diff($checkpoint->waktu_end);
+                                    $hours = ($diff->days * 24) + $diff->h;
+                                    $durasiDisplay = sprintf('%02d:%02d:%02d', $hours, $diff->i, $diff->s);
+                                @endphp
+                                {{ $durasiDisplay }}
+                            @else
+                                <span class="text-gray-400 italic">Otomatis dihitung dari Start – End Loading</span>
+                            @endif
+                        </div>
                     </div>
                 </div>
 
@@ -250,4 +276,43 @@
             </form>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const jenisBarangSelect = document.getElementById('jenis_barang');
+            const gateSelect = document.getElementById('gate');
+            const frozenGroup = document.getElementById('gateGroupFrozen');
+            const dryGroup = document.getElementById('gateGroupDry');
+
+            function filterGateOptions() {
+                const jenis = jenisBarangSelect.value;
+
+                if (jenis === 'FROZEN') {
+                    frozenGroup.style.display = '';
+                    dryGroup.style.display = 'none';
+                    // Reset gate if current selection is a Dry gate
+                    if (gateSelect.value && parseInt(gateSelect.value) >= 17) {
+                        gateSelect.value = '';
+                    }
+                } else if (jenis === 'DRY') {
+                    frozenGroup.style.display = 'none';
+                    dryGroup.style.display = '';
+                    // Reset gate if current selection is a Frozen gate
+                    if (gateSelect.value && parseInt(gateSelect.value) <= 16) {
+                        gateSelect.value = '';
+                    }
+                } else {
+                    // CHILLED or others: show all gates
+                    frozenGroup.style.display = '';
+                    dryGroup.style.display = '';
+                }
+            }
+
+            // Filter on page load (respect existing selection)
+            filterGateOptions();
+
+            // Filter when jenis_barang changes
+            jenisBarangSelect.addEventListener('change', filterGateOptions);
+        });
+    </script>
 @endsection

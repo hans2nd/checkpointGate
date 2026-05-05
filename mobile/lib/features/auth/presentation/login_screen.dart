@@ -12,8 +12,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _emailCtrl = TextEditingController();
-  final _passCtrl = TextEditingController();
+  final _employeeIdCtrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   Future<void> _doLogin() async {
@@ -23,8 +22,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     FocusScope.of(context).unfocus();
 
     final result = await ref.read(authControllerProvider.notifier).login(
-      _emailCtrl.text.trim(),
-      _passCtrl.text,
+      _employeeIdCtrl.text.trim(),
     );
 
     if (!result && mounted) {
@@ -66,7 +64,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
                 ),
                 const Text(
-                  'Masuk untuk melanjutkan operasional',
+                  'Masuk menggunakan Employee ID',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey),
                 ),
@@ -97,23 +95,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
 
                 TextFormField(
-                  controller: _emailCtrl,
+                  controller: _employeeIdCtrl,
                   decoration: const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
+                    labelText: 'Employee ID',
+                    prefixIcon: Icon(Icons.badge_outlined),
+                    hintText: 'Masukkan Employee ID',
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (v) => v!.isEmpty ? 'Email wajib diisi' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: Icon(Icons.lock_outline),
-                  ),
-                  obscureText: true,
-                  validator: (v) => v!.isEmpty ? 'Password wajib diisi' : null,
+                  keyboardType: TextInputType.text,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _doLogin(),
+                  validator: (v) => v!.isEmpty ? 'Employee ID wajib diisi' : null,
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(

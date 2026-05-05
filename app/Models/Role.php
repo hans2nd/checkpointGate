@@ -32,6 +32,14 @@ class Role extends Model
     }
 
     /**
+     * The employees that belong to the role.
+     */
+    public function employees()
+    {
+        return $this->hasMany(Employee::class);
+    }
+
+    /**
      * Check if role has a specific permission.
      */
     public function hasPermission(string $permission): bool

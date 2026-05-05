@@ -37,10 +37,11 @@ class AuthController extends Notifier<AuthState> {
     }
   }
 
-  Future<bool> login(String email, String password) async {
+  /// Login using Employee ID only
+  Future<bool> login(String employeeId) async {
     state = AuthState.loading;
     try {
-      await ref.read(authRepositoryProvider).login(email, password);
+      await ref.read(authRepositoryProvider).login(employeeId);
       state = AuthState.authenticated;
       return true;
     } catch (e) {

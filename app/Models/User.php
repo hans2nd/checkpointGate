@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'role_id',
         'is_active',
+        'employee_id',
     ];
 
     /**
@@ -56,6 +57,25 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Get the linked employee (if any).
+     */
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
+    }
+
+    /**
+     * Get the effective role: employee's role if linked to employee, otherwise user's own role.
+     */
+    public function getEffectiveRole()
+    {
+        if ($this->employee_id && $this->employee && $this->employee->role) {
+            return $this->employee->role;
+        }
+        return $this->role;
     }
 
     /**

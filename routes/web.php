@@ -94,6 +94,14 @@ Route::middleware('auth')->group(function () {
         Route::post('users/{user}/toggle-status', [UserManagementController::class, 'toggleStatus'])->name('users.toggle-status');
         Route::resource('users', UserManagementController::class)->except(['show']);
 
+        // Employee Management
+        Route::post('employees/bulk-delete', [\App\Http\Controllers\EmployeeController::class, 'bulkDelete'])->name('employees.bulk-delete');
+        Route::get('employees/export', [\App\Http\Controllers\EmployeeController::class, 'export'])->name('employees.export');
+        Route::post('employees/import', [\App\Http\Controllers\EmployeeController::class, 'import'])->name('employees.import');
+        Route::get('employees/template', [\App\Http\Controllers\EmployeeController::class, 'downloadTemplate'])->name('employees.template');
+        Route::post('employees/{employee}/toggle-status', [\App\Http\Controllers\EmployeeController::class, 'toggleStatus'])->name('employees.toggle-status');
+        Route::resource('employees', \App\Http\Controllers\EmployeeController::class)->except(['show']);
+
         // Role Management
         Route::resource('roles', \App\Http\Controllers\RoleController::class)->except(['show']);
 

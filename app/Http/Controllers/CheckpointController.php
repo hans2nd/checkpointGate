@@ -123,7 +123,6 @@ class CheckpointController extends Controller
             'status' => 'required|in:START,FINISH,ON LOADING,CANCEL',
             'waktu_start' => 'nullable|date',
             'waktu_end' => 'nullable|date',
-            'durasi' => 'nullable|string|max:20',
             'note' => 'nullable|string|max:500',
             'no_surat_jalan' => 'nullable|string|max:100',
             'purchase_order' => 'nullable|string|max:100',
@@ -137,6 +136,17 @@ class CheckpointController extends Controller
             $validated['cancel_note'] = null;
             $validated['canceled_at'] = null;
             $validated['canceled_by'] = null;
+        }
+
+        // Auto-calculate durasi from waktu_start and waktu_end
+        if (!empty($validated['waktu_start']) && !empty($validated['waktu_end'])) {
+            $start = Carbon::parse($validated['waktu_start']);
+            $end = Carbon::parse($validated['waktu_end']);
+            $diff = $start->diff($end);
+            $hours = ($diff->days * 24) + $diff->h;
+            $validated['durasi'] = sprintf('%02d:%02d:%02d', $hours, $diff->i, $diff->s);
+        } else {
+            $validated['durasi'] = null;
         }
 
         $checkpoint->update($validated);

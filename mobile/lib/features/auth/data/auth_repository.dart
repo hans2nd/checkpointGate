@@ -6,11 +6,12 @@ class AuthRepository {
   Dio get _dio => ApiClient.instance;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  Future<Map<String, dynamic>> login(String email, String password) async {
+  /// Login using Employee ID only (no password)
+  Future<Map<String, dynamic>> login(String employeeId) async {
     try {
       final response = await _dio.post('/login', data: {
-        'email': email,
-        'password': password,
+        'employee_id': employeeId,
+        'login_mode': 'employee',
         'device_name': 'android_flutter',
       });
       

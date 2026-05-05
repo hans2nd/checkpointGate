@@ -24,8 +24,22 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('login') }}" class="space-y-5">
+            {{-- Login Mode Switcher --}}
+            <div class="flex rounded-xl bg-white/5 p-1 mb-6" id="loginModeSwitcher">
+                <button type="button" onclick="switchLoginMode('email')" id="btnModeEmail"
+                    class="flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 bg-orange-500 text-white shadow-sm">
+                    Email & Password
+                </button>
+                <button type="button" onclick="switchLoginMode('employee')" id="btnModeEmployee"
+                    class="flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 text-slate-400 hover:text-white">
+                    Employee ID
+                </button>
+            </div>
+
+            {{-- Email Login Form --}}
+            <form method="POST" action="{{ route('login') }}" class="space-y-5" id="formEmail">
                 @csrf
+                <input type="hidden" name="login_mode" value="email">
 
                 <div>
                     <label for="email" class="block text-sm font-medium text-slate-300 mb-1.5">Email</label>
@@ -57,10 +71,58 @@
                 </button>
             </form>
 
+            {{-- Employee ID Login Form --}}
+            <form method="POST" action="{{ route('login') }}" class="space-y-5 hidden" id="formEmployee">
+                @csrf
+                <input type="hidden" name="login_mode" value="employee">
+
+                <div>
+                    <label for="employee_id" class="block text-sm font-medium text-slate-300 mb-1.5">Employee ID</label>
+                    <input id="employee_id" type="text" name="employee_id" value="{{ old('employee_id') }}" required
+                        placeholder="Masukkan Employee ID Anda"
+                        class="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500
+                              focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all">
+                    <p class="mt-1.5 text-xs text-slate-500">Login tanpa password menggunakan Employee ID</p>
+                </div>
+
+                <button type="submit"
+                    class="w-full py-2.5 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl
+                           transition-all duration-200 shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50
+                           focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-900">
+                    Masuk dengan Employee ID
+                </button>
+            </form>
+
             <p class="mt-6 text-center text-sm text-slate-400">
                 App create by <span class="text-orange-400 font-medium"><a
                         href="https://sociabuzz.com/hans1st">Hans</a></span> (EDP Division)
             </p>
         </div>
     </div>
+
+    <script>
+        function switchLoginMode(mode) {
+            const formEmail = document.getElementById('formEmail');
+            const formEmployee = document.getElementById('formEmployee');
+            const btnEmail = document.getElementById('btnModeEmail');
+            const btnEmployee = document.getElementById('btnModeEmployee');
+
+            if (mode === 'email') {
+                formEmail.classList.remove('hidden');
+                formEmployee.classList.add('hidden');
+                btnEmail.className = 'flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 bg-orange-500 text-white shadow-sm';
+                btnEmployee.className = 'flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 text-slate-400 hover:text-white';
+            } else {
+                formEmail.classList.add('hidden');
+                formEmployee.classList.remove('hidden');
+                btnEmployee.className = 'flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 bg-emerald-500 text-white shadow-sm';
+                btnEmail.className = 'flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 text-slate-400 hover:text-white';
+            }
+        }
+
+        // Auto-switch to employee mode if there was an employee_id error
+        @if(old('login_mode') === 'employee')
+            switchLoginMode('employee');
+        @endif
+    </script>
 @endsection
