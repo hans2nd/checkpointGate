@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../../core/network/api_client.dart';
 import '../data/auth_repository.dart';
 
 enum AuthState { initial, loading, authenticated, unauthenticated, error }
@@ -24,6 +25,9 @@ class AuthController extends Notifier<AuthState> {
 
   @override
   AuthState build() {
+    ApiClient.onUnauthorized = () {
+      logout(forceLocalOnly: true);
+    };
     Future.microtask(() => checkToken());
     return AuthState.initial;
   }
@@ -61,9 +65,13 @@ class AuthController extends Notifier<AuthState> {
     }
   }
 
-  Future<void> logout() async {
+  Future<void> logout({bool forceLocalOnly = false}) async {
     state = AuthState.loading;
-    await ref.read(authRepositoryProvider).logout();
+    if (forceLocalOnly) {
+      await ref.read(authRepositoryProvider).clearLocalData();
+    } else {
+      await ref.read(authRepositoryProvider).logout();
+    }
     state = AuthState.unauthenticated;
   }
 }
