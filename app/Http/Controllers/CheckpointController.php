@@ -214,14 +214,14 @@ class CheckpointController extends Controller
         $sheet->setTitle('Data Checkpoint');
 
         // Header
-        $headers = ['No', 'Tanggal', 'No Polisi', 'Vendor', 'Kendaraan', 'Barang', 'Aktivitas', 'Penerimaan Dokumen', 'Start Loading', 'End Loading', 'Gate', 'Status', 'Catatan', 'Durasi Loading', 'Penyerahan Dokumen', 'Durasi Dokumen', 'No. Surat Jalan', 'Purchase Order'];
+        $headers = ['No', 'Tanggal', 'No Polisi', 'Vendor', 'Kendaraan', 'Barang', 'Aktivitas', 'Penerimaan Dokumen', 'Waktu Tunggu', 'Start Loading', 'End Loading', 'Gate', 'Status', 'Catatan', 'Durasi Loading', 'Penyerahan Dokumen', 'Durasi Dokumen', 'No. Surat Jalan', 'Purchase Order'];
         foreach ($headers as $col => $header) {
             $cell = chr(65 + $col) . '1';
             $sheet->setCellValue($cell, $header);
         }
 
         // Style header
-        $headerRange = 'A1:R1';
+        $headerRange = 'A1:S1';
         $sheet->getStyle($headerRange)->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '10B981']],
@@ -242,28 +242,29 @@ class CheckpointController extends Controller
             $sheet->setCellValue('F' . $row, $cp->jenis_barang);
             $sheet->setCellValue('G' . $row, $cp->aktivitas);
             $sheet->setCellValue('H' . $row, $cp->waktu_penerimaan_dokumen ? $cp->waktu_penerimaan_dokumen->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('I' . $row, $cp->waktu_start ? $cp->waktu_start->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('J' . $row, $cp->waktu_end ? $cp->waktu_end->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('K' . $row, $this->formatGateLabel($cp->gate));
-            $sheet->setCellValue('L' . $row, $cp->status);
-            $sheet->setCellValue('M' . $row, $cp->status === 'CANCEL' ? $cp->cancel_note : $cp->note);
-            $sheet->setCellValue('N' . $row, $cp->durasi);
-            $sheet->setCellValue('O' . $row, $cp->waktu_penyerahan_dokumen ? $cp->waktu_penyerahan_dokumen->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('P' . $row, $this->calculateDurasiDokumen($cp));
-            $sheet->setCellValue('Q' . $row, $cp->no_surat_jalan);
-            $sheet->setCellValue('R' . $row, $cp->purchase_order);
+            $sheet->setCellValue('I' . $row, $this->calculateWaitingTime($cp));
+            $sheet->setCellValue('J' . $row, $cp->waktu_start ? $cp->waktu_start->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('K' . $row, $cp->waktu_end ? $cp->waktu_end->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('L' . $row, $this->formatGateLabel($cp->gate));
+            $sheet->setCellValue('M' . $row, $cp->status);
+            $sheet->setCellValue('N' . $row, $cp->status === 'CANCEL' ? $cp->cancel_note : $cp->note);
+            $sheet->setCellValue('O' . $row, $cp->durasi);
+            $sheet->setCellValue('P' . $row, $cp->waktu_penyerahan_dokumen ? $cp->waktu_penyerahan_dokumen->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('Q' . $row, $this->calculateDurasiDokumen($cp));
+            $sheet->setCellValue('R' . $row, $cp->no_surat_jalan);
+            $sheet->setCellValue('S' . $row, $cp->purchase_order);
             $row++;
         }
 
         // Data borders
         if ($row > 2) {
-            $sheet->getStyle('A2:R' . ($row - 1))->applyFromArray([
+            $sheet->getStyle('A2:S' . ($row - 1))->applyFromArray([
                 'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
             ]);
         }
 
         // Auto-size columns
-        foreach (range('A', 'R') as $col) {
+        foreach (range('A', 'S') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
@@ -277,9 +278,33 @@ class CheckpointController extends Controller
 
     /**
      * Trigger: Penerimaan Dokumen (INBOUND - dokumen diterima)
-     * Now also assigns gate number
+     * Hanya mencatat waktu penerimaan dokumen
      */
     public function triggerPenerimaan(Request $request, Checkpoint $checkpoint)
+    {
+        if ($checkpoint->status === 'CANCEL') {
+            return redirect()->back()
+                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
+        }
+
+        if ($checkpoint->status === 'FINISH') {
+            return redirect()->back()
+                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah selesai.");
+        }
+
+        $checkpoint->update([
+            'waktu_penerimaan_dokumen' => Carbon::now(),
+        ]);
+
+        return redirect()->back()
+                         ->with('success', "Dokumen {$checkpoint->no_polisi} diterima.");
+    }
+
+    /**
+     * Assign Gate
+     * Menetapkan gate untuk kendaraan yang sudah diterima dokumennya
+     */
+    public function assignGate(Request $request, Checkpoint $checkpoint)
     {
         if ($checkpoint->status === 'CANCEL') {
             return redirect()->back()
@@ -312,12 +337,11 @@ class CheckpointController extends Controller
         }
 
         $checkpoint->update([
-            'waktu_penerimaan_dokumen' => Carbon::now(),
             'gate' => $gateNumber,
         ]);
 
         return redirect()->back()
-                         ->with('success', "Dokumen {$checkpoint->no_polisi} diterima. Gate {$gateNumber} ditetapkan.");
+                         ->with('success', "Gate {$gateNumber} ditetapkan untuk {$checkpoint->no_polisi}.");
     }
 
     /**
@@ -690,6 +714,18 @@ class CheckpointController extends Controller
         }
 
         $diff = $checkpoint->waktu_penerimaan_dokumen->diff($checkpoint->waktu_penyerahan_dokumen);
+        $hours = ($diff->days * 24) + $diff->h;
+
+        return sprintf('%02d:%02d:%02d', $hours, $diff->i, $diff->s);
+    }
+
+    private function calculateWaitingTime(Checkpoint $checkpoint): string
+    {
+        if (!$checkpoint->waktu_penerimaan_dokumen) {
+            return '';
+        }
+
+        $diff = $checkpoint->created_at->diff($checkpoint->waktu_penerimaan_dokumen);
         $hours = ($diff->days * 24) + $diff->h;
 
         return sprintf('%02d:%02d:%02d', $hours, $diff->i, $diff->s);

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-gray-50">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-gray-50">
 
 <head>
     <meta charset="utf-8">
@@ -52,12 +52,53 @@
                 </div>
                 <div class="flex items-center gap-2 sm:gap-4">
                     @yield('header-actions')
+
+                    {{-- Language Switcher --}}
+                    <div class="relative" id="langSwitcherWrap">
+                        <button type="button" onclick="document.getElementById('langDropdown').classList.toggle('hidden')"
+                            class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                            id="langSwitcherBtn">
+                            <span class="text-base leading-none">{{ app()->getLocale() === 'id' ? '🇮🇩' : '🇬🇧' }}</span>
+                            <span class="hidden sm:inline text-xs font-semibold uppercase">{{ app()->getLocale() }}</span>
+                            <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div id="langDropdown"
+                            class="hidden absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded-xl shadow-lg z-50 py-1 overflow-hidden">
+                            <form method="POST" action="{{ route('locale.switch') }}">
+                                @csrf
+                                <input type="hidden" name="locale" value="id">
+                                <button type="submit"
+                                    class="w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors {{ app()->getLocale() === 'id' ? 'bg-orange-50 text-orange-700 font-semibold' : 'text-gray-600 hover:bg-gray-50' }}">
+                                    <span class="text-base leading-none">🇮🇩</span>
+                                    <span>{{ __('Bahasa Indonesia') }}</span>
+                                    @if(app()->getLocale() === 'id')
+                                        <svg class="w-4 h-4 ml-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    @endif
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ route('locale.switch') }}">
+                                @csrf
+                                <input type="hidden" name="locale" value="en">
+                                <button type="submit"
+                                    class="w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors {{ app()->getLocale() === 'en' ? 'bg-orange-50 text-orange-700 font-semibold' : 'text-gray-600 hover:bg-gray-50' }}">
+                                    <span class="text-base leading-none">🇬🇧</span>
+                                    <span>{{ __('English') }}</span>
+                                    @if(app()->getLocale() === 'en')
+                                        <svg class="w-4 h-4 ml-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    @endif
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
                     <span class="hidden sm:inline text-sm text-gray-500">{{ Auth::user()->name }}</span>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit"
                             class="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Logout">
+                            title="{{ __('Logout') }}">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -86,7 +127,7 @@
         <script>
             Swal.fire({
                 icon: 'success',
-                title: 'Berhasil!',
+                title: @json(__('Berhasil!')),
                 text: @json(session('success')),
                 timer: 3000,
                 showConfirmButton: false,
@@ -98,7 +139,7 @@
         <script>
             Swal.fire({
                 icon: 'error',
-                title: 'Gagal!',
+                title: @json(__('Gagal!')),
                 text: @json(session('error')),
                 timer: 5000,
                 showConfirmButton: true,
@@ -110,7 +151,7 @@
         <script>
             Swal.fire({
                 icon: 'warning',
-                title: 'Perhatian!',
+                title: @json(__('Perhatian!')),
                 text: @json(session('warning')),
                 showConfirmButton: true,
                 confirmButtonColor: '#F59E0B'
@@ -121,7 +162,7 @@
         <script>
             Swal.fire({
                 icon: 'error',
-                title: 'Validasi gagal!',
+                title: @json(__('Validasi gagal!')),
                 html: @json($errors->all()).map(error => `<div>${error}</div>`).join(''),
                 showConfirmButton: true,
                 position: 'center'
@@ -133,14 +174,14 @@
     <script>
         function confirmDelete(formOrUrl, message) {
             Swal.fire({
-                title: 'Yakin hapus?',
-                text: message || 'Data yang dihapus tidak bisa dikembalikan.',
+                title: @json(__('Yakin hapus?')),
+                text: message || @json(__('Data yang dihapus tidak bisa dikembalikan.')),
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#EF4444',
                 cancelButtonColor: '#6B7280',
-                confirmButtonText: 'Ya, hapus!',
-                cancelButtonText: 'Batal'
+                confirmButtonText: @json(__('Ya, hapus!')),
+                cancelButtonText: @json(__('Batal'))
             }).then((result) => {
                 if (result.isConfirmed) {
                     if (typeof formOrUrl === 'string') {
@@ -154,14 +195,14 @@
 
         function confirmBulkDelete(url, ids, message) {
             Swal.fire({
-                title: 'Yakin hapus ' + ids.length + ' data?',
-                text: message || 'Data yang dihapus tidak bisa dikembalikan.',
+                title: @json(__('Yakin hapus?')).replace('?', ' ' + ids.length + ' data?'),
+                text: message || @json(__('Data yang dihapus tidak bisa dikembalikan.')),
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#EF4444',
                 cancelButtonColor: '#6B7280',
-                confirmButtonText: 'Ya, hapus semua!',
-                cancelButtonText: 'Batal'
+                confirmButtonText: @json(__('Yakin hapus semua!')),
+                cancelButtonText: @json(__('Batal'))
             }).then((result) => {
                 if (result.isConfirmed) {
                     const form = document.createElement('form');
@@ -203,6 +244,12 @@
             if (e.key === 'Escape' && document.body.classList.contains('fullscreen-mode')) {
                 toggleFullscreen();
             }
+        });
+        // Close language dropdown on click outside
+        document.addEventListener('click', function(e) {
+            const wrap = document.getElementById('langSwitcherWrap');
+            const dd = document.getElementById('langDropdown');
+            if (wrap && !wrap.contains(e.target)) dd.classList.add('hidden');
         });
     </script>
 </body>

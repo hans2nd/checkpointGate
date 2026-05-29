@@ -25,7 +25,7 @@
 
     {{-- Navigation Links --}}
     <nav class="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
-        <p class="sidebar-label px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Menu</p>
+        <p class="sidebar-label px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">{{ __('Menu') }}</p>
 
         {{-- Dashboard --}}
         <a href="{{ route('dashboard') }}"
@@ -36,7 +36,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
             </svg>
-            <span class="sidebar-label">Dashboard</span>
+            <span class="sidebar-label">{{ __('Dashboard') }}</span>
         </a>
 
         {{-- Live Monitoring --}}
@@ -48,7 +48,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
-            <span class="sidebar-label">Live Monitoring</span>
+            <span class="sidebar-label">{{ __('Live Monitoring') }}</span>
         </a>
 
         {{-- Live Monitoring 2 --}}
@@ -61,7 +61,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
-            <span class="sidebar-label">Live Monitoring 2</span>
+            <span class="sidebar-label">{{ __('Live Monitoring 2') }}</span>
         </a>
         @endif
 
@@ -74,7 +74,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
             </svg>
-            <span class="sidebar-label">Data Checkpoint</span>
+            <span class="sidebar-label">{{ __('Data Checkpoint') }}</span>
         </a>
 
         {{-- Report --}}
@@ -87,13 +87,12 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <span class="sidebar-label">Report</span>
+            <span class="sidebar-label">{{ __('Report') }}</span>
         </a>
         @endif
 
         <div class="pt-3">
-            <p class="sidebar-label px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Master
-                Data</p>
+            <p class="sidebar-label px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">{{ __('Master Data') }}</p>
 
             {{-- Gates --}}
             {{-- <a href="{{ route('gates.index') }}"
@@ -113,7 +112,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                 </svg>
-                <span class="sidebar-label">Master Kendaraan</span>
+                <span class="sidebar-label">{{ __('Master Kendaraan') }}</span>
             </a>
 
             {{-- Employees (Admin only) --}}
@@ -126,14 +125,13 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                 </svg>
-                <span class="sidebar-label">Master Employee</span>
+                <span class="sidebar-label">{{ __('Master Employee') }}</span>
             </a>
             @endif
         </div>
 
         <div class="pt-3">
-            <p class="sidebar-label px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Akun
-            </p>
+            <p class="sidebar-label px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">{{ __('Akun') }}</p>
 
             {{-- User Management (Admin only) --}}
             @if(Auth::user()->isAdmin())
@@ -145,7 +143,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
-                <span class="sidebar-label">User Management</span>
+                <span class="sidebar-label">{{ __('User Management') }}</span>
             </a>
 
             {{-- Role Management --}}
@@ -157,7 +155,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
-                <span class="sidebar-label">Role Management</span>
+                <span class="sidebar-label">{{ __('Role Management') }}</span>
             </a>
 
             {{-- Permission Management --}}
@@ -169,7 +167,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                 </svg>
-                <span class="sidebar-label">Permission</span>
+                <span class="sidebar-label">{{ __('Permission') }}</span>
             </a>
             @endif
 
@@ -182,7 +180,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                <span class="sidebar-label">Profil</span>
+                <span class="sidebar-label">{{ __('Profil') }}</span>
             </a>
         </div>
     </nav>
@@ -197,7 +195,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
             </svg>
-            <span class="sidebar-label text-xs">Tutup Menu</span>
+            <span class="sidebar-label text-xs">{{ __('Tutup Menu') }}</span>
         </button>
     </div>
 

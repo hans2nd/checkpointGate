@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Data Checkpoint')
+@section('title', __('Data Checkpoint'))
 
 @section('content')
     <div class="space-y-4">

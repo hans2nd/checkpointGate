@@ -21,8 +21,8 @@ class CheckpointRepository {
       final startList = responseStart.data['data'] as List<dynamic>? ?? [];
       final loadingList = responseLoading.data['data'] as List<dynamic>? ?? [];
 
-      // Gabungkan, filter (hanya yang sudah assign gate & waktu_penerimaan_dokumen), dan urutkan
-      final combined = [...startList, ...loadingList].where((cp) => cp['gate'] != null && cp['waktu_penerimaan_dokumen'] != null).toList();
+      // Gabungkan, filter (hanya yang sudah ada waktu_penerimaan_dokumen), dan urutkan
+      final combined = [...startList, ...loadingList].where((cp) => cp['waktu_penerimaan_dokumen'] != null).toList();
       
       combined.sort((a, b) {
         final dateA = DateTime.tryParse(a['waktu_penerimaan_dokumen'] ?? '') ?? DateTime(2000);
@@ -36,6 +36,29 @@ class CheckpointRepository {
          throw Exception(e.response?.data['message'] ?? 'Error fetching data');
       }
       throw Exception('Gagal memuat data: $e');
+    }
+  }
+
+  Future<void> assignGate(int id, int gateNumber) async {
+    try {
+      await _dio.post('/checkpoints/$id/assign-gate', data: {'gate': gateNumber});
+    } catch (e) {
+      if (e is DioException && e.response != null) {
+         throw Exception(e.response?.data['message'] ?? 'Error assigning gate');
+      }
+      throw Exception('Gagal menetapkan gate: $e');
+    }
+  }
+
+  Future<List<dynamic>> getAvailableGates() async {
+    try {
+      final response = await _dio.get('/gates/available');
+      return response.data['data'] as List<dynamic>? ?? [];
+    } catch (e) {
+      if (e is DioException && e.response != null) {
+         throw Exception(e.response?.data['message'] ?? 'Error fetching gates');
+      }
+      throw Exception('Gagal memuat daftar gate: $e');
     }
   }
 

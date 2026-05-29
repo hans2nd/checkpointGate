@@ -25,6 +25,15 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisterController::class, 'register']);
 });
 
+// Language switcher (accessible to all: guest & auth)
+Route::post('/locale/switch', function (\Illuminate\Http\Request $request) {
+    $locale = $request->input('locale', 'id');
+    if (in_array($locale, config('app.available_locales', ['id', 'en']))) {
+        session()->put('locale', $locale);
+    }
+    return redirect()->back();
+})->name('locale.switch');
+
 // Auth routes
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -68,6 +77,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('checkpoints', CheckpointController::class)->except(['destroy']);
     Route::post('checkpoints/{checkpoint}/trigger-penerimaan', [CheckpointController::class, 'triggerPenerimaan'])->name('checkpoints.trigger-penerimaan')->middleware('permission:checkpoint.trigger_terima');
+    Route::post('checkpoints/{checkpoint}/assign-gate', [CheckpointController::class, 'assignGate'])->name('checkpoints.assign-gate')->middleware('permission:checkpoint.trigger_terima');
     Route::post('checkpoints/{checkpoint}/trigger-penyerahan', [CheckpointController::class, 'triggerPenyerahan'])->name('checkpoints.trigger-penyerahan')->middleware('permission:checkpoint.trigger_serah');
     Route::post('checkpoints/{checkpoint}/trigger-start', [CheckpointController::class, 'triggerStart'])->name('checkpoints.trigger-start')->middleware('permission:checkpoint.trigger');
     Route::post('checkpoints/{checkpoint}/trigger-end', [CheckpointController::class, 'triggerEnd'])->name('checkpoints.trigger-end')->middleware('permission:checkpoint.trigger');

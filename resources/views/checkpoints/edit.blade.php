@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Checkpoint')
+@section('title', __('Edit Checkpoint'))
 
 @section('content')
     <div class="max-w-4xl mx-auto">
@@ -10,13 +10,13 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
-                Kembali ke Data Checkpoint
+                {{ __('Kembali ke Data Checkpoint') }}
             </a>
         </div>
 
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100">
-                <h2 class="text-lg font-semibold text-gray-800">Edit Data Checkpoint</h2>
+                <h2 class="text-lg font-semibold text-gray-800">{{ __('Edit Data Checkpoint') }}</h2>
                 <p class="text-sm text-gray-500 mt-0.5">{{ $checkpoint->no_polisi }} —
                     {{ $checkpoint->tanggal->format('d/m/Y') }}</p>
             </div>
@@ -38,7 +38,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {{-- Tanggal --}}
                     <div>
-                        <label for="tanggal" class="block text-sm font-medium text-gray-700 mb-1.5">Tanggal <span
+                        <label for="tanggal" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Tanggal') }} <span
                                 class="text-red-400">*</span></label>
                         <input type="date" id="tanggal" name="tanggal"
                             value="{{ old('tanggal', $checkpoint->tanggal->format('Y-m-d')) }}" required
@@ -47,7 +47,7 @@
 
                     {{-- No Polisi --}}
                     <div>
-                        <label for="no_polisi" class="block text-sm font-medium text-gray-700 mb-1.5">No Polisi <span
+                        <label for="no_polisi" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('No Polisi') }} <span
                                 class="text-red-400">*</span></label>
                         <input type="text" id="no_polisi" name="no_polisi"
                             value="{{ old('no_polisi', $checkpoint->no_polisi) }}" required
@@ -87,11 +87,10 @@
 
                     {{-- Jenis Kendaraan --}}
                     <div>
-                        <label for="jenis_kendaraan" class="block text-sm font-medium text-gray-700 mb-1.5">Jenis
-                            Kendaraan</label>
+                        <label for="jenis_kendaraan" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Jenis Kendaraan') }}</label>
                         <select id="jenis_kendaraan" name="jenis_kendaraan"
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white transition-all">
-                            <option value="">-- Pilih --</option>
+                            <option value="">{{ __('-- Pilih --') }}</option>
                             @foreach (['FUSO', 'TRONTON', 'CONT-20FT', 'CONT-40FT', 'L300', 'CDE', 'CDE-LONG', 'CDD', 'CDD-LONG'] as $jk)
                                 <option value="{{ $jk }}"
                                     {{ old('jenis_kendaraan', $checkpoint->jenis_kendaraan) == $jk ? 'selected' : '' }}>
@@ -102,8 +101,7 @@
 
                     {{-- Waktu Penerimaan Dokumen --}}
                     <div>
-                        <label for="waktu_penerimaan_dokumen" class="block text-sm font-medium text-gray-700 mb-1.5">Waktu
-                            Penerimaan Dokumen</label>
+                        <label for="waktu_penerimaan_dokumen" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Waktu Penerimaan Dokumen') }}</label>
                         <input type="datetime-local" id="waktu_penerimaan_dokumen" name="waktu_penerimaan_dokumen"
                             value="{{ old('waktu_penerimaan_dokumen', $checkpoint->waktu_penerimaan_dokumen?->format('Y-m-d\TH:i')) }}"
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
@@ -111,8 +109,7 @@
 
                     {{-- Waktu Penyerahan Dokumen --}}
                     <div>
-                        <label for="waktu_penyerahan_dokumen" class="block text-sm font-medium text-gray-700 mb-1.5">Waktu
-                            Penyerahan Dokumen</label>
+                        <label for="waktu_penyerahan_dokumen" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Waktu Penyerahan Dokumen') }}</label>
                         <input type="datetime-local" id="waktu_penyerahan_dokumen" name="waktu_penyerahan_dokumen"
                             value="{{ old('waktu_penyerahan_dokumen', $checkpoint->waktu_penyerahan_dokumen?->format('Y-m-d\TH:i')) }}"
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
@@ -120,7 +117,7 @@
 
                     {{-- Jenis Barang --}}
                     <div>
-                        <label for="jenis_barang" class="block text-sm font-medium text-gray-700 mb-1.5">Jenis Barang <span
+                        <label for="jenis_barang" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Jenis Barang') }} <span
                                 class="text-red-400">*</span></label>
                         <select id="jenis_barang" name="jenis_barang" required
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white transition-all">
@@ -138,7 +135,7 @@
 
                     {{-- Aktivitas --}}
                     <div>
-                        <label for="aktivitas" class="block text-sm font-medium text-gray-700 mb-1.5">Aktivitas <span
+                        <label for="aktivitas" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Aktivitas') }} <span
                                 class="text-red-400">*</span></label>
                         <select id="aktivitas" name="aktivitas" required
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white transition-all">
@@ -156,7 +153,7 @@
                         <label for="gate" class="block text-sm font-medium text-gray-700 mb-1.5">Gate</label>
                         <select id="gate" name="gate"
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white transition-all">
-                            <option value="">-- Pilih Gate --</option>
+                            <option value="">{{ __('-- Pilih Gate --') }}</option>
                             <optgroup label="🧊 Frozen (F-1 s/d F-16)" id="gateGroupFrozen">
                                 @for ($i = 1; $i <= 16; $i++)
                                     <option value="{{ $i }}" data-jenis="FROZEN"
@@ -196,8 +193,7 @@
 
                     {{-- Waktu Start --}}
                     <div>
-                        <label for="waktu_start" class="block text-sm font-medium text-gray-700 mb-1.5">Waktu
-                            Start</label>
+                        <label for="waktu_start" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Waktu Start') }}</label>
                         <input type="datetime-local" id="waktu_start" name="waktu_start"
                             value="{{ old('waktu_start', $checkpoint->waktu_start?->format('Y-m-d\TH:i')) }}"
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
@@ -205,7 +201,7 @@
 
                     {{-- Waktu End --}}
                     <div>
-                        <label for="waktu_end" class="block text-sm font-medium text-gray-700 mb-1.5">Waktu End</label>
+                        <label for="waktu_end" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Waktu End') }}</label>
                         <input type="datetime-local" id="waktu_end" name="waktu_end"
                             value="{{ old('waktu_end', $checkpoint->waktu_end?->format('Y-m-d\TH:i')) }}"
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
@@ -213,7 +209,7 @@
 
                     {{-- Durasi (Read-only, auto-calculated) --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Durasi Loading</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Durasi Loading') }}</label>
                         <div class="w-full px-3 py-2 border border-gray-100 rounded-lg text-sm bg-gray-50 text-gray-600">
                             @if($checkpoint->waktu_start && $checkpoint->waktu_end)
                                 @php
@@ -223,7 +219,7 @@
                                 @endphp
                                 {{ $durasiDisplay }}
                             @else
-                                <span class="text-gray-400 italic">Otomatis dihitung dari Start – End Loading</span>
+                                <span class="text-gray-400 italic">{{ __('Otomatis dihitung dari Start – End Loading') }}</span>
                             @endif
                         </div>
                     </div>
@@ -232,16 +228,14 @@
                 {{-- No. Surat Jalan & Purchase Order --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
                     <div>
-                        <label for="no_surat_jalan" class="block text-sm font-medium text-gray-700 mb-1.5">No. Surat
-                            Jalan</label>
+                        <label for="no_surat_jalan" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('No. Surat Jalan') }}</label>
                         <input type="text" id="no_surat_jalan" name="no_surat_jalan"
                             value="{{ old('no_surat_jalan', $checkpoint->no_surat_jalan) }}"
                             placeholder="Masukkan no surat jalan (opsional)"
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
                     </div>
                     <div>
-                        <label for="purchase_order" class="block text-sm font-medium text-gray-700 mb-1.5">Purchase
-                            Order</label>
+                        <label for="purchase_order" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Purchase Order') }}</label>
                         <input type="text" id="purchase_order" name="purchase_order"
                             value="{{ old('purchase_order', $checkpoint->purchase_order) }}"
                             placeholder="Masukkan no purchase order (opsional)"
@@ -251,13 +245,13 @@
 
                 {{-- Note/Keterangan --}}
                 <div class="mt-5">
-                    <label for="note" class="block text-sm font-medium text-gray-700 mb-1.5">Catatan / Keterangan</label>
+                    <label for="note" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Catatan / Keterangan') }}</label>
                     <textarea id="note" name="note" rows="3" placeholder="Tambahkan catatan atau keterangan (opsional)..."
                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none">{{ old('note', $checkpoint->note) }}</textarea>
                 </div>
 
                 <div class="mt-5">
-                    <label for="cancel_note" class="block text-sm font-medium text-gray-700 mb-1.5">Catatan Cancel</label>
+                    <label for="cancel_note" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Catatan Cancel') }}</label>
                     <textarea id="cancel_note" name="cancel_note" rows="3" placeholder="Diisi jika status checkpoint CANCEL..."
                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none">{{ old('cancel_note', $checkpoint->cancel_note) }}</textarea>
                 </div>
@@ -266,11 +260,11 @@
                 <div class="flex items-center gap-3 mt-8 pt-6 border-t border-gray-100">
                     <button type="submit"
                         class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-xl shadow-sm transition-all hover:shadow-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
-                        Simpan Perubahan
+                        {{ __('Simpan Perubahan') }}
                     </button>
                     <a href="{{ route('checkpoints.index') }}"
                         class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-xl transition-colors">
-                        Batal
+                        {{ __('Batal') }}
                     </a>
                 </div>
             </form>

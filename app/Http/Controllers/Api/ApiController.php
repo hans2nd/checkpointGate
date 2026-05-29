@@ -459,6 +459,65 @@ class ApiController extends Controller
     }
 
     /**
+     * POST /api/checkpoints/{id}/assign-gate
+     * Assign Gate
+     */
+    public function assignGate(Request $request, $id)
+    {
+        $cp = Checkpoint::findOrFail($id);
+
+        if ($cp->status === 'CANCEL') {
+            return response()->json([
+                'success' => false,
+                'message' => "Checkpoint {$cp->no_polisi} sudah dibatalkan.",
+            ], 422);
+        }
+
+        if ($cp->status === 'FINISH') {
+            return response()->json([
+                'success' => false,
+                'message' => "Checkpoint {$cp->no_polisi} sudah selesai.",
+            ], 422);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'gate' => 'required|integer|min:1|max:27',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $gateNumber = (int) $request->gate;
+
+        // Check if gate is already in use today
+        $gateInUse = Checkpoint::whereDate('created_at', Carbon::today())
+            ->where('gate', $gateNumber)
+            ->whereKeyNot($cp->id)
+            ->where('status', '!=', 'CANCEL')
+            ->whereNotNull('waktu_penerimaan_dokumen')
+            ->whereNull('waktu_end')
+            ->exists();
+
+        if ($gateInUse) {
+            return response()->json([
+                'success' => false,
+                'message' => "Gate {$gateNumber} sedang digunakan untuk loading.",
+            ], 422);
+        }
+
+        $cp->update([
+            'gate' => $gateNumber,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Gate ' . $gateNumber . ' ditetapkan.',
+            'data' => $this->formatCheckpoint($cp->fresh()),
+        ]);
+    }
+
+    /**
      * POST /api/checkpoints/{id}/trigger-start
      */
     public function triggerStart(Request $request, $id)

@@ -108,8 +108,8 @@
             const loading = document.getElementById('gateModalLoading');
             const content = document.getElementById('gateModalContent');
 
-            form.action = '{{ url('checkpoints') }}/' + checkpointId + '/trigger-penerimaan';
-            subtitle.textContent = 'Penerimaan dokumen: ' + noPolisi;
+            form.action = '{{ url('checkpoints') }}/' + checkpointId + '/assign-gate';
+            subtitle.textContent = '{{ __('Assign Gate') }}: ' + noPolisi;
 
             selectedGateNumber = null;
             document.getElementById('selectedGateInput').value = '';

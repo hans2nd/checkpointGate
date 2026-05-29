@@ -7,14 +7,14 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                     </svg>
-                    Atur Kolom
+                    {{ __('Atur Kolom') }}
                     <span id="colCount"
                         class="bg-orange-100 text-orange-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full"></span>
                 </button>
                 <div id="colDropdown"
                     class="hidden absolute right-0 mt-1 w-56 bg-white border border-gray-200 rounded-xl shadow-lg z-50 py-2 max-h-80 overflow-y-auto">
                     <div class="px-3 py-1.5 border-b border-gray-100 flex justify-between items-center">
-                        <span class="text-xs font-semibold text-gray-500">Tampilkan/Sembunyikan</span>
+                        <span class="text-xs font-semibold text-gray-500">{{ __('Tampilkan/Sembunyikan') }}</span>
                         <button type="button" onclick="resetColumns()"
                             class="text-[10px] text-indigo-500 hover:text-indigo-700 font-semibold">Reset</button>
                     </div>

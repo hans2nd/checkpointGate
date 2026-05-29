@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tambah Checkpoint')
+@section('title', __('Tambah Checkpoint'))
 
 @section('content')
     <div class="max-w-3xl mx-auto">
@@ -10,13 +10,13 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
-                Kembali ke Data Checkpoint
+                {{ __('Kembali ke Data Checkpoint') }}
             </a>
         </div>
 
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100">
-                <h2 class="text-lg font-semibold text-gray-800">Tambah Data Baru</h2>
+                <h2 class="text-lg font-semibold text-gray-800">{{ __('Tambah Data Baru') }}</h2>
                 <p class="text-sm text-gray-500 mt-0.5">Pilih No Polisi untuk mengisi data otomatis dari master kendaraan.
                 </p>
             </div>
@@ -44,8 +44,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-xs font-semibold text-orange-600 uppercase tracking-wider">Waktu Kedatangan
-                                Kendaraan</p>
+                            <p class="text-xs font-semibold text-orange-600 uppercase tracking-wider">{{ __('Waktu Kedatangan Kendaraan') }}</p>
                             <div class="flex items-center gap-3 mt-0.5">
                                 <span class="text-lg font-bold text-gray-800"
                                     id="arrival-date">{{ now()->format('d/m/Y') }}</span>
@@ -64,11 +63,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {{-- No Polisi with autocomplete --}}
                     <div class="md:col-span-2 relative">
-                        <label for="no_polisi" class="block text-sm font-medium text-gray-700 mb-1.5">No Polisi <span
+                        <label for="no_polisi" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('No Polisi') }} <span
                                 class="text-red-400">*</span></label>
                         <div class="relative">
                             <input type="text" id="no_polisi" name="no_polisi" value="{{ old('no_polisi') }}" required
-                                placeholder="Ketik no polisi..." autocomplete="off"
+                                placeholder="{{ __('Ketik no polisi...') }}" autocomplete="off"
                                 class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all uppercase">
                             <div id="autocomplete-spinner" class="hidden absolute right-3 top-1/2 -translate-y-1/2">
                                 <svg class="animate-spin h-4 w-4 text-orange-500" xmlns="http://www.w3.org/2000/svg"
@@ -86,7 +85,7 @@
                         </div>
                         <div id="vehicle-info"
                             class="hidden mt-2 px-3 py-2 bg-orange-50 border border-orange-100 rounded-lg text-sm text-orange-700">
-                            <span class="font-medium">✓ Data ditemukan</span> — terisi otomatis dari master kendaraan
+                            <span class="font-medium">✓ {{ __('Data ditemukan') }}</span> — {{ __('terisi otomatis dari master kendaraan') }}
                         </div>
                     </div>
 
@@ -136,7 +135,7 @@
 
                     {{-- Jenis Barang --}}
                     <div>
-                        <label for="jenis_barang" class="block text-sm font-medium text-gray-700 mb-1.5">Jenis Barang
+                        <label for="jenis_barang" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Jenis Barang') }}
                             <span class="text-red-400">*</span></label>
                         <select id="jenis_barang" name="jenis_barang" required
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white transition-all">
@@ -149,7 +148,7 @@
 
                     {{-- Aktivitas --}}
                     <div>
-                        <label for="aktivitas" class="block text-sm font-medium text-gray-700 mb-1.5">Aktivitas <span
+                        <label for="aktivitas" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Aktivitas') }} <span
                                 class="text-red-400">*</span></label>
                         <select id="aktivitas" name="aktivitas" required
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white transition-all">
@@ -188,8 +187,7 @@
 
                 {{-- Note/Keterangan --}}
                 <div class="mt-5">
-                    <label for="note" class="block text-sm font-medium text-gray-700 mb-1.5">Catatan /
-                        Keterangan</label>
+                    <label for="note" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Catatan / Keterangan') }}</label>
                     <textarea id="note" name="note" rows="3" placeholder="Contoh Inputan : Full Botan / 1.500 Ctn / 2 SKU"
                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none">{{ old('note') }}</textarea>
                 </div>
@@ -209,11 +207,11 @@
                 <div class="flex items-center gap-3 mt-8 pt-6 border-t border-gray-100">
                     <button type="submit"
                         class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-xl shadow-sm transition-all hover:shadow-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
-                        Simpan Data
+                        {{ __('Simpan Data') }}
                     </button>
                     <a href="{{ route('checkpoints.index') }}"
                         class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-xl transition-colors">
-                        Batal
+                        {{ __('Batal') }}
                     </a>
                 </div>
             </form>

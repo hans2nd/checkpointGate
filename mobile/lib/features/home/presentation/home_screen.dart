@@ -10,9 +10,27 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final userNameAsync = ref.watch(userNameProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Checkpoint Gate'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Checkpoint Gate', style: TextStyle(fontSize: 18)),
+            userNameAsync.when(
+              data: (name) => Text(
+                'Halo, ${name ?? 'User'}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),

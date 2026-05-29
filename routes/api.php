@@ -44,7 +44,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/checkpoints/{id}', [ApiController::class, 'checkpointShow']);
     Route::post('/checkpoints', [ApiController::class, 'checkpointStore']);
 
-    // --- Triggers ---
+    // --- Triggers & Actions ---
+    Route::post('/checkpoints/{id}/assign-gate', [ApiController::class, 'assignGate']);
     Route::post('/checkpoints/{id}/trigger-penerimaan', [ApiController::class, 'triggerPenerimaan']);
     Route::post('/checkpoints/{id}/trigger-start', [ApiController::class, 'triggerStart']);
     Route::post('/checkpoints/{id}/trigger-end', [ApiController::class, 'triggerEnd']);

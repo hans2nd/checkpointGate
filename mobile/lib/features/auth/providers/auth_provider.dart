@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../data/auth_repository.dart';
 
 enum AuthState { initial, loading, authenticated, unauthenticated, error }
@@ -7,6 +8,15 @@ final authRepositoryProvider = Provider((ref) => AuthRepository());
 
 final authControllerProvider = NotifierProvider<AuthController, AuthState>(() {
   return AuthController();
+});
+
+final userNameProvider = FutureProvider<String?>((ref) async {
+  final authState = ref.watch(authControllerProvider);
+  if (authState == AuthState.authenticated) {
+    const storage = FlutterSecureStorage();
+    return await storage.read(key: 'user_name');
+  }
+  return null;
 });
 
 class AuthController extends Notifier<AuthState> {

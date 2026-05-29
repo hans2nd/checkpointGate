@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
+@section('title', __('Dashboard'))
 
 @section('header-actions')
     <button onclick="toggleFullscreen()" class="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors" title="Fullscreen (ESC untuk keluar)">
@@ -13,7 +13,7 @@
 <!-- Floating exit fullscreen button -->
 <button onclick="toggleFullscreen()" class="fs-exit-btn hidden fixed top-3 right-3 z-50 items-center gap-1.5 px-3 py-1.5 bg-gray-900/80 hover:bg-gray-900 text-white text-xs font-medium rounded-full shadow-lg backdrop-blur transition-all">
     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25"/></svg>
-    Keluar Fullscreen (ESC)
+    {{ __('Keluar Fullscreen (ESC)') }}
 </button>
 <div class="space-y-6">
     {{-- Summary Cards --}}
@@ -22,14 +22,14 @@
         <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Total Record</p>
+                    <p class="text-sm font-medium text-gray-500">{{ __('Total Record') }}</p>
                     <p class="text-3xl font-bold text-gray-900 mt-1">{{ number_format($stats['total_all']) }}</p>
                 </div>
                 <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
                     <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                 </div>
             </div>
-            <p class="text-xs text-gray-400 mt-2">Hari ini: {{ $stats['total_today'] }}</p>
+            <p class="text-xs text-gray-400 mt-2">{{ __('Hari ini') }}: {{ $stats['total_today'] }}</p>
         </div>
 
         {{-- Inbound --}}
@@ -43,7 +43,7 @@
                     <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
                 </div>
             </div>
-            <p class="text-xs text-gray-400 mt-2">Hari ini</p>
+            <p class="text-xs text-gray-400 mt-2">{{ __('Hari ini') }}</p>
         </div>
 
         {{-- Outbound --}}
@@ -57,21 +57,21 @@
                     <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                 </div>
             </div>
-            <p class="text-xs text-gray-400 mt-2">Hari ini</p>
+            <p class="text-xs text-gray-400 mt-2">{{ __('Hari ini') }}</p>
         </div>
 
         {{-- Status Finish --}}
         <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-500">Selesai</p>
+                    <p class="text-sm font-medium text-gray-500">{{ __('Selesai') }}</p>
                     <p class="text-3xl font-bold text-violet-600 mt-1">{{ number_format($stats['finish']) }}</p>
                 </div>
                 <div class="w-12 h-12 bg-violet-50 rounded-xl flex items-center justify-center">
                     <svg class="w-6 h-6 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
             </div>
-            <p class="text-xs text-gray-400 mt-2">Masih proses: {{ $stats['start'] }}</p>
+            <p class="text-xs text-gray-400 mt-2">{{ __('Masih proses') }}: {{ $stats['start'] }}</p>
         </div>
     </div>
 
@@ -79,13 +79,13 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {{-- Bar Chart: Daily Activity --}}
         <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-            <h3 class="text-sm font-semibold text-gray-700 mb-4">Aktivitas Harian</h3>
+            <h3 class="text-sm font-semibold text-gray-700 mb-4">{{ __('Aktivitas Harian') }}</h3>
             <div id="dailyChart" class="h-72"></div>
         </div>
 
         {{-- Donut Chart: Goods Type --}}
         <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-            <h3 class="text-sm font-semibold text-gray-700 mb-4">Jenis Barang</h3>
+            <h3 class="text-sm font-semibold text-gray-700 mb-4">{{ __('Jenis Barang') }}</h3>
             <div id="goodsChart" class="h-72"></div>
         </div>
     </div>
@@ -94,13 +94,13 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {{-- Vehicle Type Chart --}}
         <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-            <h3 class="text-sm font-semibold text-gray-700 mb-4">Jenis Kendaraan</h3>
+            <h3 class="text-sm font-semibold text-gray-700 mb-4">{{ __('Jenis Kendaraan') }}</h3>
             <div id="vehicleChart" class="h-72"></div>
         </div>
 
         {{-- Vendor Chart --}}
         <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-            <h3 class="text-sm font-semibold text-gray-700 mb-4">Vendor</h3>
+            <h3 class="text-sm font-semibold text-gray-700 mb-4">{{ __('Vendor') }}</h3>
             <div id="vendorChart" class="h-72"></div>
         </div>
     </div>
@@ -108,19 +108,19 @@
     {{-- Recent Records --}}
     <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-gray-700">Data Terbaru</h3>
-            <a href="{{ route('checkpoints.index') }}" class="text-sm text-orange-600 hover:text-orange-700 font-medium">Lihat Semua →</a>
+            <h3 class="text-sm font-semibold text-gray-700">{{ __('Data Terbaru') }}</h3>
+            <a href="{{ route('checkpoints.index') }}" class="text-sm text-orange-600 hover:text-orange-700 font-medium">{{ __('Lihat Semua') }} →</a>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="bg-gray-50 text-left">
-                        <th class="px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider">Tanggal</th>
-                        <th class="px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider">No Polisi</th>
-                        <th class="px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider">Vendor</th>
-                        <th class="px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider">Aktivitas</th>
-                        <th class="px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider">Status</th>
-                        <th class="px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider">Durasi</th>
+                        <th class="px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider">{{ __('Tanggal') }}</th>
+                        <th class="px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider">{{ __('No Polisi') }}</th>
+                        <th class="px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider">{{ __('Vendor') }}</th>
+                        <th class="px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider">{{ __('Aktivitas') }}</th>
+                        <th class="px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider">{{ __('Status') }}</th>
+                        <th class="px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider">{{ __('Durasi') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
@@ -145,7 +145,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-4 py-8 text-center text-gray-400">Belum ada data</td>
+                        <td colspan="6" class="px-4 py-8 text-center text-gray-400">{{ __('Belum ada data') }}</td>
                     </tr>
                     @endforelse
                 </tbody>

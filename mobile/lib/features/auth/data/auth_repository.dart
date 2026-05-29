@@ -22,6 +22,10 @@ class AuthRepository {
         
         if (token != null) {
           await _storage.write(key: 'auth_token', value: token);
+          final userName = body['data']?['user']?['name'];
+          if (userName != null) {
+            await _storage.write(key: 'user_name', value: userName);
+          }
           return body;
         }
       }
@@ -48,6 +52,7 @@ class AuthRepository {
       // ignore
     } finally {
       await _storage.delete(key: 'auth_token');
+      await _storage.delete(key: 'user_name');
     }
   }
 
@@ -57,7 +62,17 @@ class AuthRepository {
 
     try {
       final response = await _dio.get('/me');
-      return response.statusCode == 200;
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data is Map<String, dynamic>) {
+          final userName = data['data']?['name'];
+          if (userName != null) {
+            await _storage.write(key: 'user_name', value: userName);
+          }
+        }
+        return true;
+      }
+      return false;
     } catch (e) {
       return false;
     }

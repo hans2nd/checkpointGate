@@ -50,6 +50,117 @@ class CheckpointListScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _showGateSelectionDialog(BuildContext context, WidgetRef ref, int checkpointId, String jenisBarang) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (c) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final repo = ref.read(checkpointRepositoryProvider);
+      final allGates = await repo.getAvailableGates();
+
+      final targetJenis = (jenisBarang == 'FROZEN' || jenisBarang == 'CHILLED') ? 'FROZEN' : 'DRY';
+      final gates = allGates.where((g) => g['jenis_barang'] == targetJenis).toList();
+
+      if (context.mounted) Navigator.pop(context); // close loading overlay
+
+      if (context.mounted) {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          builder: (ctx) {
+            return DraggableScrollableSheet(
+              expand: false,
+              initialChildSize: 0.6,
+              maxChildSize: 0.9,
+              builder: (ctx, scrollController) {
+                return Column(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text('Pilih Gate', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    ),
+                    Expanded(
+                      child: GridView.builder(
+                        controller: scrollController,
+                        padding: const EdgeInsets.all(16),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 4,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                        ),
+                        itemCount: gates.length,
+                        itemBuilder: (context, index) {
+                          final gate = gates[index];
+                          final isAvailable = gate['available'] == true;
+                          final gateName = gate['display_name'] ?? (gate['jenis_barang'] == 'FROZEN' ? 'F-${gate['nomor']}' : 'D-${gate['nomor'] - 16}');
+
+                          return InkWell(
+                            onTap: isAvailable ? () async {
+                              Navigator.pop(ctx);
+                              await _handleAssignGate(context, ref, checkpointId, gate['nomor']);
+                            } : null,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: isAvailable ? Colors.green.shade100 : Colors.grey.shade300,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: isAvailable ? Colors.green : Colors.grey),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                gateName,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: isAvailable ? Colors.green.shade900 : Colors.grey.shade600,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        );
+      }
+    } catch (e) {
+      if (context.mounted) Navigator.pop(context); // close loading overlay
+      if (context.mounted) {
+        _showResultDialog(context, title: 'Gagal', message: e.toString(), isError: true);
+      }
+    }
+  }
+
+  Future<void> _handleAssignGate(BuildContext context, WidgetRef ref, int id, int gateNumber) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (c) => const Center(child: CircularProgressIndicator()),
+    );
+    try {
+      final repo = ref.read(checkpointRepositoryProvider);
+      await repo.assignGate(id, gateNumber);
+
+      if (context.mounted) Navigator.pop(context);
+      ref.invalidate(activeCheckpointsProvider);
+
+      if (context.mounted) {
+        _showResultDialog(context, title: 'Berhasil', message: 'Gate $gateNumber ditetapkan.', isError: false);
+      }
+    } catch (e) {
+      if (context.mounted) Navigator.pop(context);
+      if (context.mounted) {
+        _showResultDialog(context, title: 'Gagal', message: e.toString().replaceAll('Exception: ', ''), isError: true);
+      }
+    }
+  }
+
   void _showResultDialog(BuildContext context, {required String title, required String message, required bool isError}) {
     showDialog(
       context: context,
@@ -130,6 +241,15 @@ class CheckpointListScreen extends ConsumerWidget {
               final timeIn = _formatTime(item['waktu_penerimaan_dokumen']);
               final tanggal = _formatDate(item['tanggal']);
 
+              String displayStatus = status;
+              if (item['gate'] == null) {
+                displayStatus = 'Assign gate';
+              } else if (status == 'START') {
+                displayStatus = 'Ready';
+              } else if (status == 'ON LOADING') {
+                displayStatus = 'On Loading';
+              }
+
               String gateDisplay = '';
               if (item['gate'] != null) {
    int g = int.parse(item['gate'].toString());
@@ -174,31 +294,61 @@ class CheckpointListScreen extends ConsumerWidget {
                         style: const TextStyle(color: Colors.grey),
                       ),
                       Text('Driver: ${item['driver'] ?? '-'}', style: const TextStyle(color: Colors.grey)),
-                      Text('Vendor: ${item['vendor'] ?? '-'}', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                      Text('Vendor: ${item['vendor'] ?? '-'} (${item['jenis_barang'] ?? '-'})', style: const TextStyle(color: Colors.grey, fontSize: 12)),
                       const SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Status: $status', style: const TextStyle(fontWeight: FontWeight.w500)),
+                          Text('Status: $displayStatus', style: const TextStyle(fontWeight: FontWeight.w500)),
                           Text(timeIn, style: const TextStyle(color: Colors.grey)),
                         ],
                       ),
                       const Divider(height: 24),
                       Row(
                         children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: isOnLoading ? Colors.green : const Color(0xFF06B6D4), // Cyan-500
-                                foregroundColor: Colors.white,
+                          if (item['gate'] == null)
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orange,
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: () {
+                                  _showGateSelectionDialog(context, ref, item['id'], item['jenis_barang'] ?? '');
+                                },
+                                icon: const Icon(Icons.assignment),
+                                label: const Text('Assign Gate'),
                               ),
-                              onPressed: () {
-                                _handleAction(context, ref, item['id'], isOnLoading ? 'END' : 'START');
-                              },
-                              icon: Icon(isOnLoading ? Icons.check_circle : Icons.play_arrow),
-                              label: Text(isOnLoading ? 'End Loading' : 'Start Loading'),
+                            )
+                          else ...[
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: isOnLoading ? Colors.green : const Color(0xFF06B6D4), // Cyan-500
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: () {
+                                  _handleAction(context, ref, item['id'], isOnLoading ? 'END' : 'START');
+                                },
+                                icon: Icon(isOnLoading ? Icons.check_circle : Icons.play_arrow),
+                                label: Text(isOnLoading ? 'End Loading' : 'Start Loading'),
+                              ),
                             ),
-                          ),
+                            if (!isOnLoading && status == 'START') ...[
+                              const SizedBox(width: 8),
+                              OutlinedButton.icon(
+                                onPressed: () {
+                                  _showGateSelectionDialog(context, ref, item['id'], item['jenis_barang'] ?? '');
+                                },
+                                icon: const Icon(Icons.edit, size: 16),
+                                label: const Text('Ubah'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.orange,
+                                  side: const BorderSide(color: Colors.orange),
+                                ),
+                              ),
+                            ],
+                          ],
                         ],
                       )
                     ],
