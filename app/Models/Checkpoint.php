@@ -42,7 +42,6 @@ class Checkpoint extends Model
 
     protected $casts = [
         'tanggal' => 'date',
-        'created_at' => 'date',
         'waktu_penerimaan_dokumen' => 'datetime',
         'waktu_penyerahan_dokumen' => 'datetime',
         'waktu_start' => 'datetime',
