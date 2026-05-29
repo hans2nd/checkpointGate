@@ -229,7 +229,13 @@ class LiveMonitoringController extends Controller
                     ->where('jenis_barang', $jenis)
                     ->where('status', '!=', 'CANCEL');
 
-                $parking = (clone $todayBase)->whereNull('waktu_penerimaan_dokumen')->count();
+                // $parking = (clone $todayBase)->whereNull('waktu_penerimaan_dokumen')->count();
+                $parking = Checkpoint::whereNull('waktu_penerimaan_dokumen')
+                    ->whereNull('gate')
+                    ->where('status', '!=', 'CANCEL')
+                    ->where('aktivitas', $aktivitas)
+                    ->where('jenis_barang', $jenis)
+                    ->count();
 
                 $receiving = (clone $todayBase)->where('status', 'START')
                     ->whereNotNull('waktu_penerimaan_dokumen')
@@ -241,7 +247,7 @@ class LiveMonitoringController extends Controller
                 $finish = (clone $todayBase)->where('status', 'FINISH')->count();
 
                 // Total = semua transaksi hari ini yang tidak cancel
-                $total = (clone $todayBase)->count();
+                $total = $parking + $receiving + $onProcess + $finish;
 
                 $activitySummary[] = [
                     'label' => $label,

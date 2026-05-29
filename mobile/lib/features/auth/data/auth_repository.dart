@@ -45,14 +45,18 @@ class AuthRepository {
     }
   }
 
+  Future<void> clearLocalData() async {
+    await _storage.delete(key: 'auth_token');
+    await _storage.delete(key: 'user_name');
+  }
+
   Future<void> logout() async {
     try {
       await _dio.post('/logout');
     } catch (_) {
       // ignore
     } finally {
-      await _storage.delete(key: 'auth_token');
-      await _storage.delete(key: 'user_name');
+      await clearLocalData();
     }
   }
 

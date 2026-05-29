@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -68,6 +69,13 @@ class ApiController extends Controller
                 'success' => false,
                 'message' => 'Akun Anda tidak aktif. Hubungi admin.',
             ], 403);
+        }
+
+        if (Cache::get('app_maintenance', false) && !$user->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Aplikasi sedang maintenance. Tidak dapat login saat ini.',
+            ], 503);
         }
 
         $deviceName = $request->device_name ?? 'flutter-app';
@@ -139,6 +147,13 @@ class ApiController extends Controller
                 'role_id' => $employee->role_id,
                 'is_active' => $employee->is_active,
             ]);
+        }
+
+        if (Cache::get('app_maintenance', false) && !$user->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Aplikasi sedang maintenance. Tidak dapat login saat ini.',
+            ], 503);
         }
 
         $deviceName = $request->device_name ?? 'flutter-app';
@@ -213,13 +228,26 @@ class ApiController extends Controller
 
         $stats = [
             'total_today' => Checkpoint::whereDate('tanggal', $date)->count(),
-            'total_all' => Checkpoint::count(),
             'inbound' => Checkpoint::whereDate('tanggal', $date)->where('aktivitas', 'INBOUND')->count(),
             'outbound' => Checkpoint::whereDate('tanggal', $date)->where('aktivitas', 'OUTBOUND')->count(),
-            'on_loading' => Checkpoint::whereDate('tanggal', $date)->where('status', 'ON LOADING')->count(),
+            'parking' => Checkpoint::whereNull('gate')
+                ->where(function ($q1) {
+                    $q1->whereNull('waktu_start')->orWhereNull('waktu_penerimaan_dokumen');
+                })
+                ->where(function ($q) {
+                    $q->whereNull('status')->orWhere('status', '!=', 'CANCEL');
+                })->count(),
+            'on_loading' => Checkpoint::where('status', 'ON LOADING')->count(),
             'finish' => Checkpoint::whereDate('tanggal', $date)->where('status', 'FINISH')->count(),
             'frozen' => Checkpoint::whereDate('tanggal', $date)->where('jenis_barang', 'FROZEN')->count(),
             'dry' => Checkpoint::whereDate('tanggal', $date)->where('jenis_barang', 'DRY')->count(),
+            'total_all' => (Checkpoint::whereNull('gate')
+                ->where(function ($q1) {
+                    $q1->whereNull('waktu_start')->orWhereNull('waktu_penerimaan_dokumen');
+                })
+                ->where(function ($q) {
+                    $q->whereNull('status')->orWhere('status', '!=', 'CANCEL');
+                })->count()) + (Checkpoint::where('status', 'ON LOADING')->count()) + (Checkpoint::whereDate('tanggal', $date)->where('status', 'FINISH')->count()),
         ];
 
         $recent = Checkpoint::whereDate('tanggal', $date)
@@ -247,11 +275,11 @@ class ApiController extends Controller
         $days = $request->input('days', 7);
 
         $dailyData = Checkpoint::select(
-                DB::raw("DATE(tanggal) as date"),
-                DB::raw("SUM(CASE WHEN aktivitas = 'INBOUND' THEN 1 ELSE 0 END) as inbound"),
-                DB::raw("SUM(CASE WHEN aktivitas = 'OUTBOUND' THEN 1 ELSE 0 END) as outbound"),
-                DB::raw("COUNT(*) as total")
-            )
+            DB::raw("DATE(tanggal) as date"),
+            DB::raw("SUM(CASE WHEN aktivitas = 'INBOUND' THEN 1 ELSE 0 END) as inbound"),
+            DB::raw("SUM(CASE WHEN aktivitas = 'OUTBOUND' THEN 1 ELSE 0 END) as outbound"),
+            DB::raw("COUNT(*) as total")
+        )
             ->where('tanggal', '>=', Carbon::today()->subDays($days))
             ->groupBy(DB::raw("DATE(tanggal)"))
             ->orderBy('date', 'asc')
@@ -346,15 +374,19 @@ class ApiController extends Controller
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('no_polisi', 'like', "%{$s}%")
-                  ->orWhere('vendor', 'like', "%{$s}%")
-                  ->orWhere('driver', 'like', "%{$s}%");
+                    ->orWhere('vendor', 'like', "%{$s}%")
+                    ->orWhere('driver', 'like', "%{$s}%");
             });
         }
 
-        if ($request->filled('aktivitas')) $query->where('aktivitas', $request->aktivitas);
-        if ($request->filled('jenis_barang')) $query->where('jenis_barang', $request->jenis_barang);
-        if ($request->filled('status')) $query->where('status', $request->status);
-        if ($request->filled('tanggal')) $query->whereDate('tanggal', $request->tanggal);
+        if ($request->filled('aktivitas'))
+            $query->where('aktivitas', $request->aktivitas);
+        if ($request->filled('jenis_barang'))
+            $query->where('jenis_barang', $request->jenis_barang);
+        if ($request->filled('status'))
+            $query->where('status', $request->status);
+        if ($request->filled('tanggal'))
+            $query->whereDate('tanggal', $request->tanggal);
 
         $perPage = min($request->input('per_page', 15), 100);
         $data = $query->orderBy('created_at', 'desc')->paginate($perPage);
@@ -395,10 +427,10 @@ class ApiController extends Controller
             'no_polisi' => 'required|string|max:20',
             'vendor' => 'required|string|max:100',
             'driver' => 'required|string|max:100',
-            'tipe' => 'required|in:INTERNAL,EKSTERNAL',
-            'jenis_kendaraan' => 'required|string|max:50',
-            'jenis_barang' => 'required|in:FROZEN,DRY,CHILLED',
-            'aktivitas' => 'required|in:INBOUND,OUTBOUND',
+            'tipe' => 'nullable|in:INTERNAL,EKSTERNAL',
+            'jenis_kendaraan' => 'nullable|string|max:50',
+            'jenis_barang' => 'nullable|in:FROZEN,DRY,CHILLED',
+            'aktivitas' => 'nullable|in:INBOUND,OUTBOUND',
             'note' => 'nullable|string|max:500',
             'no_surat_jalan' => 'nullable|string|max:100',
             'purchase_order' => 'nullable|string|max:100',
@@ -408,15 +440,27 @@ class ApiController extends Controller
             return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
-        $cp = Checkpoint::create(array_merge($request->only([
-            'no_polisi', 'vendor', 'driver', 'tipe',
-            'jenis_kendaraan', 'jenis_barang', 'aktivitas', 'note',
-            'no_surat_jalan', 'purchase_order',
+        // Format Nomor Polisi (Contoh: B6677FAG -> B 6677 FAG)
+        $noPolisiFormatted = strtoupper(str_replace(' ', '', $request->no_polisi));
+        $noPolisiFormatted = preg_replace('/(?<=[A-Z])(?=[0-9])|(?<=[0-9])(?=[A-Z])/', ' ', $noPolisiFormatted);
+
+        $dataToSave = array_merge($request->only([
+            'vendor',
+            'driver',
+            'tipe',
+            'jenis_kendaraan',
+            'jenis_barang',
+            'aktivitas',
+            'note',
+            'no_surat_jalan',
+            'purchase_order',
         ]), [
+            'no_polisi' => $noPolisiFormatted,
             'tanggal' => Carbon::today(),
-            'status' => 'START',
             'created_by' => $request->user()->id,
-        ]));
+        ]);
+
+        $cp = Checkpoint::create($dataToSave);
 
         return response()->json([
             'success' => true,
@@ -649,7 +693,7 @@ class ApiController extends Controller
             ->where('status', '!=', 'CANCEL')
             ->where(function ($q) {
                 $q->whereNull('waktu_penyerahan_dokumen')
-                  ->orWhere('status', '!=', 'FINISH');
+                    ->orWhere('status', '!=', 'FINISH');
             })
             ->pluck('gate')
             ->toArray();
@@ -707,8 +751,8 @@ class ApiController extends Controller
         return [
             'id' => $cp->id,
             'tanggal' => $cp->tanggal
-    ? Carbon::parse($cp->tanggal)->translatedFormat('d M Y')
-    : null,
+                ? Carbon::parse($cp->tanggal)->translatedFormat('d M Y')
+                : null,
             'no_polisi' => $cp->no_polisi,
             'vendor' => $cp->vendor,
             'driver' => $cp->driver,

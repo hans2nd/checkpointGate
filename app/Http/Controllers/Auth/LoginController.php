@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class LoginController extends Controller
@@ -40,6 +41,13 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $user = Auth::user();
+
+            if (Cache::get('app_maintenance', false) && !$user->isAdmin()) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return redirect()->route('maintenance.page');
+            }
 
             if (isset($user->is_active) && !$user->is_active) {
                 Auth::logout();
@@ -100,6 +108,10 @@ class LoginController extends Controller
                 'role_id' => $employee->role_id,
                 'is_active' => $employee->is_active,
             ]);
+        }
+
+        if (Cache::get('app_maintenance', false) && !$user->isAdmin()) {
+            return redirect()->route('maintenance.page');
         }
 
         Auth::login($user, false);

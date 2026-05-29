@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
+            \App\Http\Middleware\CheckMaintenanceMode::class,
+        ]);
+        $middleware->api(append: [
+            \App\Http\Middleware\CheckMaintenanceMode::class,
         ]);
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,

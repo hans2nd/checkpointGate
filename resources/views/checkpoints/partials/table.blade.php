@@ -134,12 +134,10 @@
                                         $cp->status !== 'CANCEL' &&
                                             $cp->cancel_status !== 'pending' &&
                                             Auth::user()->hasPermission('checkpoint.trigger_terima'))
-                                        <form method="POST" action="{{ route('checkpoints.trigger-penerimaan', $cp) }}" class="inline">
-                                            @csrf
-                                            <button type="submit"
-                                                class="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">📥
-                                                {{ __('Receive') }}</button>
-                                        </form>
+                                        <button type="button"
+                                            onclick="openTerimaModal({{ $cp->id }}, @js($cp->no_polisi), @js($cp->jenis_kendaraan), @js($cp->tipe), @js($cp->jenis_barang), @js($cp->aktivitas))"
+                                            class="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">📥
+                                            {{ __('Receive') }}</button>
                                     @else
                                         <span class="text-xs text-gray-300">—</span>
                                     @endif

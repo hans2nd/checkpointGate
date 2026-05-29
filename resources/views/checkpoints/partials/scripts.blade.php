@@ -208,6 +208,28 @@
             document.getElementById('cancelModal').classList.add('hidden');
         }
 
+        // ===== TERIMA MODAL =====
+        function openTerimaModal(checkpointId, noPolisi, kendaraan, tipe, barang, aktivitas) {
+            const modal = document.getElementById('terimaModal');
+            const form = document.getElementById('terimaForm');
+            const subtitle = document.getElementById('terimaModalSubtitle');
+
+            form.action = '{{ url('checkpoints') }}/' + checkpointId + '/trigger-penerimaan';
+            subtitle.textContent = 'No Polisi: ' + noPolisi;
+
+            document.getElementById('terima_jenis_kendaraan').value = kendaraan || '';
+            document.getElementById('terima_tipe').value = tipe || '';
+            document.getElementById('terima_jenis_barang').value = barang || '';
+            document.getElementById('terima_aktivitas').value = aktivitas || '';
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeTerimaModal() {
+            document.getElementById('terimaModal').classList.add('hidden');
+        }
+
+
         // ===== PRINT TICKET =====
         function handleGateSubmit(e) {
             if (document.getElementById('printTicketCheck').checked && currentCheckpointId) {

@@ -6,6 +6,7 @@ import '../config/app_config.dart';
 class ApiClient {
   static final Dio _dio = Dio();
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
+  static void Function()? onUnauthorized;
 
   static Dio get instance {
     _dio.options.baseUrl = AppConfig.baseUrl;
@@ -28,7 +29,12 @@ class ApiClient {
           return handler.next(options);
         },
         onError: (DioException e, handler) async {
-          // Handle 401 Unauthorized globally if needed
+          // Handle 401 Unauthorized globally
+          if (e.response?.statusCode == 401) {
+            if (onUnauthorized != null) {
+              onUnauthorized!();
+            }
+          }
           return handler.next(e);
         },
       ),

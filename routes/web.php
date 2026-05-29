@@ -25,6 +25,9 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisterController::class, 'register']);
 });
 
+// Public Maintenance Page
+Route::get('/maintenance', [\App\Http\Controllers\MaintenanceController::class, 'page'])->name('maintenance.page');
+
 // Language switcher (accessible to all: guest & auth)
 Route::post('/locale/switch', function (\Illuminate\Http\Request $request) {
     $locale = $request->input('locale', 'id');
@@ -97,6 +100,10 @@ Route::middleware('auth')->group(function () {
 
     // User Management (Administrator only)
     Route::middleware('role:administrator')->group(function () {
+        // Maintenance Settings
+        Route::get('settings/maintenance', [\App\Http\Controllers\MaintenanceController::class, 'index'])->name('maintenance.index');
+        Route::post('settings/maintenance/toggle', [\App\Http\Controllers\MaintenanceController::class, 'toggle'])->name('maintenance.toggle');
+
         Route::post('users/bulk-delete', [UserManagementController::class, 'bulkDelete'])->name('users.bulk-delete');
         Route::get('users/export', [UserManagementController::class, 'export'])->name('users.export');
         Route::post('users/import', [UserManagementController::class, 'import'])->name('users.import');

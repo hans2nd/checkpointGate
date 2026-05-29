@@ -292,12 +292,24 @@ class CheckpointController extends Controller
                              ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah selesai.");
         }
 
+        $request->validate([
+            'jenis_kendaraan' => 'required|string|max:255',
+            'tipe'            => 'required|in:INTERNAL,EKSTERNAL',
+            'jenis_barang'    => 'required|in:FROZEN,DRY,CHILLED',
+            'aktivitas'       => 'required|in:INBOUND,OUTBOUND',
+        ]);
+
         $checkpoint->update([
-            'waktu_penerimaan_dokumen' => Carbon::now(),
+            'jenis_kendaraan' => strtoupper($request->jenis_kendaraan),
+            'tipe'            => $request->tipe,
+            'jenis_barang'    => $request->jenis_barang,
+            'aktivitas'       => $request->aktivitas,
+            'waktu_penerimaan_dokumen' => \Carbon\Carbon::now(),
+            'status'          => 'START',
         ]);
 
         return redirect()->back()
-                         ->with('success', "Dokumen {$checkpoint->no_polisi} diterima.");
+                         ->with('success', "Dokumen {$checkpoint->no_polisi} diterima dan status menjadi START.");
     }
 
     /**
