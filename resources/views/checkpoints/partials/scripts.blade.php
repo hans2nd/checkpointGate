@@ -232,6 +232,23 @@
             document.getElementById('terimaModal').classList.add('hidden');
         }
 
+        // ===== CONFIRM END LOADING =====
+        function confirmEndLoading(form) {
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: 'Apakah Anda yakin ingin menyelesaikan loading?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#EF4444',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
 
         // ===== PRINT TICKET =====
         function handleGateSubmit(e) {

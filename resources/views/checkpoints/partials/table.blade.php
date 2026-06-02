@@ -178,7 +178,7 @@
                                             $cp->waktu_start &&
                                             Auth::user()->hasPermission('checkpoint.trigger'))
                                         <form method="POST" action="{{ route('checkpoints.trigger-end', $cp) }}"
-                                            class="inline">@csrf
+                                            class="inline" onsubmit="event.preventDefault(); confirmEndLoading(this);">@csrf
                                             <button type="submit"
                                                 class="px-2 py-1 bg-red-500 hover:bg-red-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">⏹
                                                 End</button>
