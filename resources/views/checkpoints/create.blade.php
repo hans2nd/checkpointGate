@@ -44,7 +44,8 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-xs font-semibold text-orange-600 uppercase tracking-wider">{{ __('Waktu Kedatangan Kendaraan') }}</p>
+                            <p class="text-xs font-semibold text-orange-600 uppercase tracking-wider">
+                                {{ __('Waktu Kedatangan Kendaraan') }}</p>
                             <div class="flex items-center gap-3 mt-0.5">
                                 <span class="text-lg font-bold text-gray-800"
                                     id="arrival-date">{{ now()->format('d/m/Y') }}</span>
@@ -63,8 +64,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {{-- No Polisi with autocomplete --}}
                     <div class="md:col-span-2 relative">
-                        <label for="no_polisi" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('No Polisi') }} <span
-                                class="text-red-400">*</span></label>
+                        <label for="no_polisi" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('No Polisi') }}
+                            <span class="text-red-400">*</span></label>
                         <div class="relative">
                             <input type="text" id="no_polisi" name="no_polisi" value="{{ old('no_polisi') }}" required
                                 placeholder="{{ __('Ketik no polisi...') }}" autocomplete="off"
@@ -85,7 +86,8 @@
                         </div>
                         <div id="vehicle-info"
                             class="hidden mt-2 px-3 py-2 bg-orange-50 border border-orange-100 rounded-lg text-sm text-orange-700">
-                            <span class="font-medium">✓ {{ __('Data ditemukan') }}</span> — {{ __('terisi otomatis dari master kendaraan') }}
+                            <span class="font-medium">✓ {{ __('Data ditemukan') }}</span> —
+                            {{ __('terisi otomatis dari master kendaraan') }}
                         </div>
                     </div>
 
@@ -111,8 +113,8 @@
 
                     {{-- Tipe (auto-filled) --}}
                     <div>
-                        <label for="tipe" class="block text-sm font-medium text-gray-700 mb-1.5">Tipe <span
-                                class="text-red-400">*</span></label>
+                        <label for="tipe" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Tipe') }}
+                            <span class="text-red-400">*</span></label>
                         <select id="tipe" name="tipe" required
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-gray-50 transition-all"
                             disabled>
@@ -124,8 +126,8 @@
 
                     {{-- Jenis Kendaraan (auto-filled) --}}
                     <div>
-                        <label for="jenis_kendaraan" class="block text-sm font-medium text-gray-700 mb-1.5">Jenis
-                            Kendaraan
+                        <label for="jenis_kendaraan"
+                            class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Jenis Kendaraan') }}
                             <span class="text-red-400">*</span></label>
                         <input type="text" id="jenis_kendaraan" name="jenis_kendaraan"
                             value="{{ old('jenis_kendaraan') }}" required placeholder="Jenis kendaraan"
@@ -135,7 +137,8 @@
 
                     {{-- Jenis Barang --}}
                     <div>
-                        <label for="jenis_barang" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Jenis Barang') }}
+                        <label for="jenis_barang"
+                            class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Jenis Barang') }}
                             <span class="text-red-400">*</span></label>
                         <select id="jenis_barang" name="jenis_barang" required
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white transition-all">
@@ -148,7 +151,8 @@
 
                     {{-- Aktivitas --}}
                     <div>
-                        <label for="aktivitas" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Aktivitas') }} <span
+                        <label for="aktivitas"
+                            class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Aktivitas') }} <span
                                 class="text-red-400">*</span></label>
                         <select id="aktivitas" name="aktivitas" required
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white transition-all">
@@ -170,15 +174,15 @@
                 {{-- No. Surat Jalan & Purchase Order --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
                     <div>
-                        <label for="no_surat_jalan" class="block text-sm font-medium text-gray-700 mb-1.5">No. Surat
-                            Jalan</label>
+                        <label for="no_surat_jalan"
+                            class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('No. Surat Jalan') }}</label>
                         <input type="text" id="no_surat_jalan" name="no_surat_jalan"
                             value="{{ old('no_surat_jalan') }}" placeholder="Surat Jalan"
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
                     </div>
                     <div>
-                        <label for="purchase_order" class="block text-sm font-medium text-gray-700 mb-1.5">Purchase
-                            Order</label>
+                        <label for="purchase_order"
+                            class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Purchase Order') }}</label>
                         <input type="text" id="purchase_order" name="purchase_order"
                             value="{{ old('purchase_order') }}" placeholder="Purchase Order"
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
@@ -187,7 +191,8 @@
 
                 {{-- Note/Keterangan --}}
                 <div class="mt-5">
-                    <label for="note" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Catatan / Keterangan') }}</label>
+                    <label for="note"
+                        class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Catatan / Keterangan') }}</label>
                     <textarea id="note" name="note" rows="3" placeholder="Contoh Inputan : Full Botan / 1.500 Ctn / 2 SKU"
                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none">{{ old('note') }}</textarea>
                 </div>
