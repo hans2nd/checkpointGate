@@ -116,7 +116,7 @@ class CheckpointController extends Controller
             'tipe' => 'required|in:INTERNAL,EKSTERNAL',
             'jenis_kendaraan' => 'nullable|string|max:50',
             'waktu_penerimaan_dokumen' => 'nullable|date|after_or_equal:tanggal',
-            'waktu_penyerahan_dokumen' => 'nullable|date|after_or_equal:tanggal',
+            'waktu_penyerahan_dokumen' => 'nullable|date|after_or_equal:waktu_penerimaan_dokumen',
             'jenis_barang' => 'required|in:FROZEN,DRY,CHILLED',
             'aktivitas' => 'required|in:INBOUND,OUTBOUND',
             'gate' => 'nullable|string|max:30',
@@ -129,7 +129,7 @@ class CheckpointController extends Controller
             'cancel_note' => 'required_if:status,CANCEL|nullable|string|max:500',
         ], [
             'waktu_penerimaan_dokumen.after_or_equal' => 'Waktu penerimaan dokumen tidak boleh kurang dari tanggal.',
-            'waktu_penyerahan_dokumen.after_or_equal' => 'Waktu penyerahan dokumen tidak boleh kurang dari tanggal.',
+            'waktu_penyerahan_dokumen.after_or_equal' => 'Waktu penyerahan dokumen tidak boleh kurang dari waktu penerimaan dokumen.',
             'waktu_start.before_or_equal' => 'Waktu start tidak boleh lebih besar dari waktu end.',
             'waktu_end.after_or_equal' => 'Waktu end tidak boleh kurang dari waktu start.',
             'waktu_start.after_or_equal' => 'Waktu start tidak boleh kurang dari tanggal penerimaan dokumen.',
