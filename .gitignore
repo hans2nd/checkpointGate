@@ -21,3 +21,18 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+
+
+# Flutter
+mobile/.dart_tool/
+mobile/.packages
+mobile/build/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+
+mobile2/.dart_tool/
+mobile2/.packages
+mobile2/build/
+mobile2/.flutter-plugins
+mobile2/.flutter-plugins-dependencies
