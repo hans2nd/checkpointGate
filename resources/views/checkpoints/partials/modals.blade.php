@@ -176,7 +176,7 @@
 
             <form id="terimaForm" method="POST" action="">
                 @csrf
-                <div class="space-y-4 mb-12">
+                <div class="space-y-6 mb-12">
                     <div>
                         <label for="terima_jenis_kendaraan"
                             class="block text-sm font-medium text-gray-700 mb-1.5">Vehicle Type <span
@@ -215,6 +215,27 @@
                             <option value="INBOUND">INBOUND</option>
                             <option value="OUTBOUND">OUTBOUND</option>
                         </select>
+                    </div>
+                    <div>
+                        <label for="terima_no_surat_jalan" class="block text-sm font-medium text-gray-700 mb-1.5">No.
+                            Surat Jalan</label>
+                        <input type="text" id="terima_no_surat_jalan" name="no_surat_jalan"
+                            placeholder="example: SJ-123456/SC0126-xxxxx"
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase">
+                    </div>
+                    <div>
+                        <label for="terima_purchase_order"
+                            class="block text-sm font-medium text-gray-700 mb-1.5">Purchase Order</label>
+                        <input type="text" id="terima_purchase_order" name="purchase_order"
+                            placeholder="example: PO0126-xxxxx"
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase">
+                    </div>
+                    <div>
+                        <label for="terima_note" class="block text-sm font-medium text-gray-700 mb-1.5">Note /
+                            Description</label>
+                        <textarea id="terima_note" name="note" rows="5"
+                            placeholder="Contoh Inputan : Full Botan / 1.500 Ctn / 2 SKU"
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 mt-4">

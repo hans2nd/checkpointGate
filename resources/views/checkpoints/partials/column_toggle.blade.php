@@ -22,91 +22,91 @@
                         class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs text-gray-700">
                         <input type="checkbox"
                             class="col-toggle rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                            data-col="col-tanggal" checked> Tanggal
+                            data-col="col-tanggal" checked> {{ __('Tanggal') }}
                     </label>
                     <label
                         class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs text-gray-700">
                         <input type="checkbox"
                             class="col-toggle rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                            data-col="col-nopol" checked> No Polisi
+                            data-col="col-nopol" checked> {{ __('No. Polisi') }}
                     </label>
                     <label
                         class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs text-gray-700">
                         <input type="checkbox"
                             class="col-toggle rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                            data-col="col-vendor" checked> Vendor
+                            data-col="col-vendor" checked> {{ __('Vendor') }}
                     </label>
                     <label
                         class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs text-gray-700">
                         <input type="checkbox"
                             class="col-toggle rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                            data-col="col-kendaraan" checked> Kendaraan
+                            data-col="col-kendaraan" checked> {{ __('Kendaraan') }}
                     </label>
                     <label
                         class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs text-gray-700">
                         <input type="checkbox"
                             class="col-toggle rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                            data-col="col-barang" checked> Barang
+                            data-col="col-barang" checked> {{ __('Barang') }}
                     </label>
                     <label
                         class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs text-gray-700">
                         <input type="checkbox"
                             class="col-toggle rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                            data-col="col-aktivitas" checked> Aktivitas
+                            data-col="col-aktivitas" checked> {{ __('Aktivitas') }}
                     </label>
                     <label
                         class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs text-gray-700">
                         <input type="checkbox"
                             class="col-toggle rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                            data-col="col-penerimaan" checked> Penerimaan Dok
+                            data-col="col-penerimaan" checked>{{ __('Penerimaan Dok') }}
                     </label>
                     <label
                         class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs text-gray-700">
                         <input type="checkbox"
                             class="col-toggle rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                            data-col="col-start" checked> Start Loading
+                            data-col="col-start" checked>{{ __('Start Loading') }}
                     </label>
                     <label
                         class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs text-gray-700">
                         <input type="checkbox"
                             class="col-toggle rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                            data-col="col-end" checked> End Loading
+                            data-col="col-end" checked>{{ __('End Loading') }}
                     </label>
                     <label
                         class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs text-gray-700">
                         <input type="checkbox"
                             class="col-toggle rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                            data-col="col-gate" checked> Gate
+                            data-col="col-gate" checked>{{ __('Gate') }}
                     </label>
                     <label
                         class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs text-gray-700">
                         <input type="checkbox"
                             class="col-toggle rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                            data-col="col-status" checked> Status
+                            data-col="col-status" checked>{{ __('Status') }}
                     </label>
                     <label
                         class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs text-gray-700">
                         <input type="checkbox"
                             class="col-toggle rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                            data-col="col-catatan" checked> Catatan
+                            data-col="col-catatan" checked>{{ __('Catatan') }}
                     </label>
                     <label
                         class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs text-gray-700">
                         <input type="checkbox"
                             class="col-toggle rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                            data-col="col-durasi" checked> Durasi
+                            data-col="col-durasi" checked>{{ __('Durasi') }}
                     </label>
                     <label
                         class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs text-gray-700">
                         <input type="checkbox"
                             class="col-toggle rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                            data-col="col-penyerahan" checked> Penyerahan Dok
+                            data-col="col-penyerahan" checked>{{ __('Penyerahan Dok') }}
                     </label>
                     <label
                         class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs text-gray-700">
                         <input type="checkbox"
                             class="col-toggle rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                            data-col="col-durasi-dok" checked> Durasi Dokumen
+                            data-col="col-durasi-dok" checked>{{ __('Durasi Dok') }}
                     </label>
                 </div>
             </div>

@@ -3,15 +3,15 @@
             <div class="flex flex-wrap gap-4 text-xs text-gray-500">
                 <span class="flex items-center gap-1.5"><span
                         class="px-2 py-0.5 bg-blue-500 text-white rounded text-[10px] font-semibold">📥 Terima</span>
-                    Penerimaan dokumen</span>
+                    {{ __('Penerimaan Dok') }}</span>
                 <span class="flex items-center gap-1.5"><span
                         class="px-2 py-0.5 bg-purple-500 text-white rounded text-[10px] font-semibold">📤 Serah</span>
-                    Penyerahan dokumen</span>
+                    {{ __('Penyerahan Dok') }}</span>
                 <span class="flex items-center gap-1.5"><span
-                        class="px-2 py-0.5 bg-orange-500 text-white rounded text-[10px] font-semibold">▶ Start</span> Mulai
-                    loading</span>
+                        class="px-2 py-0.5 bg-orange-500 text-white rounded text-[10px] font-semibold">▶ Start</span>
+                    Loading</span>
                 <span class="flex items-center gap-1.5"><span
-                        class="px-2 py-0.5 bg-red-500 text-white rounded text-[10px] font-semibold">⏹ End</span> Selesai
-                    loading</span>
+                        class="px-2 py-0.5 bg-red-500 text-white rounded text-[10px] font-semibold">⏹ End</span>
+                    Loading</span>
             </div>
         </div>

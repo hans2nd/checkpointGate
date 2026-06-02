@@ -115,8 +115,8 @@ class CheckpointController extends Controller
             'driver' => 'required|string|max:100',
             'tipe' => 'required|in:INTERNAL,EKSTERNAL',
             'jenis_kendaraan' => 'nullable|string|max:50',
-            'waktu_penerimaan_dokumen' => 'nullable|date',
-            'waktu_penyerahan_dokumen' => 'nullable|date',
+            'waktu_penerimaan_dokumen' => 'nullable|date|after_or_equal:tanggal',
+            'waktu_penyerahan_dokumen' => 'nullable|date|after_or_equal:tanggal',
             'jenis_barang' => 'required|in:FROZEN,DRY,CHILLED',
             'aktivitas' => 'required|in:INBOUND,OUTBOUND',
             'gate' => 'nullable|string|max:30',
@@ -127,6 +127,9 @@ class CheckpointController extends Controller
             'no_surat_jalan' => 'nullable|string|max:100',
             'purchase_order' => 'nullable|string|max:100',
             'cancel_note' => 'required_if:status,CANCEL|nullable|string|max:500',
+        ], [
+            'waktu_penerimaan_dokumen.after_or_equal' => 'Waktu penerimaan dokumen tidak boleh kurang dari tanggal.',
+            'waktu_penyerahan_dokumen.after_or_equal' => 'Waktu penyerahan dokumen tidak boleh kurang dari tanggal.',
         ]);
 
         if ($validated['status'] === 'CANCEL') {
@@ -297,6 +300,9 @@ class CheckpointController extends Controller
             'tipe'            => 'required|in:INTERNAL,EKSTERNAL',
             'jenis_barang'    => 'required|in:FROZEN,DRY,CHILLED',
             'aktivitas'       => 'required|in:INBOUND,OUTBOUND',
+            'no_surat_jalan'  => 'nullable|string|max:100',
+            'purchase_order'  => 'nullable|string|max:100',
+            'note'            => 'nullable|string|max:500',
         ]);
 
         $checkpoint->update([
@@ -304,6 +310,9 @@ class CheckpointController extends Controller
             'tipe'            => $request->tipe,
             'jenis_barang'    => $request->jenis_barang,
             'aktivitas'       => $request->aktivitas,
+            'no_surat_jalan'  => $request->no_surat_jalan,
+            'purchase_order'  => $request->purchase_order,
+            'note'            => $request->note,
             'waktu_penerimaan_dokumen' => \Carbon\Carbon::now(),
             'status'          => 'START',
         ]);

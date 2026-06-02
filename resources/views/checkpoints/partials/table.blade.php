@@ -125,9 +125,15 @@
                                         @php
                                             $waitDiff = $cp->created_at->diff($cp->waktu_penerimaan_dokumen);
                                             $waitHours = $waitDiff->days * 24 + $waitDiff->h;
-                                            $waitTime = sprintf('%02d:%02d:%02d', $waitHours, $waitDiff->i, $waitDiff->s);
+                                            $waitTime = sprintf(
+                                                '%02d:%02d:%02d',
+                                                $waitHours,
+                                                $waitDiff->i,
+                                                $waitDiff->s,
+                                            );
                                         @endphp
-                                        <span class="block text-[10px] text-orange-500 font-mono mt-0.5" title="{{ __('Waiting Time') }}: {{ $waitTime }}">
+                                        <span class="block text-[10px] text-orange-500 font-mono mt-0.5"
+                                            title="{{ __('Waiting Time') }}: {{ $waitTime }}">
                                             ⏱️ {{ $waitTime }}
                                         </span>
                                     @elseif(
@@ -135,7 +141,7 @@
                                             $cp->cancel_status !== 'pending' &&
                                             Auth::user()->hasPermission('checkpoint.trigger_terima'))
                                         <button type="button"
-                                            onclick="openTerimaModal({{ $cp->id }}, @js($cp->no_polisi), @js($cp->jenis_kendaraan), @js($cp->tipe), @js($cp->jenis_barang), @js($cp->aktivitas))"
+                                            onclick="openTerimaModal({{ $cp->id }}, @js($cp->no_polisi), @js($cp->jenis_kendaraan), @js($cp->tipe), @js($cp->jenis_barang), @js($cp->aktivitas), @js($cp->no_surat_jalan), @js($cp->purchase_order), @js($cp->note))"
                                             class="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">📥
                                             {{ __('Receive') }}</button>
                                     @else
@@ -183,7 +189,11 @@
                                 </td>
                                 <td data-col="col-gate" class="px-3 py-2.5 text-gray-600 text-center text-xs">
                                     {{-- {{ $gateLabel ?? '-' }}     --}}
-                                    @if (($gateLabel == null || $gateLabel == '-') && $cp->status !== 'CANCEL' && $cp->cancel_status !== 'pending' && $cp->waktu_penerimaan_dokumen)
+                                    @if (
+                                        ($gateLabel == null || $gateLabel == '-') &&
+                                            $cp->status !== 'CANCEL' &&
+                                            $cp->cancel_status !== 'pending' &&
+                                            $cp->waktu_penerimaan_dokumen)
                                         <button type="button"
                                             onclick="openGateModal({{ $cp->id }}, @js($cp->no_polisi))"
                                             class="px-2 py-1 bg-green-500 hover:bg-green-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">🔹

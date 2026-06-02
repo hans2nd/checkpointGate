@@ -209,7 +209,7 @@
         }
 
         // ===== TERIMA MODAL =====
-        function openTerimaModal(checkpointId, noPolisi, kendaraan, tipe, barang, aktivitas) {
+        function openTerimaModal(checkpointId, noPolisi, kendaraan, tipe, barang, aktivitas, suratJalan, po, note) {
             const modal = document.getElementById('terimaModal');
             const form = document.getElementById('terimaForm');
             const subtitle = document.getElementById('terimaModalSubtitle');
@@ -221,6 +221,9 @@
             document.getElementById('terima_tipe').value = tipe || '';
             document.getElementById('terima_jenis_barang').value = barang || '';
             document.getElementById('terima_aktivitas').value = aktivitas || '';
+            document.getElementById('terima_no_surat_jalan').value = suratJalan || '';
+            document.getElementById('terima_purchase_order').value = po || '';
+            document.getElementById('terima_note').value = note || '';
 
             modal.classList.remove('hidden');
         }
