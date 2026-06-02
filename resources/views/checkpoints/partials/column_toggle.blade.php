@@ -106,7 +106,7 @@
                         class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs text-gray-700">
                         <input type="checkbox"
                             class="col-toggle rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-                            data-col="col-durasi-dok" checked>{{ __('Durasi Dok') }}
+                            data-col="col-durasi-dok" checked>{{ __('Durasi Dokumen') }}
                     </label>
                 </div>
             </div>
