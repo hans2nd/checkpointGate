@@ -25,14 +25,12 @@ yarn-error.log
 
 
 # Flutter
-/mobile
 /mobile/.dart_tool/
 /mobile/.packages
 /mobile/build/
 /mobile/.flutter-plugins
 /mobile/.flutter-plugins-dependencies
 
-/mobile2
 /mobile2/.dart_tool/
 /mobile2/.packages
 /mobile2/build/
