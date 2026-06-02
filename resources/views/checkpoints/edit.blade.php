@@ -183,8 +183,7 @@
                         <label for="status" class="block text-sm font-medium text-gray-700 mb-1.5">Status <span
                                 class="text-red-400">*</span></label>
                         <select id="status" name="status"
-                            class="w-full px-3 py-2 border border-gray-100 rounded-lg text-sm bg-gray-50 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                            disabled>
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
                             <option value="START" {{ old('status', $checkpoint->status) == 'START' ? 'selected' : '' }}>
                                 START</option>
                             <option value="ON LOADING"
@@ -325,12 +324,21 @@
             const tanggalInput = document.getElementById('tanggal');
             const penerimaanInput = document.getElementById('waktu_penerimaan_dokumen');
             const penyerahanInput = document.getElementById('waktu_penyerahan_dokumen');
+            const waktuStart = document.getElementById('waktu_start');
+            const waktuEnd = document.getElementById('waktu_end');
+
+            // Store initial values
+            [penerimaanInput, penyerahanInput, waktuStart, waktuEnd].forEach(input => {
+                if (input) input.dataset.default = input.value;
+            });
 
             function updateMinDatetime() {
                 if (tanggalInput.value) {
                     const minDatetime = tanggalInput.value + 'T00:00';
                     penerimaanInput.min = minDatetime;
                     penyerahanInput.min = minDatetime;
+                    waktuStart.min = minDatetime;
+                    waktuEnd.min = minDatetime;
                 }
             }
 
@@ -338,8 +346,15 @@
                 if (tanggalInput.value && inputElem.value) {
                     const minDatetime = tanggalInput.value + 'T00:00';
                     if (inputElem.value < minDatetime) {
-                        alert(label + ' tidak boleh kurang dari Tanggal.');
-                        inputElem.value = '';
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Perhatian!',
+                            text: label + ' tidak boleh kurang dari Tanggal.',
+                            confirmButtonColor: '#f97316'
+                        });
+                        inputElem.value = inputElem.dataset.default || '';
+                    } else {
+                        inputElem.dataset.default = inputElem.value;
                     }
                 }
             }
@@ -348,6 +363,8 @@
                 updateMinDatetime();
                 validateDatetimeInput(penerimaanInput, 'Waktu Penerimaan Dokumen');
                 validateDatetimeInput(penyerahanInput, 'Waktu Penyerahan Dokumen');
+                validateDatetimeInput(waktuStart, 'Waktu Start');
+                validateDatetimeInput(waktuEnd, 'Waktu End');
             });
 
             penerimaanInput.addEventListener('change', function() {
@@ -356,6 +373,14 @@
 
             penyerahanInput.addEventListener('change', function() {
                 validateDatetimeInput(this, 'Waktu Penyerahan Dokumen');
+            });
+
+            waktuStart.addEventListener('change', function() {
+                validateDatetimeInput(this, 'Waktu Start');
+            });
+
+            waktuEnd.addEventListener('change', function() {
+                validateDatetimeInput(this, 'Waktu End');
             });
 
             // Initialize on load

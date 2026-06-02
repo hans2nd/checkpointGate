@@ -121,8 +121,8 @@ class CheckpointController extends Controller
             'aktivitas' => 'required|in:INBOUND,OUTBOUND',
             'gate' => 'nullable|string|max:30',
             'status' => 'required|in:START,FINISH,ON LOADING,CANCEL',
-            'waktu_start' => 'nullable|date',
-            'waktu_end' => 'nullable|date',
+            'waktu_start' => 'nullable|date|before_or_equal:waktu_end|after_or_equal:waktu_penerimaan_dokumen',
+            'waktu_end' => 'nullable|date|after_or_equal:waktu_start',
             'note' => 'nullable|string|max:500',
             'no_surat_jalan' => 'nullable|string|max:100',
             'purchase_order' => 'nullable|string|max:100',
@@ -130,6 +130,9 @@ class CheckpointController extends Controller
         ], [
             'waktu_penerimaan_dokumen.after_or_equal' => 'Waktu penerimaan dokumen tidak boleh kurang dari tanggal.',
             'waktu_penyerahan_dokumen.after_or_equal' => 'Waktu penyerahan dokumen tidak boleh kurang dari tanggal.',
+            'waktu_start.before_or_equal' => 'Waktu start tidak boleh lebih besar dari waktu end.',
+            'waktu_end.after_or_equal' => 'Waktu end tidak boleh kurang dari waktu start.',
+            'waktu_start.after_or_equal' => 'Waktu start tidak boleh kurang dari tanggal penerimaan dokumen.',
         ]);
 
         if ($validated['status'] === 'CANCEL') {
