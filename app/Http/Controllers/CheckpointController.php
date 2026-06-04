@@ -7,6 +7,7 @@ use App\Models\Gate;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -73,11 +74,17 @@ class CheckpointController extends Controller
             'note' => 'nullable|string|max:500',
             'no_surat_jalan' => 'nullable|string|max:100',
             'purchase_order' => 'nullable|string|max:100',
+            'foto_identitas' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Max 5MB
         ]);
 
         $validated['tanggal'] = Carbon::today();
         $validated['status'] = 'START';
         $validated['created_by'] = Auth::id();
+
+        if ($request->hasFile('foto_identitas')) {
+            $path = $request->file('foto_identitas')->store('checkpoints', 'public');
+            $validated['foto_identitas'] = $path;
+        }
 
         // Auto-insert Master Vehicle jika belum ada
         \App\Models\Vehicle::firstOrCreate(
@@ -127,6 +134,8 @@ class CheckpointController extends Controller
             'no_surat_jalan' => 'nullable|string|max:100',
             'purchase_order' => 'nullable|string|max:100',
             'cancel_note' => 'required_if:status,CANCEL|nullable|string|max:500',
+            'foto_identitas' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'remove_foto' => 'nullable|boolean',
         ], [
             'waktu_penerimaan_dokumen.after_or_equal' => 'Waktu penerimaan dokumen tidak boleh kurang dari tanggal.',
             'waktu_penyerahan_dokumen.after_or_equal' => 'Waktu penyerahan dokumen tidak boleh kurang dari waktu penerimaan dokumen.',
@@ -142,6 +151,19 @@ class CheckpointController extends Controller
             $validated['cancel_note'] = null;
             $validated['canceled_at'] = null;
             $validated['canceled_by'] = null;
+        }
+
+        if ($request->hasFile('foto_identitas')) {
+            if ($checkpoint->foto_identitas) {
+                Storage::disk('public')->delete($checkpoint->foto_identitas);
+            }
+            $path = $request->file('foto_identitas')->store('checkpoints', 'public');
+            $validated['foto_identitas'] = $path;
+        } elseif (!empty($validated['remove_foto']) && $validated['remove_foto']) {
+            if ($checkpoint->foto_identitas) {
+                Storage::disk('public')->delete($checkpoint->foto_identitas);
+                $validated['foto_identitas'] = null;
+            }
         }
 
         // Auto-calculate durasi from waktu_start and waktu_end
@@ -163,6 +185,9 @@ class CheckpointController extends Controller
 
     public function destroy(Checkpoint $checkpoint)
     {
+        if ($checkpoint->foto_identitas) {
+            Storage::disk('public')->delete($checkpoint->foto_identitas);
+        }
         $checkpoint->delete();
 
         return redirect()->route('checkpoints.index')
@@ -175,7 +200,14 @@ class CheckpointController extends Controller
     public function bulkDelete(Request $request)
     {
         $request->validate(['ids' => 'required|array', 'ids.*' => 'integer']);
-        Checkpoint::whereIn('id', $request->ids)->delete();
+        
+        $checkpoints = Checkpoint::whereIn('id', $request->ids)->get();
+        foreach ($checkpoints as $cp) {
+            if ($cp->foto_identitas) {
+                Storage::disk('public')->delete($cp->foto_identitas);
+            }
+            $cp->delete();
+        }
 
         return redirect()->route('checkpoints.index')
                          ->with('success', count($request->ids) . ' data checkpoint berhasil dihapus.');

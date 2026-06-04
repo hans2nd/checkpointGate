@@ -263,6 +263,18 @@
                         <p class="text-sm text-red-700 bg-red-50 rounded-lg p-3">{{ $checkpoint->cancel_note }}</p>
                     </div>
                 @endif
+
+                @if ($checkpoint->foto_identitas)
+                    <div class="mt-6 pt-4 border-t border-gray-100">
+                        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">
+                            {{ __('Foto Identitas (SIM/KTP)') }}</p>
+                        <div class="mt-2">
+                            <a href="{{ asset('storage/' . $checkpoint->foto_identitas) }}" target="_blank">
+                                <img src="{{ asset('storage/' . $checkpoint->foto_identitas) }}" alt="Foto Identitas" class="max-w-xs rounded-lg shadow-sm border border-gray-200">
+                            </a>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

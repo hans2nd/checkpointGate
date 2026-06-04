@@ -21,7 +21,7 @@
                 </p>
             </div>
 
-            <form method="POST" action="{{ route('checkpoints.store') }}" class="p-6">
+            <form method="POST" action="{{ route('checkpoints.store') }}" class="p-6" enctype="multipart/form-data">
                 @csrf
 
                 @if ($errors->any())
@@ -195,6 +195,15 @@
                         class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Catatan / Keterangan') }}</label>
                     <textarea id="note" name="note" rows="3" placeholder="Contoh Inputan : Full Botan / 1.500 Ctn / 2 SKU"
                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none">{{ old('note') }}</textarea>
+                </div>
+
+                {{-- Foto Identitas (SIM/KTP) --}}
+                <div class="mt-5">
+                    <label for="foto_identitas"
+                        class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Foto Identitas (SIM/KTP) - Opsional') }}</label>
+                    <input type="file" id="foto_identitas" name="foto_identitas" accept="image/*"
+                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                    <p class="mt-1 text-xs text-gray-500">Maksimal ukuran file 5MB (Format: JPG, PNG, GIF).</p>
                 </div>
 
                 {{-- Info --}}

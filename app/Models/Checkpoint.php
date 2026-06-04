@@ -38,6 +38,7 @@ class Checkpoint extends Model
         'cancel_requested_by',
         'cancel_approved_by',
         'created_at',
+        'foto_identitas',
     ];
 
     protected $casts = [

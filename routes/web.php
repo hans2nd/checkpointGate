@@ -17,6 +17,19 @@ use App\Http\Controllers\ReportController;
 |--------------------------------------------------------------------------
 */
 
+Route::get('/artisan-run', function () {
+
+    Artisan::call('migrate', ['--force' => true]);
+    echo "<pre>MIGRATE:\n".Artisan::output()."</pre>";
+
+    Artisan::call('storage:link');
+    echo "<pre>STORAGE LINK:\n".Artisan::output()."</pre>";
+
+    Artisan::call('cache:clear');
+    echo "<pre>CACHE CLEAR:\n".Artisan::output()."</pre>";
+
+});
+
 // Guest routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');

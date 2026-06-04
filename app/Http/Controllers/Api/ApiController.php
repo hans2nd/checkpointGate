@@ -434,6 +434,7 @@ class ApiController extends Controller
             'note' => 'nullable|string|max:500',
             'no_surat_jalan' => 'nullable|string|max:100',
             'purchase_order' => 'nullable|string|max:100',
+            'foto_identitas' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -459,6 +460,11 @@ class ApiController extends Controller
             'tanggal' => Carbon::today(),
             'created_by' => $request->user()->id,
         ]);
+
+        if ($request->hasFile('foto_identitas')) {
+            $path = $request->file('foto_identitas')->store('checkpoints', 'public');
+            $dataToSave['foto_identitas'] = $path;
+        }
 
         $cp = Checkpoint::create($dataToSave);
 
@@ -780,6 +786,7 @@ class ApiController extends Controller
             'waktu_end' => $cp->waktu_end?->toIso8601String(),
             'waktu_penyerahan_dokumen' => $cp->waktu_penyerahan_dokumen?->toIso8601String(),
             'created_at' => $cp->created_at?->toIso8601String(),
+            'foto_identitas_url' => $cp->foto_identitas ? asset('storage/' . $cp->foto_identitas) : null,
         ];
     }
 }

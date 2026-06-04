@@ -21,7 +21,7 @@
                     {{ $checkpoint->tanggal->format('d/m/Y') }}</p>
             </div>
 
-            <form method="POST" action="{{ route('checkpoints.update', $checkpoint) }}" class="p-6">
+            <form method="POST" action="{{ route('checkpoints.update', $checkpoint) }}" class="p-6" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -266,6 +266,27 @@
                         class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Catatan Cancel') }}</label>
                     <textarea id="cancel_note" name="cancel_note" rows="3" placeholder="Diisi jika status checkpoint CANCEL..."
                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none">{{ old('cancel_note', $checkpoint->cancel_note) }}</textarea>
+                </div>
+
+                {{-- Foto Identitas (SIM/KTP) --}}
+                <div class="mt-5">
+                    <label for="foto_identitas"
+                        class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Foto Identitas (SIM/KTP) - Opsional') }}</label>
+                    
+                    @if ($checkpoint->foto_identitas)
+                        <div class="mb-3">
+                            <p class="text-sm text-gray-600 mb-2">Foto saat ini:</p>
+                            <img src="{{ asset('storage/' . $checkpoint->foto_identitas) }}" alt="Foto Identitas" class="w-32 h-32 object-cover rounded-lg border border-gray-200 mb-2">
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="remove_foto" value="1" class="rounded border-gray-300 text-orange-600 shadow-sm focus:border-orange-300 focus:ring focus:ring-orange-200 focus:ring-opacity-50">
+                                <span class="ml-2 text-sm text-red-600">Hapus foto saat ini</span>
+                            </label>
+                        </div>
+                    @endif
+
+                    <input type="file" id="foto_identitas" name="foto_identitas" accept="image/*"
+                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                    <p class="mt-1 text-xs text-gray-500">Maksimal ukuran file 5MB (Format: JPG, PNG, GIF). Pilih file baru untuk mengganti yang lama.</p>
                 </div>
 
                 {{-- Submit --}}
