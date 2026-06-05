@@ -675,6 +675,7 @@ class ApiController extends Controller
         $cp = Checkpoint::findOrFail($id);
         $cp->update([
             'waktu_penyerahan_dokumen' => Carbon::now(),
+            'status' => 'COMPLETED',
         ]);
 
         return response()->json([
