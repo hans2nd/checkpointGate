@@ -53,11 +53,31 @@
                     {{ $checkpoint->aktivitas === 'INBOUND' ? 'bg-orange-50 text-orange-700' : 'bg-amber-50 text-amber-700' }}">
                         {{ $checkpoint->aktivitas }}
                     </span>
-                    <span
-                        class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium
-                    {{ $checkpoint->status === 'CANCEL' ? 'bg-red-50 text-red-700' : ($checkpoint->status === 'FINISH' ? 'bg-blue-50 text-blue-700' : 'bg-yellow-50 text-yellow-700') }}">
-                        <span
-                            class="w-1.5 h-1.5 rounded-full {{ $checkpoint->status === 'CANCEL' ? 'bg-red-500' : ($checkpoint->status === 'FINISH' ? 'bg-blue-500' : 'bg-yellow-500') }}"></span>
+                    @php
+                        $statusClass = 'bg-yellow-50 text-yellow-700';
+                        $dotClass = 'bg-yellow-500';
+                        if ($checkpoint->status === 'CANCEL') {
+                            $statusClass = 'bg-red-50 text-red-700';
+                            $dotClass = 'bg-red-500';
+                        } elseif ($checkpoint->status === 'FINISH') {
+                            $statusClass = 'bg-emerald-50 text-emerald-700';
+                            $dotClass = 'bg-emerald-500';
+                        } elseif ($checkpoint->status === 'ON LOADING') {
+                            $statusClass = 'bg-blue-50 text-blue-700';
+                            $dotClass = 'bg-blue-500 animate-pulse';
+                        } elseif (in_array($checkpoint->status, ['WAITING', 'READY'])) {
+                            $statusClass = 'bg-indigo-50 text-indigo-700';
+                            $dotClass = 'bg-indigo-500';
+                        } elseif ($checkpoint->status === 'DOC IN') {
+                            $statusClass = 'bg-cyan-50 text-cyan-700';
+                            $dotClass = 'bg-cyan-500';
+                        } elseif ($checkpoint->status === 'PARKING') {
+                            $statusClass = 'bg-gray-100 text-gray-700';
+                            $dotClass = 'bg-gray-400';
+                        }
+                    @endphp
+                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium {{ $statusClass }}">
+                        <span class="w-1.5 h-1.5 rounded-full {{ $dotClass }}"></span>
                         {{ $checkpoint->status }}
                     </span>
                 </div>

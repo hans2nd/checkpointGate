@@ -251,6 +251,141 @@
             const dd = document.getElementById('langDropdown');
             if (wrap && !wrap.contains(e.target)) dd.classList.add('hidden');
         });
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playBeep() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            
+            // Double beep
+            setTimeout(() => {
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(1046.50, audioCtx.currentTime); // C6
+                gain2.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.start();
+                osc2.stop(audioCtx.currentTime + 0.3);
+            }, 200);
+
+            oscillator.stop(audioCtx.currentTime + 0.15); 
+        }
+
+        @if(!request()->routeIs('livemonitoring'))
+        let notifiedGateIds = JSON.parse(sessionStorage.getItem('notifiedGateIds')) || [];
+        let lastAlertClosedAt = parseInt(sessionStorage.getItem('lastAlertClosedAt')) || Date.now();
+        let nextAlertDelay = parseInt(sessionStorage.getItem('nextAlertDelay')) || 5000;
+        
+        let gateNotificationSwalOpen = false;
+        let needsReload = false;
+        
+        let currentLastUpdated = {{ \App\Models\Checkpoint::max('updated_at') ? \Carbon\Carbon::parse(\App\Models\Checkpoint::max('updated_at'))->timestamp : 0 }};
+        let globalNeedsReload = false;
+
+        setInterval(() => {
+            // Check if we can safely reload
+            const isTyping = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA');
+            const isModalOpen = document.querySelectorAll('div[id$="Modal"]:not(.hidden)').length > 0;
+            
+            if (globalNeedsReload && !isTyping && !isModalOpen && !gateNotificationSwalOpen) {
+                window.location.reload();
+                return;
+            }
+
+            fetch('{{ route('pending.gates') }}')
+                .then(r => r.json())
+                .then(res => {
+                    if (res.last_updated && currentLastUpdated > 0 && res.last_updated > currentLastUpdated) {
+                        globalNeedsReload = true;
+                    }
+
+                    if (res.data && res.data.length > 0) {
+                        const currentIds = res.data.map(cp => cp.id);
+                        const hasNew = currentIds.some(id => !notifiedGateIds.includes(id));
+                        let shouldShow = false;
+                        
+                        if (hasNew) {
+                            playBeep();
+                            sessionStorage.setItem('notifiedGateIds', JSON.stringify(currentIds));
+                            needsReload = true;
+                            shouldShow = true;
+                            
+                            // Reset delay for new gate assignment
+                            nextAlertDelay = 5000;
+                            sessionStorage.setItem('nextAlertDelay', nextAlertDelay);
+                        } else if (!gateNotificationSwalOpen) {
+                            if (Date.now() - lastAlertClosedAt >= nextAlertDelay) {
+                                shouldShow = true;
+                            }
+                        }
+
+                        if (shouldShow) {
+                            let listHtml = '<div style="text-align: left; margin-top: 10px; font-size: 1.1em; background: #f3f4f6; padding: 15px; border-radius: 8px;">';
+                            res.data.forEach(cp => {
+                                let gateStr = cp.gate;
+                                if (gateStr) {
+                                    let gNum = parseInt(gateStr);
+                                    if (gNum >= 1 && gNum <= 16) {
+                                        gateStr = 'F-' + gNum;
+                                    } else if (gNum >= 17 && gNum <= 27) {
+                                        gateStr = 'D-' + (gNum - 16);
+                                    } else {
+                                        gateStr = 'Gate ' + gNum;
+                                    }
+                                } else {
+                                    gateStr = '-';
+                                }
+                                
+                                listHtml += `<div style="margin-bottom: 8px;">• Kendaraan <b class="text-blue-600">${cp.no_polisi}</b> diarahkan ke <b class="text-gray-800">${gateStr}</b> <span class="text-gray-500">(${cp.jenis_barang || '-'})</span></div>`;
+                            });
+                            listHtml += '</div>';
+
+                            gateNotificationSwalOpen = true;
+                            Swal.fire({
+                                title: 'PANGGILAN GATE!',
+                                html: listHtml,
+                                icon: 'info',
+                                position: 'center',
+                                showConfirmButton: true,
+                                confirmButtonText: needsReload ? 'Tutup & Refresh' : 'Tutup',
+                                confirmButtonColor: '#3b82f6',
+                                allowOutsideClick: false,
+                                willClose: () => {
+                                    gateNotificationSwalOpen = false;
+                                    lastAlertClosedAt = Date.now();
+                                    sessionStorage.setItem('lastAlertClosedAt', lastAlertClosedAt);
+                                    
+                                    // Increase delay by 5 seconds for the next reminder
+                                    nextAlertDelay += 5000;
+                                    sessionStorage.setItem('nextAlertDelay', nextAlertDelay);
+
+                                    if (needsReload) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        }
+                        
+                        notifiedGateIds = currentIds;
+                    } else {
+                        notifiedGateIds = [];
+                        if (gateNotificationSwalOpen) {
+                            Swal.close();
+                            gateNotificationSwalOpen = false;
+                        }
+                    }
+                })
+                .catch(err => console.error('Notification error:', err));
+        }, 5000);
+        @endif
     </script>
 </body>
 

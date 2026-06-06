@@ -282,14 +282,20 @@
                     data.activitySummary.forEach((item, idx) => {
                         if (!rows[idx]) return;
                         const cells = rows[idx].querySelectorAll('td');
-                        [item.parking ?? 0, item.receiving ?? 0, item.onProcess ?? item
-                            .on_process ?? 0, item.finish ?? 0, item.total ?? 0
+                        [
+                            item.parking ?? 0, 
+                            item.doc_in ?? 0, 
+                            item.waiting_gate ?? 0, 
+                            item.on_process ?? 0, 
+                            item.finish ?? 0, 
+                            item.doc_out ?? 0, 
+                            item.completed ?? 0
                         ].forEach((v, ci) => {
                             if (cells[ci + 1]) {
                                 const s = cells[ci + 1].querySelector('span');
                                 if (s) {
                                     s.textContent = v;
-                                    if (ci === 4) {
+                                    if (ci === 6) {
                                         // Total column — bold amber
                                         s.style.fontWeight = '700';
                                         s.style.color = v > 0 ? '#f59e0b' : '#d1d5db';

@@ -219,6 +219,25 @@ class LiveMonitoringController extends Controller
     {
         $activitySummary = [];
 
+        // Row khusus untuk kendaraan yang baru Parking (belum ada aktivitas & jenis_barang)
+        $parkingBase = Checkpoint::whereDate('tanggal', $today)
+            ->whereNull('aktivitas')
+            ->where('status', '!=', 'CANCEL');
+
+        $activitySummary[] = [
+            'label' => 'PARKING',
+            'parking' => (clone $parkingBase)->whereIn('status', ['START', 'PARKING', 'DOC IN'])->count(),
+            'doc_in' => (clone $parkingBase)->where('status', 'DOC IN')->count(),
+            'waiting_gate' => (clone $parkingBase)->whereIn('status', ['ASSIGN GATE', 'WAITING', 'READY'])->count(),
+            'on_process' => (clone $parkingBase)->where('status', 'ON LOADING')->count(),
+            'finish' => (clone $parkingBase)->where('status', 'FINISH')->count(),
+            'doc_out' => (clone $parkingBase)->where('status', 'COMPLETED')->count(),
+            'completed' => Checkpoint::where('status', 'COMPLETED')
+                ->whereDate('created_at', \Carbon\Carbon::today())
+                ->whereNull('aktivitas')
+                ->count(),
+        ];
+
         foreach (['INBOUND', 'OUTBOUND'] as $aktivitas) {
             foreach (['FROZEN', 'DRY', 'CHILLED'] as $jenis) {
                 $label = ($aktivitas === 'INBOUND' ? 'IN' : 'OUT') . ' ' . $jenis;
@@ -229,36 +248,41 @@ class LiveMonitoringController extends Controller
                     ->where('jenis_barang', $jenis)
                     ->where('status', '!=', 'CANCEL');
 
-                // $parking = (clone $todayBase)->whereNull('waktu_penerimaan_dokumen')->count();
-                $parking = Checkpoint::whereNull('waktu_penerimaan_dokumen')
-                    ->whereNull('gate')
-                    ->where('status', '!=', 'CANCEL')
+                $parking = (clone $todayBase)->whereIn('status', ['START', 'PARKING', 'DOC IN'])->count();
+                $docIn = (clone $todayBase)->where('status', 'DOC IN')->count();
+                $waitingGate = (clone $todayBase)->whereIn('status', ['ASSIGN GATE', 'WAITING', 'READY'])->count();
+                $onProcess = (clone $todayBase)->where('status', 'ON LOADING')->count();
+                $finish = (clone $todayBase)->where('status', 'FINISH')->count();
+                $docOut = (clone $todayBase)->where('status', 'COMPLETED')->count();
+                $completed = Checkpoint::where('status', 'COMPLETED')
+                    ->whereDate('created_at', \Carbon\Carbon::today())
                     ->where('aktivitas', $aktivitas)
                     ->where('jenis_barang', $jenis)
                     ->count();
 
-                $receiving = (clone $todayBase)->where('status', 'START')
-                    ->whereNotNull('waktu_penerimaan_dokumen')
-                    ->whereNotNull('gate')
-                    ->count();
-
-                $onProcess = (clone $todayBase)->where('status', 'ON LOADING')->count();
-
-                $finish = (clone $todayBase)->where('status', 'FINISH')->count();
-
-                // Total = semua transaksi hari ini yang tidak cancel
-                $total = $parking + $receiving + $onProcess + $finish;
-
                 $activitySummary[] = [
                     'label' => $label,
                     'parking' => $parking,
-                    'receiving' => $receiving,
+                    'doc_in' => $docIn,
+                    'waiting_gate' => $waitingGate,
                     'on_process' => $onProcess,
                     'finish' => $finish,
-                    'total' => $total,
+                    'doc_out' => $docOut,
+                    'completed' => $completed,
                 ];
             }
         }
+
+        $activitySummary[] = [
+            'label' => 'TOTAL',
+            'parking' => array_sum(array_column($activitySummary, 'parking')),
+            'doc_in' => array_sum(array_column($activitySummary, 'doc_in')),
+            'waiting_gate' => array_sum(array_column($activitySummary, 'waiting_gate')),
+            'on_process' => array_sum(array_column($activitySummary, 'on_process')),
+            'finish' => array_sum(array_column($activitySummary, 'finish')),
+            'doc_out' => array_sum(array_column($activitySummary, 'doc_out')),
+            'completed' => array_sum(array_column($activitySummary, 'completed')),
+        ];
 
         return $activitySummary;
     }

@@ -230,24 +230,12 @@ class ApiController extends Controller
             'total_today' => Checkpoint::whereDate('tanggal', $date)->count(),
             'inbound' => Checkpoint::whereDate('tanggal', $date)->where('aktivitas', 'INBOUND')->count(),
             'outbound' => Checkpoint::whereDate('tanggal', $date)->where('aktivitas', 'OUTBOUND')->count(),
-            'parking' => Checkpoint::whereNull('gate')
-                ->where(function ($q1) {
-                    $q1->whereNull('waktu_start')->orWhereNull('waktu_penerimaan_dokumen');
-                })
-                ->where(function ($q) {
-                    $q->whereNull('status')->orWhere('status', '!=', 'CANCEL');
-                })->count(),
+            'parking' => Checkpoint::whereIn('status', ['START', 'PARKING', 'DOC IN', 'ASSIGN GATE', 'WAITING', 'READY'])->count(),
             'on_loading' => Checkpoint::where('status', 'ON LOADING')->count(),
-            'finish' => Checkpoint::whereDate('tanggal', $date)->where('status', 'FINISH')->count(),
+            'finish' => Checkpoint::where('status', 'FINISH')->count(),
             'frozen' => Checkpoint::whereDate('tanggal', $date)->where('jenis_barang', 'FROZEN')->count(),
             'dry' => Checkpoint::whereDate('tanggal', $date)->where('jenis_barang', 'DRY')->count(),
-            'total_all' => (Checkpoint::whereNull('gate')
-                ->where(function ($q1) {
-                    $q1->whereNull('waktu_start')->orWhereNull('waktu_penerimaan_dokumen');
-                })
-                ->where(function ($q) {
-                    $q->whereNull('status')->orWhere('status', '!=', 'CANCEL');
-                })->count()) + (Checkpoint::where('status', 'ON LOADING')->count()) + (Checkpoint::whereDate('tanggal', $date)->where('status', 'FINISH')->count()),
+            'completed' => Checkpoint::where('status', 'COMPLETED')->whereDate('created_at', $date)->count(),
         ];
 
         $recent = Checkpoint::whereDate('tanggal', $date)
@@ -366,6 +354,29 @@ class ApiController extends Controller
      * GET /api/checkpoints
      * List checkpoints with filters and pagination
      */
+    public function recentAssignments(Request $request)
+    {
+        $since = $request->query('since');
+        if (!$since) {
+            return response()->json(['data' => []]);
+        }
+
+        $checkpoints = Checkpoint::whereNotNull('gate')
+            ->where('updated_at', '>', Carbon::parse($since))
+            ->get();
+
+        $data = $checkpoints->map(function ($cp) {
+            return [
+                'id' => $cp->id,
+                'no_polisi' => $cp->no_polisi,
+                'gate' => $cp->gate,
+                'jenis_barang' => $cp->jenis_barang,
+            ];
+        });
+
+        return response()->json(['data' => $data]);
+    }
+
     public function checkpoints(Request $request)
     {
         $query = Checkpoint::query();
@@ -383,8 +394,10 @@ class ApiController extends Controller
             $query->where('aktivitas', $request->aktivitas);
         if ($request->filled('jenis_barang'))
             $query->where('jenis_barang', $request->jenis_barang);
-        if ($request->filled('status'))
-            $query->where('status', $request->status);
+        if ($request->filled('status')) {
+            $statuses = array_map('trim', explode(',', $request->status));
+            $query->whereIn('status', $statuses);
+        }
         if ($request->filled('tanggal'))
             $query->whereDate('tanggal', $request->tanggal);
 
@@ -445,6 +458,17 @@ class ApiController extends Controller
         $noPolisiFormatted = strtoupper(str_replace(' ', '', $request->no_polisi));
         $noPolisiFormatted = preg_replace('/(?<=[A-Z])(?=[0-9])|(?<=[0-9])(?=[A-Z])/', ' ', $noPolisiFormatted);
 
+        // Auto-insert Master Vehicle jika belum ada
+        \App\Models\Vehicle::firstOrCreate(
+            ['no_polisi' => $noPolisiFormatted],
+            [
+                'driver' => $request->driver,
+                'vendor' => $request->vendor,
+                'tipe' => $request->tipe ?? 'EKSTERNAL', // Default if not provided from mobile
+                'jenis_kendaraan' => $request->jenis_kendaraan ?? '-',
+            ]
+        );
+
         $dataToSave = array_merge($request->only([
             'vendor',
             'driver',
@@ -462,7 +486,15 @@ class ApiController extends Controller
         ]);
 
         if ($request->hasFile('foto_identitas')) {
-            $path = $request->file('foto_identitas')->store('checkpoints', 'public');
+            $file = $request->file('foto_identitas');
+            $filename = $file->hashName();
+            $path = 'checkpoints/' . $filename;
+            
+            // Bypass store() yang menggunakan getRealPath() di dalam FilesystemAdapter.
+            // Di beberapa environment Windows (Laragon), getRealPath() pada file temp bisa me-return false
+            // yang menyebabkan error ValueError: Path cannot be empty saat fopen(false, 'r').
+            \Illuminate\Support\Facades\Storage::disk('public')->put($path, file_get_contents($file->getPathname()));
+            
             $dataToSave['foto_identitas'] = $path;
         }
 
@@ -498,7 +530,7 @@ class ApiController extends Controller
         $cp->update([
             'waktu_penerimaan_dokumen' => Carbon::now(),
             'gate' => $request->gate,
-            'status' => 'START',
+            'status' => 'DOC IN',
         ]);
 
         return response()->json([
@@ -532,6 +564,7 @@ class ApiController extends Controller
 
         $validator = Validator::make($request->all(), [
             'gate' => 'required|integer|min:1|max:27',
+            'jenis_barang' => 'nullable|in:FROZEN,DRY,CHILLED',
         ]);
 
         if ($validator->fails()) {
@@ -545,7 +578,6 @@ class ApiController extends Controller
             ->where('gate', $gateNumber)
             ->whereKeyNot($cp->id)
             ->where('status', '!=', 'CANCEL')
-            ->whereNotNull('waktu_penerimaan_dokumen')
             ->whereNull('waktu_end')
             ->exists();
 
@@ -556,13 +588,59 @@ class ApiController extends Controller
             ], 422);
         }
 
-        $cp->update([
+        $updateData = [
             'gate' => $gateNumber,
-        ]);
+            'status' => 'ASSIGN GATE'
+        ];
+        if ($request->has('jenis_barang')) {
+            $updateData['jenis_barang'] = $request->jenis_barang;
+        }
+
+        $cp->update($updateData);
 
         return response()->json([
             'success' => true,
             'message' => 'Gate ' . $gateNumber . ' ditetapkan.',
+            'data' => $this->formatCheckpoint($cp->fresh()),
+        ]);
+    }
+
+    /**
+     * POST /api/checkpoints/{id}/confirm-gate
+     * Confirm Gate -> Changes status to READY
+     */
+    public function triggerConfirmGate($id)
+    {
+        $cp = Checkpoint::findOrFail($id);
+
+        if ($cp->status === 'CANCEL') {
+            return response()->json([
+                'success' => false,
+                'message' => "Checkpoint {$cp->no_polisi} sudah dibatalkan.",
+            ], 422);
+        }
+
+        if (!$cp->waktu_penerimaan_dokumen) {
+            return response()->json([
+                'success' => false,
+                'message' => "Penerimaan dokumen belum dilakukan.",
+            ], 422);
+        }
+
+        if (!$cp->gate) {
+            return response()->json([
+                'success' => false,
+                'message' => "Gate belum dipilih.",
+            ], 422);
+        }
+
+        $cp->update([
+            'status' => 'READY',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Gate {$cp->gate} dikonfirmasi. Kendaraan siap untuk loading.",
             'data' => $this->formatCheckpoint($cp->fresh()),
         ]);
     }
@@ -675,6 +753,7 @@ class ApiController extends Controller
         $cp = Checkpoint::findOrFail($id);
         $cp->update([
             'waktu_penyerahan_dokumen' => Carbon::now(),
+            'waktu_keluar' => Carbon::now(),
             'status' => 'COMPLETED',
         ]);
 
@@ -698,10 +777,7 @@ class ApiController extends Controller
         $occupiedGates = Checkpoint::whereDate('tanggal', Carbon::today())
             ->whereNotNull('gate')
             ->where('status', '!=', 'CANCEL')
-            ->where(function ($q) {
-                $q->whereNull('waktu_penyerahan_dokumen')
-                    ->orWhere('status', '!=', 'FINISH');
-            })
+            ->whereNull('waktu_end')
             ->pluck('gate')
             ->toArray();
 

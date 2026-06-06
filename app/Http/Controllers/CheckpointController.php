@@ -17,6 +17,31 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class CheckpointController extends Controller
 {
+    public function pendingConfirmGates(Request $request)
+    {
+        // Fetch checkpoints that have gate assigned (status = ASSIGN GATE) but not yet confirmed
+        // Confirm Gate -> status becomes 'READY'
+        $checkpoints = Checkpoint::whereNotNull('gate')
+            ->where('status', 'ASSIGN GATE')
+            ->get();
+
+        $data = $checkpoints->map(function ($cp) {
+            return [
+                'id' => $cp->id,
+                'no_polisi' => $cp->no_polisi,
+                'gate' => $cp->gate,
+                'jenis_barang' => $cp->jenis_barang,
+            ];
+        });
+
+        $lastUpdated = Checkpoint::max('updated_at');
+
+        return response()->json([
+            'data' => $data,
+            'last_updated' => $lastUpdated ? \Carbon\Carbon::parse($lastUpdated)->timestamp : 0
+        ]);
+    }
+
     public function index(Request $request)
     {
         $query = Checkpoint::query();
@@ -24,9 +49,9 @@ class CheckpointController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('no_polisi', 'like', "%{$search}%")
-                  ->orWhere('vendor', 'like', "%{$search}%")
-                  ->orWhere('driver', 'like', "%{$search}%")
-                  ->orWhere('jenis_kendaraan', 'like', "%{$search}%");
+                    ->orWhere('vendor', 'like', "%{$search}%")
+                    ->orWhere('driver', 'like', "%{$search}%")
+                    ->orWhere('jenis_kendaraan', 'like', "%{$search}%");
             });
         }
 
@@ -46,11 +71,11 @@ class CheckpointController extends Controller
             $query->whereDate('tanggal', $date);
         }
 
-        $perPage = in_array($request->input('per_page'), [10,15,25,50,100,1000]) ? (int)$request->input('per_page') : 15;
+        $perPage = in_array($request->input('per_page'), [10, 15, 25, 50, 100, 1000]) ? (int) $request->input('per_page') : 15;
 
         $checkpoints = $query->orderBy('created_at', 'desc')
-                            ->paginate($perPage)
-                            ->withQueryString();
+            ->paginate($perPage)
+            ->withQueryString();
 
         return view('checkpoints.index', compact('checkpoints'));
     }
@@ -64,21 +89,19 @@ class CheckpointController extends Controller
     {
         $validated = $request->validate([
             'no_polisi' => 'required|string|max:20',
-            'vendor' => 'required|string|max:100',
             'driver' => 'required|string|max:100',
+            'vendor' => 'required|string|max:100',
             'tipe' => 'required|in:INTERNAL,EKSTERNAL',
-            'jenis_kendaraan' => 'nullable|string|max:50',
-            'jenis_barang' => 'required|in:FROZEN,DRY,CHILLED',
-            'aktivitas' => 'required|in:INBOUND,OUTBOUND',
-            'gate' => 'nullable|string|max:30',
-            'note' => 'nullable|string|max:500',
+            'jenis_kendaraan' => 'required|string|max:50',
             'no_surat_jalan' => 'nullable|string|max:100',
             'purchase_order' => 'nullable|string|max:100',
             'foto_identitas' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Max 5MB
+            'aktivitas' => 'nullable|in:INBOUND,OUTBOUND',
+            'jenis_barang' => 'nullable|in:FROZEN,DRY,CHILLED',
         ]);
 
         $validated['tanggal'] = Carbon::today();
-        $validated['status'] = 'START';
+        $validated['status'] = 'PARKING';
         $validated['created_by'] = Auth::id();
 
         if ($request->hasFile('foto_identitas')) {
@@ -100,7 +123,7 @@ class CheckpointController extends Controller
         Checkpoint::create($validated);
 
         return redirect()->route('checkpoints.index')
-                         ->with('success', 'Data checkpoint berhasil ditambahkan.');
+            ->with('success', 'Data checkpoint berhasil ditambahkan.');
     }
 
     public function show(Checkpoint $checkpoint)
@@ -127,7 +150,7 @@ class CheckpointController extends Controller
             'jenis_barang' => 'required|in:FROZEN,DRY,CHILLED',
             'aktivitas' => 'required|in:INBOUND,OUTBOUND',
             'gate' => 'nullable|string|max:30',
-            'status' => 'required|in:START,FINISH,ON LOADING,CANCEL',
+            'status' => 'required|in:PARKING,DOC IN,WAITING,READY,ON LOADING,FINISH,CANCEL',
             'waktu_start' => 'nullable|date|before_or_equal:waktu_end|after_or_equal:waktu_penerimaan_dokumen',
             'waktu_end' => 'nullable|date|after_or_equal:waktu_start',
             'note' => 'nullable|string|max:500',
@@ -180,7 +203,7 @@ class CheckpointController extends Controller
         $checkpoint->update($validated);
 
         return redirect()->route('checkpoints.index')
-                         ->with('success', 'Data checkpoint berhasil diperbarui.');
+            ->with('success', 'Data checkpoint berhasil diperbarui.');
     }
 
     public function destroy(Checkpoint $checkpoint)
@@ -191,7 +214,7 @@ class CheckpointController extends Controller
         $checkpoint->delete();
 
         return redirect()->route('checkpoints.index')
-                         ->with('success', 'Data checkpoint berhasil dihapus.');
+            ->with('success', 'Data checkpoint berhasil dihapus.');
     }
 
     /**
@@ -200,7 +223,7 @@ class CheckpointController extends Controller
     public function bulkDelete(Request $request)
     {
         $request->validate(['ids' => 'required|array', 'ids.*' => 'integer']);
-        
+
         $checkpoints = Checkpoint::whereIn('id', $request->ids)->get();
         foreach ($checkpoints as $cp) {
             if ($cp->foto_identitas) {
@@ -210,7 +233,7 @@ class CheckpointController extends Controller
         }
 
         return redirect()->route('checkpoints.index')
-                         ->with('success', count($request->ids) . ' data checkpoint berhasil dihapus.');
+            ->with('success', count($request->ids) . ' data checkpoint berhasil dihapus.');
     }
 
     /**
@@ -223,9 +246,9 @@ class CheckpointController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('no_polisi', 'like', "%{$search}%")
-                  ->orWhere('vendor', 'like', "%{$search}%")
-                  ->orWhere('driver', 'like', "%{$search}%")
-                  ->orWhere('jenis_kendaraan', 'like', "%{$search}%");
+                    ->orWhere('vendor', 'like', "%{$search}%")
+                    ->orWhere('driver', 'like', "%{$search}%")
+                    ->orWhere('jenis_kendaraan', 'like', "%{$search}%");
             });
         }
 
@@ -322,38 +345,38 @@ class CheckpointController extends Controller
     {
         if ($checkpoint->status === 'CANCEL') {
             return redirect()->back()
-                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
+                ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
         }
 
         if ($checkpoint->status === 'FINISH') {
             return redirect()->back()
-                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah selesai.");
+                ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah selesai.");
         }
 
         $request->validate([
             'jenis_kendaraan' => 'required|string|max:255',
-            'tipe'            => 'required|in:INTERNAL,EKSTERNAL',
-            'jenis_barang'    => 'required|in:FROZEN,DRY,CHILLED',
-            'aktivitas'       => 'required|in:INBOUND,OUTBOUND',
-            'no_surat_jalan'  => 'nullable|string|max:100',
-            'purchase_order'  => 'nullable|string|max:100',
-            'note'            => 'nullable|string|max:500',
+            'tipe' => 'required|in:INTERNAL,EKSTERNAL',
+            'jenis_barang' => 'required|in:FROZEN,DRY,CHILLED',
+            'aktivitas' => 'required|in:INBOUND,OUTBOUND',
+            'no_surat_jalan' => 'nullable|string|max:100',
+            'purchase_order' => 'nullable|string|max:100',
+            'note' => 'nullable|string|max:500',
         ]);
 
         $checkpoint->update([
             'jenis_kendaraan' => strtoupper($request->jenis_kendaraan),
-            'tipe'            => $request->tipe,
-            'jenis_barang'    => $request->jenis_barang,
-            'aktivitas'       => $request->aktivitas,
-            'no_surat_jalan'  => $request->no_surat_jalan,
-            'purchase_order'  => $request->purchase_order,
-            'note'            => $request->note,
+            'tipe' => $request->tipe,
+            'jenis_barang' => $request->jenis_barang,
+            'aktivitas' => $request->aktivitas,
+            'no_surat_jalan' => $request->no_surat_jalan,
+            'purchase_order' => $request->purchase_order,
+            'note' => $request->note,
             'waktu_penerimaan_dokumen' => \Carbon\Carbon::now(),
-            'status'          => 'START',
+            'status' => 'DOC IN',
         ]);
 
         return redirect()->back()
-                         ->with('success', "Dokumen {$checkpoint->no_polisi} diterima dan status menjadi START.");
+            ->with('success', "Dokumen {$checkpoint->no_polisi} diterima dan status menjadi DOC IN.");
     }
 
     /**
@@ -364,12 +387,12 @@ class CheckpointController extends Controller
     {
         if ($checkpoint->status === 'CANCEL') {
             return redirect()->back()
-                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
+                ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
         }
 
         if ($checkpoint->status === 'FINISH') {
             return redirect()->back()
-                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah selesai.");
+                ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah selesai.");
         }
 
         $request->validate([
@@ -383,21 +406,21 @@ class CheckpointController extends Controller
             ->where('gate', $gateNumber)
             ->whereKeyNot($checkpoint->id)
             ->where('status', '!=', 'CANCEL')
-            ->whereNotNull('waktu_penerimaan_dokumen')
             ->whereNull('waktu_end')
             ->exists();
 
         if ($gateInUse) {
             return redirect()->back()
-                             ->with('error', "Gate {$gateNumber} sedang digunakan untuk loading.");
+                ->with('error', "Gate {$gateNumber} sedang digunakan untuk loading.");
         }
 
         $checkpoint->update([
             'gate' => $gateNumber,
+            'status' => 'ASSIGN GATE',
         ]);
 
         return redirect()->back()
-                         ->with('success', "Gate {$gateNumber} ditetapkan untuk {$checkpoint->no_polisi}.");
+            ->with('success', "Gate {$gateNumber} ditetapkan untuk {$checkpoint->no_polisi}.");
     }
 
     /**
@@ -407,8 +430,7 @@ class CheckpointController extends Controller
     {
         // Gates currently occupied: has gate assigned, penerimaan done, but loading not finished yet
         // $occupiedGates = Checkpoint::whereDate('created_at', Carbon::today())
-            $occupiedGates = Checkpoint::whereNotNull('gate')
-            ->whereNotNull('waktu_penerimaan_dokumen')
+        $occupiedGates = Checkpoint::whereNotNull('gate')
             ->where('status', '!=', 'CANCEL')
             ->whereNull('waktu_end')
             ->pluck('gate')
@@ -435,15 +457,45 @@ class CheckpointController extends Controller
     {
         if ($checkpoint->status === 'CANCEL') {
             return redirect()->back()
-                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
+                ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
         }
 
         $checkpoint->update([
             'waktu_penyerahan_dokumen' => Carbon::now(),
+            'status' => 'COMPLETED',
         ]);
 
         return redirect()->back()
-                         ->with('success', "Waktu penyerahan dokumen {$checkpoint->no_polisi} dicatat.");
+            ->with('success', "Waktu penyerahan dokumen {$checkpoint->no_polisi} dicatat.");
+    }
+
+    /**
+     * Trigger: Confirm Gate
+     * (Changes status from DOC IN to WAITING)
+     */
+    public function triggerConfirmGate(Checkpoint $checkpoint)
+    {
+        if ($checkpoint->status === 'CANCEL') {
+            return redirect()->back()
+                ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
+        }
+
+        if (!$checkpoint->waktu_penerimaan_dokumen) {
+            return redirect()->back()
+                ->with('error', "Penerimaan dokumen belum dilakukan.");
+        }
+
+        if (!$checkpoint->gate) {
+            return redirect()->back()
+                ->with('error', "Gate belum dipilih.");
+        }
+
+        $checkpoint->update([
+            'status' => 'READY',
+        ]);
+
+        return redirect()->back()
+            ->with('success', "Gate {$checkpoint->gate} dikonfirmasi. Kendaraan siap untuk loading.");
     }
 
     /**
@@ -456,17 +508,17 @@ class CheckpointController extends Controller
         // Must have checkpoint.trigger permission
         if (!$currentUser->hasPermission('checkpoint.trigger') && !$currentUser->isAdmin()) {
             return redirect()->back()
-                             ->with('error', 'Anda tidak memiliki izin untuk melakukan start loading.');
+                ->with('error', 'Anda tidak memiliki izin untuk melakukan start loading.');
         }
 
         if ($checkpoint->status === 'CANCEL') {
             return redirect()->back()
-                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
+                ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
         }
 
         if ($checkpoint->status === 'FINISH') {
             return redirect()->back()
-                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah selesai.");
+                ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah selesai.");
         }
 
         $checkpoint->update([
@@ -476,7 +528,7 @@ class CheckpointController extends Controller
         ]);
 
         return redirect()->back()
-                         ->with('success', "Loading {$checkpoint->no_polisi} dimulai.");
+            ->with('success', "Loading {$checkpoint->no_polisi} dimulai.");
     }
 
     /**
@@ -490,12 +542,12 @@ class CheckpointController extends Controller
         // Must have checkpoint.trigger permission
         if (!$currentUser->hasPermission('checkpoint.trigger') && !$currentUser->isAdmin()) {
             return redirect()->back()
-                             ->with('error', 'Anda tidak memiliki izin untuk melakukan end loading.');
+                ->with('error', 'Anda tidak memiliki izin untuk melakukan end loading.');
         }
 
         if ($checkpoint->status === 'CANCEL') {
             return redirect()->back()
-                             ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
+                ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
         }
 
         // Validate: user who ends must be the same who started
@@ -506,7 +558,7 @@ class CheckpointController extends Controller
             if (!$currentUser->isAdmin() && !$isSupervisorWithTrigger) {
                 $starterName = $checkpoint->startedByUser?->name ?? 'Unknown';
                 return redirect()->back()
-                                 ->with('error', "Anda tidak dapat menyelesaikan loading ini. Loading dimulai oleh {$starterName}. Hanya user yang sama atau Supervisor yang dapat menyelesaikan loading.");
+                    ->with('error', "Anda tidak dapat menyelesaikan loading ini. Loading dimulai oleh {$starterName}. Hanya user yang sama atau Supervisor yang dapat menyelesaikan loading.");
             }
         }
 
@@ -526,7 +578,7 @@ class CheckpointController extends Controller
         ]);
 
         return redirect()->back()
-                         ->with('success', "Loading {$checkpoint->no_polisi} selesai. Durasi: {$durasi}");
+            ->with('success', "Loading {$checkpoint->no_polisi} selesai. Durasi: {$durasi}");
     }
 
     /**
@@ -644,7 +696,8 @@ class CheckpointController extends Controller
         $skipped = 0;
 
         foreach ($rows as $index => $row) {
-            if ($index === 0) continue; // Skip header
+            if ($index === 0)
+                continue; // Skip header
 
             $tanggal = trim($row[0] ?? '');
             $noPolisi = strtoupper(trim($row[1] ?? ''));
@@ -685,8 +738,8 @@ class CheckpointController extends Controller
                 'jenis_kendaraan' => $jenisKendaraan,
                 'jenis_barang' => $jenisBarang,
                 'aktivitas' => $aktivitas,
-                'gate' => $gate ? (int)$gate : null,
-                'status' => 'START',
+                'gate' => $gate ? (int) $gate : null,
+                'status' => 'PARKING',
             ]);
             $imported++;
         }

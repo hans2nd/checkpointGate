@@ -40,12 +40,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/live-monitoring', [ApiController::class, 'liveMonitoring']);
 
     // --- Checkpoints ---
+    Route::get('/checkpoints/recent-assignments', [ApiController::class, 'recentAssignments']);
     Route::get('/checkpoints', [ApiController::class, 'checkpoints']);
     Route::get('/checkpoints/{id}', [ApiController::class, 'checkpointShow']);
     Route::post('/checkpoints', [ApiController::class, 'checkpointStore']);
 
     // --- Triggers & Actions ---
     Route::post('/checkpoints/{id}/assign-gate', [ApiController::class, 'assignGate']);
+    Route::post('/checkpoints/{id}/confirm-gate', [ApiController::class, 'triggerConfirmGate']);
     Route::post('/checkpoints/{id}/trigger-penerimaan', [ApiController::class, 'triggerPenerimaan']);
     Route::post('/checkpoints/{id}/trigger-start', [ApiController::class, 'triggerStart']);
     Route::post('/checkpoints/{id}/trigger-end', [ApiController::class, 'triggerEnd']);

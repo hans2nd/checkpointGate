@@ -11,20 +11,30 @@
                         <th class="lbl" style="text-align:left;width:120px">Activity</th>
                         <th class="lbl" style="text-align:center">Parking</th>
                         <th class="lbl" style="text-align:center">Doc In</th>
+                        <th class="lbl" style="text-align:center">Waiting Gate</th>
                         <th class="lbl" style="text-align:center">Loading/Unloading</th>
                         <th class="lbl" style="text-align:center">Finish</th>
-                        <th class="lbl" style="text-align:center;color:#f59e0b;font-weight:700">Total</th>
+                        <th class="lbl" style="text-align:center">Doc Out</th>
+                        <th class="lbl" style="text-align:center;color:#f59e0b;font-weight:700">Completed</th>
                     </tr>
                 </thead>
                 <tbody id="activity-summary-body">
                     @foreach ($activitySummary as $row)
-                        <tr style="border-top:1px solid #f9fafb">
-                            <td class="lbl" style="font-weight:600;color:#1f2937">{{ $row['label'] }}</td>
-                            <td style="text-align:center"><span class="stat-num {{ $row['parking'] > 0 ? 'text-gray-800' : 'text-gray-300' }}">{{ $row['parking'] }}</span></td>
-                            <td style="text-align:center"><span class="stat-num {{ $row['receiving'] > 0 ? 'text-gray-800' : 'text-gray-300' }}">{{ $row['receiving'] }}</span></td>
-                            <td style="text-align:center"><span class="stat-num {{ $row['on_process'] > 0 ? 'text-gray-800' : 'text-gray-300' }}">{{ $row['on_process'] }}</span></td>
-                            <td style="text-align:center"><span class="stat-num {{ $row['finish'] > 0 ? 'text-gray-800' : 'text-gray-300' }}">{{ $row['finish'] }}</span></td>
-                            <td style="text-align:center"><span class="stat-num" style="font-weight:700;{{ $row['total'] > 0 ? 'color:#f59e0b' : 'color:#d1d5db' }}">{{ $row['total'] }}</span></td>
+                        @php
+                            $isTotal = $row['label'] === 'TOTAL';
+                            $rowStyle = $isTotal ? 'border-top:2px solid #e5e7eb; background:#f9fafb;' : 'border-top:1px solid #f9fafb;';
+                            $labelStyle = $isTotal ? 'font-weight:800;color:#111827;text-transform:uppercase' : 'font-weight:600;color:#1f2937';
+                            $numStyle = $isTotal ? 'font-weight:700;' : '';
+                        @endphp
+                        <tr style="{{ $rowStyle }}">
+                            <td class="lbl" style="{{ $labelStyle }}">{{ $row['label'] }}</td>
+                            <td style="text-align:center"><span class="stat-num {{ $row['parking'] > 0 ? ($isTotal ? 'text-gray-900' : 'text-gray-800') : 'text-gray-300' }}" style="{{ $numStyle }}">{{ $row['parking'] }}</span></td>
+                            <td style="text-align:center"><span class="stat-num {{ $row['doc_in'] > 0 ? ($isTotal ? 'text-gray-900' : 'text-gray-800') : 'text-gray-300' }}" style="{{ $numStyle }}">{{ $row['doc_in'] }}</span></td>
+                            <td style="text-align:center"><span class="stat-num {{ $row['waiting_gate'] > 0 ? ($isTotal ? 'text-gray-900' : 'text-gray-800') : 'text-gray-300' }}" style="{{ $numStyle }}">{{ $row['waiting_gate'] }}</span></td>
+                            <td style="text-align:center"><span class="stat-num {{ $row['on_process'] > 0 ? ($isTotal ? 'text-gray-900' : 'text-gray-800') : 'text-gray-300' }}" style="{{ $numStyle }}">{{ $row['on_process'] }}</span></td>
+                            <td style="text-align:center"><span class="stat-num {{ $row['finish'] > 0 ? ($isTotal ? 'text-gray-900' : 'text-gray-800') : 'text-gray-300' }}" style="{{ $numStyle }}">{{ $row['finish'] }}</span></td>
+                            <td style="text-align:center"><span class="stat-num {{ $row['doc_out'] > 0 ? ($isTotal ? 'text-gray-900' : 'text-gray-800') : 'text-gray-300' }}" style="{{ $numStyle }}">{{ $row['doc_out'] }}</span></td>
+                            <td style="text-align:center"><span class="stat-num" style="font-weight:800;{{ $row['completed'] > 0 ? 'color:#d97706' : 'color:#d1d5db' }}">{{ $row['completed'] }}</span></td>
                         </tr>
                     @endforeach
                 </tbody>

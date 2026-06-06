@@ -23,7 +23,7 @@
                                 'label' => 'F-' . $i,
                                 'type' => 'FROZEN',
                                 'color' => 'blue',
-                                'cp' => $cp
+                                'cp' => $cp,
                             ])
                         @endfor
                     </div>
@@ -50,7 +50,7 @@
                                 'label' => $dLabel,
                                 'type' => 'DRY',
                                 'color' => 'amber',
-                                'cp' => $cp
+                                'cp' => $cp,
                             ])
                         @endfor
                         {{-- pad --}}
@@ -62,18 +62,14 @@
                     <div class="dry-side-bottom gate-legend">
                         <p>Keterangan Status Gate:</p>
                         <div class="legend-items">
-                            <span class="legend-item"><span
-                                    class="gate-badge bg-yellow-100 text-yellow-700">📋
-                                    ASSIGN</span> Dokumen diterima</span>
-                            <span class="legend-item"><span
-                                    class="gate-badge bg-blue-100 text-blue-700">⏳ ON
+                            <span class="legend-item"><span class="gate-badge bg-yellow-100 text-yellow-700">📋
+                                    ASSIGN</span> Waiting Loading</span>
+                            <span class="legend-item"><span class="gate-badge bg-blue-100 text-blue-700">⏳ ON
                                     LOADING</span> Sedang loading</span>
-                            <span class="legend-item"><span
-                                    class="gate-badge bg-emerald-100 text-emerald-700">🏁
+                            <span class="legend-item"><span class="gate-badge bg-emerald-100 text-emerald-700">🏁
                                     FINISH</span> Loading selesai</span>
-                            <span class="legend-item"><span
-                                    class="gate-badge bg-purple-100 text-purple-700">✅
-                                    COMPLETED</span> Dok. diserahkan</span>
+                            <span class="legend-item"><span class="gate-badge bg-purple-100 text-purple-700">✅
+                                    DOC OUT</span> Dokumen selesai</span>
                         </div>
                     </div>
                 </div>

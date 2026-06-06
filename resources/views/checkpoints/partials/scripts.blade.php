@@ -382,4 +382,50 @@
 </html>`);
             printWindow.document.close();
         }
+
+        // ===== VEHICLE TYPE AUTOCOMPLETE =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const jkInput = document.getElementById('terima_jenis_kendaraan');
+            const jkList = document.getElementById('jk-autocomplete-list');
+            const validTypes = @json(\App\Models\Vehicle::JENIS_KENDARAAN);
+
+            if (jkInput && jkList) {
+                function renderList(filterText = '') {
+                    const text = filterText.toLowerCase();
+                    const filtered = validTypes.filter(t => t.toLowerCase().includes(text));
+                    
+                    jkList.innerHTML = '';
+                    if (filtered.length === 0) {
+                        jkList.innerHTML = '<div class="px-3 py-2 text-sm text-gray-400">Tidak ditemukan</div>';
+                    } else {
+                        filtered.forEach(t => {
+                            const item = document.createElement('div');
+                            item.className = 'px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm font-medium transition-colors text-gray-700';
+                            item.textContent = t;
+                            item.addEventListener('mousedown', function(e) {
+                                // mousedown fires before blur
+                                e.preventDefault();
+                                jkInput.value = t;
+                                jkList.classList.add('hidden');
+                            });
+                            jkList.appendChild(item);
+                        });
+                    }
+                    jkList.classList.remove('hidden');
+                }
+
+                jkInput.addEventListener('focus', function() {
+                    renderList(this.value);
+                });
+
+                jkInput.addEventListener('input', function() {
+                    renderList(this.value);
+                });
+
+                jkInput.addEventListener('blur', function() {
+                    // Slight delay to allow mousedown to fire on list items
+                    setTimeout(() => jkList.classList.add('hidden'), 150);
+                });
+            }
+        });
     </script>

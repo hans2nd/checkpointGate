@@ -19,7 +19,7 @@ class DashboardController extends Controller
             'inbound' => Checkpoint::whereDate('tanggal', $today)->where('aktivitas', 'INBOUND')->count(),
             'outbound' => Checkpoint::whereDate('tanggal', $today)->where('aktivitas', 'OUTBOUND')->count(),
             'finish' => Checkpoint::where('status', 'FINISH')->count(),
-            'start' => Checkpoint::where('status', 'START')->count(),
+            'start' => Checkpoint::whereIn('status', ['PARKING', 'DOC IN', 'WAITING', 'READY', 'ON LOADING'])->count(),
         ];
 
         $recent = Checkpoint::orderBy('created_at', 'desc')->limit(5)->get();

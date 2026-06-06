@@ -139,9 +139,10 @@
                     <div>
                         <label for="jenis_barang"
                             class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Jenis Barang') }}
-                            <span class="text-red-400">*</span></label>
-                        <select id="jenis_barang" name="jenis_barang" required
+                            <span class="text-gray-400 text-xs font-normal ml-1">(Opsional)</span></label>
+                        <select id="jenis_barang" name="jenis_barang"
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white transition-all">
+                            <option value="">-- Belum Ditentukan (Parking) --</option>
                             <option value="FROZEN" {{ old('jenis_barang') == 'FROZEN' ? 'selected' : '' }}>FROZEN</option>
                             <option value="DRY" {{ old('jenis_barang') == 'DRY' ? 'selected' : '' }}>DRY</option>
                             <option value="CHILLED" {{ old('jenis_barang') == 'CHILLED' ? 'selected' : '' }}>CHILLED
@@ -153,9 +154,10 @@
                     <div>
                         <label for="aktivitas"
                             class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Aktivitas') }} <span
-                                class="text-red-400">*</span></label>
-                        <select id="aktivitas" name="aktivitas" required
+                                class="text-gray-400 text-xs font-normal ml-1">(Opsional)</span></label>
+                        <select id="aktivitas" name="aktivitas"
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white transition-all">
+                            <option value="">-- Belum Ditentukan (Parking) --</option>
                             <option value="INBOUND" {{ old('aktivitas') == 'INBOUND' ? 'selected' : '' }}>INBOUND</option>
                             <option value="OUTBOUND" {{ old('aktivitas') == 'OUTBOUND' ? 'selected' : '' }}>OUTBOUND
                             </option>
@@ -200,7 +202,7 @@
                 {{-- Foto Identitas (SIM/KTP) --}}
                 <div class="mt-5">
                     <label for="foto_identitas"
-                        class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Foto Identitas (SIM/KTP) - Opsional') }}</label>
+                        class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Foto Identitas (SIM)') }}</label>
                     <input type="file" id="foto_identitas" name="foto_identitas" accept="image/*"
                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
                     <p class="mt-1 text-xs text-gray-500">Maksimal ukuran file 5MB (Format: JPG, PNG, GIF).</p>

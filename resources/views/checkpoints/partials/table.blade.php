@@ -33,6 +33,9 @@
                                 {{ __('Penerimaan') }}<br><span
                                     class="text-[10px] font-normal normal-case text-gray-400">{{ __('Dokumen IN') }}</span>
                             </th>
+                            <th data-col="col-gate"
+                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                Gate</th>
                             <th data-col="col-start"
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
                                 Start<br><span class="text-[10px] font-normal normal-case text-gray-400">Loading</span>
@@ -41,9 +44,6 @@
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
                                 End<br><span class="text-[10px] font-normal normal-case text-gray-400">Loading</span>
                             </th>
-                            <th data-col="col-gate"
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
-                                Gate</th>
                             <th data-col="col-status"
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
                                 Status</th>
@@ -148,6 +148,40 @@
                                         <span class="text-xs text-gray-300">—</span>
                                     @endif
                                 </td>
+                                <td data-col="col-gate" class="px-3 py-2.5 text-gray-600 text-center text-xs">
+                                    {{-- {{ $gateLabel ?? '-' }}     --}}
+                                    @if (
+                                        ($gateLabel == null || $gateLabel == '-') &&
+                                            $cp->status !== 'CANCEL' &&
+                                            $cp->cancel_status !== 'pending')
+                                        <button type="button"
+                                            onclick="openGateModal({{ $cp->id }}, @js($cp->no_polisi))"
+                                            class="px-2 py-1 bg-green-500 hover:bg-green-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">🔹
+                                            {{ __('Select Gate') }}</button>
+                                    @elseif (
+                                        $gateLabel != null && $gateLabel != '-' &&
+                                            $cp->status !== 'CANCEL' &&
+                                            $cp->cancel_status !== 'pending' &&
+                                            !in_array($cp->status, ['WAITING', 'READY', 'ON LOADING', 'FINISH', 'COMPLETED']) &&
+                                            $cp->status === 'ASSIGN GATE')
+                                        <span class="font-bold text-gray-700 block mb-1">{{ $gateLabel }}</span>
+                                        @if($cp->waktu_penerimaan_dokumen) 
+                                            <form method="POST" action="{{ route('checkpoints.confirm-gate', $cp) }}" class="inline">@csrf
+                                                <button type="submit"
+                                                    class="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">
+                                                    Confirm Gate
+                                                </button>
+                                            </form>
+                                        @else
+                                            <button type="button" disabled
+                                                class="px-2 py-1 bg-gray-400 text-white text-[10px] font-semibold rounded-md shadow-sm cursor-not-allowed">
+                                                Confirm Gate
+                                            </button>
+                                        @endif
+                                    @else
+                                        <span class="font-bold text-gray-700">{{ $gateLabel }}</span>
+                                    @endif
+                                </td>
                                 <td data-col="col-start" class="px-3 py-2.5 text-center whitespace-nowrap">
                                     @if ($cp->waktu_start)
                                         <span
@@ -155,8 +189,7 @@
                                     @elseif(
                                         $cp->status !== 'CANCEL' &&
                                             $cp->cancel_status !== 'pending' &&
-                                            $cp->waktu_penerimaan_dokumen &&
-                                            $cp->gate &&
+                                            in_array($cp->status, ['WAITING', 'READY']) &&
                                             Auth::user()->hasPermission('checkpoint.trigger'))
                                         <form method="POST" action="{{ route('checkpoints.trigger-start', $cp) }}"
                                             class="inline">@csrf
@@ -187,21 +220,6 @@
                                         <span class="text-xs text-gray-300">—</span>
                                     @endif
                                 </td>
-                                <td data-col="col-gate" class="px-3 py-2.5 text-gray-600 text-center text-xs">
-                                    {{-- {{ $gateLabel ?? '-' }}     --}}
-                                    @if (
-                                        ($gateLabel == null || $gateLabel == '-') &&
-                                            $cp->status !== 'CANCEL' &&
-                                            $cp->cancel_status !== 'pending' &&
-                                            $cp->waktu_penerimaan_dokumen)
-                                        <button type="button"
-                                            onclick="openGateModal({{ $cp->id }}, @js($cp->no_polisi))"
-                                            class="px-2 py-1 bg-green-500 hover:bg-green-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">🔹
-                                            {{ __('Select Gate') }}</button>
-                                    @else
-                                        {{ $gateLabel }}
-                                    @endif
-                                </td>
 
                                 <td data-col="col-status" class="px-3 py-2.5 whitespace-nowrap">
                                     @if ($cp->status === 'CANCEL')
@@ -221,6 +239,42 @@
                                             class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700">
                                             <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
                                             ON LOADING
+                                        </span>
+                                    @elseif($cp->status === 'ASSIGN GATE')
+                                        <span
+                                            class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-orange-50 text-orange-700">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span>
+                                            WAITING
+                                        </span>
+                                    @elseif($cp->status === 'READY')
+                                        <span
+                                            class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                                            START
+                                        </span>
+                                    @elseif(in_array($cp->status, ['WAITING']))
+                                        <span
+                                            class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                                            {{ $cp->status }}
+                                        </span>
+                                    @elseif($cp->status === 'DOC IN')
+                                        <span
+                                            class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-cyan-50 text-cyan-700">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-500"></span>
+                                            DOC IN
+                                        </span>
+                                    @elseif($cp->status === 'PARKING')
+                                        <span
+                                            class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-gray-100 text-gray-700">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                                            PARKING
+                                        </span>
+                                    @elseif($cp->status === 'COMPLETED')
+                                        <span
+                                            class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-50 text-purple-700">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                                            COMPLETED
                                         </span>
                                     @else
                                         <span

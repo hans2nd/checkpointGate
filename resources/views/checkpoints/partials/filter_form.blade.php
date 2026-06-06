@@ -35,6 +35,8 @@
                     </option>
                     <option value="FINISH" {{ request('status') == 'FINISH' ? 'selected' : '' }}>Finish</option>
                     <option value="CANCEL" {{ request('status') == 'CANCEL' ? 'selected' : '' }}>Cancel</option>
+                    <option value="COMPLETED" {{ request('status') == 'COMPLETED' ? 'selected' : '' }}>Completed
+                    </option>
                 </select>
                 <input type="date" name="tanggal" value="{{ request('tanggal') }}"
                     class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">

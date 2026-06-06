@@ -184,15 +184,11 @@
                                 class="text-red-400">*</span></label>
                         <select id="status" name="status"
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
-                            <option value="START" {{ old('status', $checkpoint->status) == 'START' ? 'selected' : '' }}>
-                                START</option>
-                            <option value="ON LOADING"
-                                {{ old('status', $checkpoint->status) == 'ON LOADING' ? 'selected' : '' }}>ON LOADING
-                            </option>
-                            <option value="FINISH" {{ old('status', $checkpoint->status) == 'FINISH' ? 'selected' : '' }}>
-                                FINISH</option>
-                            <option value="CANCEL" {{ old('status', $checkpoint->status) == 'CANCEL' ? 'selected' : '' }}>
-                                CANCEL</option>
+                            @foreach(['START', 'PARKING', 'DOC IN', 'ASSIGN GATE', 'WAITING', 'READY', 'ON LOADING', 'FINISH', 'CANCEL', 'COMPLETED'] as $st)
+                                <option value="{{ $st }}" {{ old('status', $checkpoint->status) == $st ? 'selected' : '' }}>
+                                    {{ $st }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 
