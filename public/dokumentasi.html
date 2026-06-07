@@ -1,647 +1,1360 @@
 <!DOCTYPE html>
 <html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+        <title>Dokumentasi Aplikasi Checkpoint GIIC</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            html {
+                scroll-behavior: smooth;
+            }
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dokumentasi Aplikasi Checkpoint GIIC</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        html {
-            scroll-behavior: smooth;
-        }
+            .toc-link {
+                transition: all 0.2s ease-in-out;
+            }
 
-        .toc-link {
-            transition: all 0.2s ease-in-out;
-        }
+            .toc-link:hover {
+                color: #f97316;
+                padding-left: 0.5rem;
+            }
 
-        .toc-link:hover {
-            color: #f97316;
-            padding-left: 0.5rem;
-        }
+            section {
+                scroll-margin-top: 6rem;
+            }
 
-        section {
-            scroll-margin-top: 5rem;
-        }
-    </style>
-</head>
+            /* Custom Scrollbar for horizontal scroll areas on desktop */
+            .custom-scrollbar::-webkit-scrollbar {
+                height: 8px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-track {
+                background: #f1f5f9;
+                border-radius: 4px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 4px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+        </style>
+    </head>
 
-<body class="bg-slate-50 text-slate-800 font-sans antialiased">
-    <!-- Navbar -->
-    <nav class="fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center gap-3">
-                    <div
-                        class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-xl">
-                        C
+    <body
+        class="bg-slate-50 text-slate-800 font-sans antialiased overflow-x-hidden w-full"
+    >
+        <!-- Navbar -->
+        <nav
+            class="fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-50 shadow-sm w-full"
+        >
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16 items-center">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-xl shrink-0"
+                        >
+                            C
+                        </div>
+                        <span
+                            class="font-bold text-lg sm:text-xl text-slate-800 truncate"
+                            >Checkpoint GIIC Docs</span
+                        >
                     </div>
-                    <span class="font-bold text-xl text-slate-800">Checkpoint GIIC Docs</span>
                 </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 flex flex-col md:flex-row gap-8">
-        <!-- Sidebar TOC -->
-        <aside class="md:w-64 flex-shrink-0 relative">
-            <div class="sticky top-24 bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <h3 class="font-bold text-slate-800 mb-4 uppercase tracking-wider text-sm">
-                    Daftar Isi
-                </h3>
-                <ul class="space-y-3 text-sm text-slate-600">
-                    <li>
-                        <a href="#pengantar" class="toc-link block font-medium text-slate-800">Pengantar & Tujuan</a>
-                    </li>
-                    <li>
-                        <a href="#dashboard" class="toc-link block">1. Dashboard</a>
-                    </li>
-                    <li>
-                        <a href="#data-checkpoint" class="toc-link block">2. Data Checkpoint & Alur</a>
-                    </li>
-                    <li>
-                        <a href="#master-employee" class="toc-link block">3. Master Employee</a>
-                    </li>
-                    <li>
-                        <a href="#live-monitoring" class="toc-link block">4. Live Monitoring</a>
-                    </li>
-                    <li>
-                        <a href="#report-checkpoint" class="toc-link block">5. Report Checkpoint</a>
-                    </li>
-                </ul>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="flex-1 space-y-12">
-            <!-- Pengantar -->
-            <section id="pengantar" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-                <h1 class="text-3xl font-bold text-slate-800 mb-4">
-                    Dokumentasi Sistem Checkpoint PT Pangan Lestari
-                </h1>
-                <p class="text-slate-600 leading-relaxed mb-6">
-                    Aplikasi Checkpoint GIIC adalah sistem manajemen antrean
-                    dan pergerakan truk di area pergudangan PT. Pangan Lestari.
-                    Sistem ini dirancang untuk mencatat, melacak, dan memonitor
-                    seluruh aktivitas kendaraan mulai dari kedatangan, proses
-                    loading, hingga penyerahan dokumen secara real-time.
-                </p>
-
-                <!-- Objectives based on image -->
-                <div class="mb-8 border border-blue-100 bg-blue-50/50 rounded-xl p-6">
-                    <h3 class="font-bold text-blue-900 flex items-center gap-2 mb-4">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
-                            </path>
-                        </svg>
-                        Tujuan Utama (Objectives)
+        <div
+            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-12 flex flex-col md:flex-row gap-6 md:gap-8 w-full"
+        >
+            <!-- Sidebar TOC -->
+            <aside class="w-full md:w-64 flex-shrink-0 relative">
+                <div
+                    class="md:sticky md:top-24 bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-100"
+                >
+                    <h3
+                        class="font-bold text-slate-800 mb-4 uppercase tracking-wider text-sm"
+                    >
+                        Daftar Isi
                     </h3>
-                    <div class="grid sm:grid-cols-2 gap-4">
-                        <div class="flex items-start gap-3">
-                            <div class="mt-1 text-blue-600 bg-white p-1 rounded shadow-sm">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                                    </path>
-                                </svg>
-                            </div>
-                            <p class="text-sm text-slate-700">Memberikan visibilitas terhadap performa operasional
-                                (Provide visibility into operational performance).</p>
-                        </div>
-                        <div class="flex items-start gap-3">
-                            <div class="mt-1 text-orange-600 bg-white p-1 rounded shadow-sm">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                                    </path>
-                                </svg>
-                            </div>
-                            <p class="text-sm text-slate-700">Mengidentifikasi hambatan dan area yang perlu ditingkatkan
-                                (Identify bottlenecks and areas for improvement).</p>
-                        </div>
-                        <div class="flex items-start gap-3">
-                            <div class="mt-1 text-green-600 bg-white p-1 rounded shadow-sm">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                                </svg>
-                            </div>
-                            <p class="text-sm text-slate-700">Meningkatkan efisiensi operasional secara keseluruhan
-                                (Improve operational efficiency).</p>
-                        </div>
-                        <div class="flex items-start gap-3">
-                            <div class="mt-1 text-purple-600 bg-white p-1 rounded shadow-sm">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <p class="text-sm text-slate-700">Memastikan aktivitas logistik dieksekusi tepat waktu
-                                (Ensure timely execution of logistics activities).</p>
-                        </div>
-                    </div>
-                    <p class="text-xs text-center text-slate-500 mt-4 italic font-medium">Sistem checkpoint ini
-                        memastikan kontrol, transparansi, dan efisiensi pergerakan truk yang lebih baik di dalam PT
-                        Pangan Lestari.</p>
+                    <ul class="space-y-3 text-sm text-slate-600">
+                        <li>
+                            <a
+                                href="#pengantar"
+                                class="toc-link block font-medium text-slate-800"
+                                >Pengantar & Tujuan</a
+                            >
+                        </li>
+                        <li>
+                            <a href="#dashboard" class="toc-link block"
+                                >1. Dashboard</a
+                            >
+                        </li>
+                        <li>
+                            <a href="#data-checkpoint" class="toc-link block"
+                                >2. Data Checkpoint & Alur</a
+                            >
+                        </li>
+                        <li>
+                            <a href="#master-employee" class="toc-link block"
+                                >3. Master Employee</a
+                            >
+                        </li>
+                        <li>
+                            <a href="#live-monitoring" class="toc-link block"
+                                >4. Live Monitoring</a
+                            >
+                        </li>
+                        <li>
+                            <a href="#report-checkpoint" class="toc-link block"
+                                >5. Report Checkpoint</a
+                            >
+                        </li>
+                    </ul>
                 </div>
+            </aside>
 
-                <div class="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-lg mt-8 flex flex-col gap-5">
-                    <div>
-                        <p class="text-sm text-blue-900 leading-relaxed">
-                            <strong>Akses Mobile:</strong> Sistem ini menggunakan dua aplikasi mobile Android terpisah
-                            yang disesuaikan dengan peran pengguna di lapangan. Silakan unduh APK yang sesuai dengan
-                            tugas Anda.
+            <!-- Main Content -->
+            <main
+                class="flex-1 space-y-8 md:space-y-12 w-full max-w-full overflow-hidden"
+            >
+                <!-- Pengantar -->
+                <section
+                    id="pengantar"
+                    class="bg-white p-5 sm:p-6 lg:p-8 rounded-2xl shadow-sm border border-slate-100 w-full"
+                >
+                    <h1
+                        class="text-2xl sm:text-3xl font-bold text-slate-800 mb-4 leading-tight"
+                    >
+                        Dokumentasi Sistem Checkpoint<br
+                            class="hidden sm:block"
+                        />
+                        PT Pangan Lestari
+                    </h1>
+                    <p
+                        class="text-slate-600 leading-relaxed mb-6 text-sm sm:text-base"
+                    >
+                        Aplikasi Checkpoint GIIC adalah sistem manajemen antrean
+                        dan pergerakan truk di area pergudangan PT. Pangan
+                        Lestari. Sistem ini dirancang untuk mencatat, melacak,
+                        dan memonitor seluruh aktivitas kendaraan mulai dari
+                        kedatangan, proses loading, hingga penyerahan dokumen
+                        secara real-time.
+                    </p>
+
+                    <!-- Objectives based on image -->
+                    <div
+                        class="mb-8 border border-blue-100 bg-blue-50/50 rounded-xl p-4 sm:p-6 w-full"
+                    >
+                        <h3
+                            class="font-bold text-blue-900 flex items-center gap-2 mb-4 text-sm sm:text-base"
+                        >
+                            <svg
+                                class="w-5 h-5 text-blue-600 shrink-0"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                                ></path>
+                            </svg>
+                            Tujuan Utama (Objectives)
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="mt-1 text-blue-600 bg-white p-1.5 rounded shadow-sm shrink-0"
+                                >
+                                    <svg
+                                        class="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                        ></path>
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                        ></path>
+                                    </svg>
+                                </div>
+                                <p
+                                    class="text-xs sm:text-sm text-slate-700 leading-relaxed"
+                                >
+                                    Memberikan visibilitas terhadap performa
+                                    operasional (Provide visibility into
+                                    operational performance).
+                                </p>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="mt-1 text-orange-600 bg-white p-1.5 rounded shadow-sm shrink-0"
+                                >
+                                    <svg
+                                        class="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                        ></path>
+                                    </svg>
+                                </div>
+                                <p
+                                    class="text-xs sm:text-sm text-slate-700 leading-relaxed"
+                                >
+                                    Mengidentifikasi hambatan dan area yang
+                                    perlu ditingkatkan (Identify bottlenecks and
+                                    areas for improvement).
+                                </p>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="mt-1 text-green-600 bg-white p-1.5 rounded shadow-sm shrink-0"
+                                >
+                                    <svg
+                                        class="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                                        ></path>
+                                    </svg>
+                                </div>
+                                <p
+                                    class="text-xs sm:text-sm text-slate-700 leading-relaxed"
+                                >
+                                    Meningkatkan efisiensi operasional secara
+                                    keseluruhan (Improve operational
+                                    efficiency).
+                                </p>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="mt-1 text-purple-600 bg-white p-1.5 rounded shadow-sm shrink-0"
+                                >
+                                    <svg
+                                        class="w-4 h-4"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        ></path>
+                                    </svg>
+                                </div>
+                                <p
+                                    class="text-xs sm:text-sm text-slate-700 leading-relaxed"
+                                >
+                                    Memastikan aktivitas logistik dieksekusi
+                                    tepat waktu (Ensure timely execution of
+                                    logistics activities).
+                                </p>
+                            </div>
+                        </div>
+                        <p
+                            class="text-xs text-center text-slate-500 mt-5 italic font-medium"
+                        >
+                            Sistem checkpoint ini memastikan kontrol,
+                            transparansi, dan efisiensi pergerakan truk yang
+                            lebih baik di dalam PT Pangan Lestari.
                         </p>
                     </div>
 
-                    <div class="grid sm:grid-cols-2 gap-4">
-                        <!-- App 1: Security -->
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-blue-100 flex flex-col">
-                            <div class="flex items-center gap-2 mb-2">
-                                <div class="p-1.5 bg-slate-100 rounded-md text-slate-600">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <h4 class="font-bold text-slate-800 text-sm">1. App For Security</h4>
-                            </div>
-                            <p class="text-xs text-slate-600 mb-4 flex-1">Digunakan oleh petugas keamanan di gerbang
-                                (Gate) untuk mencatat waktu kedatangan (Entry) dan keberangkatan (Exit) truk.</p>
-                            <a href="apk/checkpoint-security.apk" download
-                                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-700 hover:bg-slate-800 text-white text-xs font-medium rounded-lg shadow-sm transition-colors w-full">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                </svg>
-                                Download Security APK
-                            </a>
+                    <div
+                        class="bg-blue-50 border-l-4 border-blue-500 p-4 sm:p-5 rounded-r-lg mt-8 flex flex-col gap-5 w-full"
+                    >
+                        <div>
+                            <p
+                                class="text-xs sm:text-sm text-blue-900 leading-relaxed"
+                            >
+                                <strong>Akses Mobile:</strong> Sistem ini
+                                menggunakan dua aplikasi mobile Android terpisah
+                                yang disesuaikan dengan peran pengguna di
+                                lapangan. Silakan unduh APK yang sesuai dengan
+                                tugas Anda.
+                            </p>
                         </div>
-
-                        <!-- App 2: Warehouse Operator -->
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-blue-100 flex flex-col">
-                            <div class="flex items-center gap-2 mb-2">
-                                <div class="p-1.5 bg-emerald-100 rounded-md text-emerald-600">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                                    </svg>
-                                </div>
-                                <h4 class="font-bold text-slate-800 text-sm">2. App For Operator Warehouse</h4>
-                            </div>
-                            <p class="text-xs text-slate-600 mb-4 flex-1">Digunakan oleh tim gudang/operator melalui
-                                perangkat genggam (PDA) untuk merekam waktu Start dan End bongkar muat.</p>
-                            <a href="apk/checkpoint-warehouse.apk" download
-                                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-lg shadow-sm transition-colors w-full">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                </svg>
-                                Download Operator APK
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Dashboard -->
-            <section id="dashboard" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="p-2 bg-indigo-100 rounded-lg text-indigo-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
-                            </path>
-                        </svg>
-                    </div>
-                    <h2 class="text-2xl font-bold text-slate-800">1. Dashboard</h2>
-                </div>
-
-                <p class="text-slate-600 leading-relaxed mb-4">
-                    Dashboard adalah halaman utama setelah pengguna berhasil
-                    login. Halaman ini memberikan ringkasan (summary) data
-                    harian dan statistik performa gudang secara keseluruhan.
-                </p>
-
-                <h3 class="font-semibold text-lg text-slate-800 mt-6 mb-2">
-                    Fitur & Informasi Utama:
-                </h3>
-                <ul class="list-disc list-inside space-y-2 text-slate-600 ml-2">
-                    <li>
-                        <strong>Statistik Harian:</strong> Menampilkan
-                        jumlah kendaraan yang terdaftar (Total), sedang
-                        parkir, sedang proses loading, dan yang sudah
-                        selesai hari ini.
-                    </li>
-                    <li>
-                        <strong>Grafik Aktivitas:</strong> Visualisasi data
-                        inbound/outbound berdasarkan jenis barang
-                        (Frozen/Dry/Chilled).
-                    </li>
-                </ul>
-            </section>
-
-            <!-- Data Checkpoint & Workflow -->
-            <section id="data-checkpoint" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="p-2 bg-emerald-100 rounded-lg text-emerald-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
-                            </path>
-                        </svg>
-                    </div>
-                    <h2 class="text-2xl font-bold text-slate-800">
-                        2. Data Checkpoint
-                    </h2>
-                </div>
-
-                <p class="text-slate-600 leading-relaxed mb-4">
-                    Modul ini adalah core aplikasi web, digunakan untuk
-                    merekam seluruh jejak perjalanan kendaraan sejak tiba di
-                    lokasi hingga meninggalkan area gudang. Modul ini
-                    dilengkapi dengan validasi hak akses untuk memastikan
-                    integritas data.
-                </p>
-
-                <h3 class="font-semibold text-2xl text-center text-[#0a2558] mt-8 mb-6 uppercase">
-                    Truck Checkpoint System at PT Pangan Lestari
-                </h3>
-
-                <div class="bg-[#0a2558] text-white text-center py-2 px-6 rounded-t-lg mx-auto w-max font-bold">
-                    PROCESS FLOW
-                </div>
-                <div class="border-2 border-[#0a2558] rounded-b-xl rounded-t-xl overflow-x-auto p-6 mb-8 bg-slate-50">
-                    <div class="flex items-stretch gap-0 min-w-max">
-
-                        <!-- Step 1 -->
-                        <div class="flex flex-col items-center text-center w-36">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- App 1: Security -->
                             <div
-                                class="w-10 h-10 bg-[#0a2558] text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2 text-lg shrink-0">
-                                1</div>
-                            <div class="text-2xl mb-2">🛡️</div>
-                            <h4 class="font-bold text-xs text-[#0a2558] leading-tight mb-3">SECURITY REGISTERS THE
-                                VEHICLE UPON ENTRY</h4>
+                                class="bg-white p-4 rounded-lg shadow-sm border border-blue-100 flex flex-col w-full"
+                            >
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div
+                                        class="p-1.5 bg-slate-100 rounded-md text-slate-600 shrink-0"
+                                    >
+                                        <svg
+                                            class="w-4 h-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                                            ></path>
+                                        </svg>
+                                    </div>
+                                    <h4
+                                        class="font-bold text-slate-800 text-sm"
+                                    >
+                                        1. App For Security
+                                    </h4>
+                                </div>
+                                <p class="text-xs text-slate-600 mb-4 flex-1">
+                                    Digunakan oleh petugas keamanan di gerbang
+                                    (Gate) untuk mencatat waktu kedatangan
+                                    (Entry) dan keberangkatan (Exit) truk.
+                                </p>
+                                <a
+                                    href="#"
+                                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-700 hover:bg-slate-800 text-white text-xs font-medium rounded-lg shadow-sm transition-colors w-full text-center"
+                                >
+                                    <svg
+                                        class="w-4 h-4 shrink-0"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                        ></path>
+                                    </svg>
+                                    <span class="truncate"
+                                        >Download Security APK</span
+                                    >
+                                </a>
+                            </div>
+
+                            <!-- App 2: Warehouse Operator -->
                             <div
-                                class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 w-full flex-1">
-                                Security records vehicle data when the truck enters PT Pangan Lestari.
+                                class="bg-white p-4 rounded-lg shadow-sm border border-blue-100 flex flex-col w-full"
+                            >
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div
+                                        class="p-1.5 bg-emerald-100 rounded-md text-emerald-600 shrink-0"
+                                    >
+                                        <svg
+                                            class="w-4 h-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                                            ></path>
+                                        </svg>
+                                    </div>
+                                    <h4
+                                        class="font-bold text-slate-800 text-sm"
+                                    >
+                                        2. App For Operator
+                                    </h4>
+                                </div>
+                                <p class="text-xs text-slate-600 mb-4 flex-1">
+                                    Digunakan oleh tim gudang melalui perangkat
+                                    genggam (PDA) untuk merekam waktu Start dan
+                                    End bongkar muat.
+                                </p>
+                                <a
+                                    href="#"
+                                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-lg shadow-sm transition-colors w-full text-center"
+                                >
+                                    <svg
+                                        class="w-4 h-4 shrink-0"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                        ></path>
+                                    </svg>
+                                    <span class="truncate"
+                                        >Download Operator APK</span
+                                    >
+                                </a>
                             </div>
                         </div>
+                    </div>
+                </section>
 
-                        <!-- Arrow -->
+                <!-- Dashboard -->
+                <section
+                    id="dashboard"
+                    class="bg-white p-5 sm:p-6 lg:p-8 rounded-2xl shadow-sm border border-slate-100 w-full"
+                >
+                    <div class="flex items-center gap-3 mb-6">
                         <div
-                            class="flex items-center px-1 text-[#0a2558] font-bold text-xl shrink-0 mt-0 pb-0 self-start pt-14">
-                            ›</div>
-
-                        <!-- Step 2 -->
-                        <div class="flex flex-col items-center text-center w-36">
-                            <div
-                                class="w-10 h-10 bg-[#0a2558] text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2 text-lg shrink-0">
-                                2</div>
-                            <div class="text-2xl mb-2">📄</div>
-                            <h4 class="font-bold text-xs text-[#0a2558] leading-tight mb-3">DOCUMENTS ARE HANDED OVER TO
-                                INBOUND / OUTBOUND ADMIN</h4>
-                            <div
-                                class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 w-full flex-1">
-                                Security submits the documents to the Inbound / Outbound Admin.
-                            </div>
+                            class="p-2 bg-indigo-100 rounded-lg text-indigo-600 shrink-0"
+                        >
+                            <svg
+                                class="w-6 h-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                                ></path>
+                            </svg>
                         </div>
-
-                        <!-- Arrow -->
-                        <div class="flex items-center px-1 text-[#0a2558] font-bold text-xl shrink-0 self-start pt-14">›
-                        </div>
-
-                        <!-- Step 3 -->
-                        <div class="flex flex-col items-center text-center w-36">
-                            <div
-                                class="w-10 h-10 bg-[#0a2558] text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2 text-lg shrink-0">
-                                3</div>
-                            <div class="text-2xl mb-2">💻</div>
-                            <h4 class="font-bold text-xs text-[#0a2558] leading-tight mb-3">ADMIN NOTIFIES THE WAREHOUSE
-                                TEAM TO PROCEED TO THE LOADING DOCK</h4>
-                            <div
-                                class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 w-full flex-1">
-                                Admin notifies the warehouse team to proceed to the assigned loading dock.
-                            </div>
-                        </div>
-
-                        <!-- Arrow -->
-                        <div class="flex items-center px-1 text-[#0a2558] font-bold text-xl shrink-0 self-start pt-14">›
-                        </div>
-
-                        <!-- Step 4 -->
-                        <div class="flex flex-col items-center text-center w-36">
-                            <div
-                                class="w-10 h-10 bg-[#0a2558] text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2 text-lg shrink-0">
-                                4</div>
-                            <div class="text-2xl mb-2">🚛</div>
-                            <h4 class="font-bold text-xs text-[#0a2558] leading-tight mb-3">TRUCK IS CALLED TO ENTER THE
-                                ASSIGNED LOADING DOCK</h4>
-                            <div
-                                class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 w-full flex-1">
-                                The truck is called to enter the assigned loading dock.
-                            </div>
-                        </div>
-
-                        <!-- Arrow -->
-                        <div class="flex items-center px-1 text-[#0a2558] font-bold text-xl shrink-0 self-start pt-14">›
-                        </div>
-
-                        <!-- Step 5 -->
-                        <div class="flex flex-col items-center text-center w-36">
-                            <div
-                                class="w-10 h-10 bg-[#0a2558] text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2 text-lg shrink-0">
-                                5</div>
-                            <div class="text-2xl mb-2">📦</div>
-                            <h4 class="font-bold text-xs text-[#0a2558] leading-tight mb-3">WAREHOUSE TEAM PERFORMS
-                                LOADING / UNLOADING AND CLICKS CHECKPOINT ON PDA</h4>
-                            <div
-                                class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 w-full flex-1">
-                                The warehouse team performs loading/unloading and clicks the checkpoint on PDA.
-                            </div>
-                        </div>
-
-                        <!-- Arrow -->
-                        <div class="flex items-center px-1 text-[#0a2558] font-bold text-xl shrink-0 self-start pt-14">›
-                        </div>
-
-                        <!-- Step 6 -->
-                        <div class="flex flex-col items-center text-center w-36">
-                            <div
-                                class="w-10 h-10 bg-[#0a2558] text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2 text-lg shrink-0">
-                                6</div>
-                            <div class="text-2xl mb-2">🚶</div>
-                            <h4 class="font-bold text-xs text-[#0a2558] leading-tight mb-3">AFTER WAREHOUSE PROCESS,
-                                DRIVER GOES TO INBOUND / OUTBOUND ADMIN</h4>
-                            <div
-                                class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 w-full flex-1">
-                                After the warehouse process is completed, the driver proceeds to the Inbound / Outbound
-                                Admin.
-                            </div>
-                        </div>
-
-                        <!-- Arrow -->
-                        <div class="flex items-center px-1 text-[#0a2558] font-bold text-xl shrink-0 self-start pt-14">›
-                        </div>
-
-                        <!-- Step 7 -->
-                        <div class="flex flex-col items-center text-center w-36">
-                            <div
-                                class="w-10 h-10 bg-[#0a2558] text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2 text-lg shrink-0">
-                                7</div>
-                            <div class="text-2xl mb-2">🗂️</div>
-                            <h4 class="font-bold text-xs text-[#0a2558] leading-tight mb-3">ADMIN PROCESSES THE
-                                DOCUMENTS</h4>
-                            <div
-                                class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 w-full flex-1">
-                                Admin processes the documents.
-                            </div>
-                        </div>
-
-                        <!-- Arrow -->
-                        <div class="flex items-center px-1 text-[#0a2558] font-bold text-xl shrink-0 self-start pt-14">›
-                        </div>
-
-                        <!-- Step 8 -->
-                        <div class="flex flex-col items-center text-center w-36">
-                            <div
-                                class="w-10 h-10 bg-[#0a2558] text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2 text-lg shrink-0">
-                                8</div>
-                            <div class="text-2xl mb-2">🚧</div>
-                            <h4 class="font-bold text-xs text-[#0a2558] leading-tight mb-3">DRIVER GOES TO SECURITY TO
-                                EXIT PT PANGAN LESTARI</h4>
-                            <div
-                                class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 w-full flex-1">
-                                After the process is complete, the driver goes to security to exit PT Pangan Lestari.
-                            </div>
-                        </div>
-
+                        <h2
+                            class="text-xl sm:text-2xl font-bold text-slate-800"
+                        >
+                            1. Dashboard
+                        </h2>
                     </div>
-                    <p class="text-xs text-slate-400 mt-3 text-right italic">← Scroll untuk melihat seluruh alur proses
+
+                    <p
+                        class="text-slate-600 leading-relaxed mb-4 text-sm sm:text-base"
+                    >
+                        Dashboard adalah halaman utama setelah pengguna berhasil
+                        login. Halaman ini memberikan ringkasan (summary) data
+                        harian dan statistik performa gudang secara keseluruhan.
                     </p>
-                </div>
 
-                <!-- Key Time Checkpoints & Metrics -->
-                <div class="bg-[#0a2558] text-white text-center py-2 px-6 rounded-t-lg mx-auto w-max font-bold mt-8">
-                    KEY TIME CHECKPOINTS & METRICS
-                </div>
-                <div class="border-2 border-slate-300 rounded-b-xl rounded-t-xl p-6 mb-8 bg-white overflow-x-auto">
-                    <div
-                        class="flex flex-col lg:flex-row items-stretch justify-between gap-0 min-w-max lg:min-w-0 text-sm">
-                        <!-- Metric 1 -->
-                        <div class="flex-1 flex flex-col items-center text-center p-3 gap-2">
-                            <div class="text-3xl">🚛</div>
-                            <div
-                                class="p-3 rounded-xl border-2 border-[#0a2558] bg-blue-50 w-full flex-1 flex flex-col">
-                                <h5 class="text-[#0a2558] font-bold text-xs uppercase mb-2 leading-tight">Truck Waiting
-                                    / Queue Time Before Processing</h5>
-                                <p class="text-slate-600 text-xs leading-relaxed">Time from truck arrival at the gate
-                                    until the truck is called to enter the loading dock.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-center text-2xl font-bold text-slate-400 px-1 py-4">+
-                        </div>
+                    <h3
+                        class="font-semibold text-base sm:text-lg text-slate-800 mt-6 mb-3"
+                    >
+                        Fitur & Informasi Utama:
+                    </h3>
+                    <ul
+                        class="list-disc list-inside space-y-2 text-slate-600 text-sm sm:text-base ml-2"
+                    >
+                        <li>
+                            <strong>Statistik Harian:</strong> Menampilkan
+                            jumlah kendaraan yang terdaftar (Total), sedang
+                            parkir, sedang proses loading, dan yang sudah
+                            selesai hari ini.
+                        </li>
+                        <li>
+                            <strong>Grafik Aktivitas:</strong> Visualisasi data
+                            inbound/outbound berdasarkan jenis barang
+                            (Frozen/Dry/Chilled).
+                        </li>
+                    </ul>
+                </section>
 
-                        <!-- Metric 2 -->
-                        <div class="flex-1 flex flex-col items-center text-center p-3 gap-2">
-                            <div class="text-3xl">🏭</div>
-                            <div
-                                class="p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 w-full flex-1 flex flex-col">
-                                <h5 class="text-emerald-700 font-bold text-xs uppercase mb-2 leading-tight">Loading
-                                    Process Duration</h5>
-                                <p class="text-slate-600 text-xs leading-relaxed">Time from the start of
-                                    loading/unloading until the warehouse process is completed.</p>
-                            </div>
+                <!-- Data Checkpoint & Workflow -->
+                <section
+                    id="data-checkpoint"
+                    class="bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-sm border border-slate-100 w-full overflow-hidden"
+                >
+                    <div class="flex items-center gap-3 mb-6">
+                        <div
+                            class="p-2 bg-emerald-100 rounded-lg text-emerald-600 shrink-0"
+                        >
+                            <svg
+                                class="w-6 h-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                                ></path>
+                            </svg>
                         </div>
-                        <div class="flex items-center justify-center text-2xl font-bold text-slate-400 px-1 py-4">+
-                        </div>
-
-                        <!-- Metric 3 -->
-                        <div class="flex-1 flex flex-col items-center text-center p-3 gap-2">
-                            <div class="text-3xl">📋</div>
-                            <div
-                                class="p-3 rounded-xl border-2 border-amber-500 bg-amber-50 w-full flex-1 flex flex-col">
-                                <h5 class="text-amber-700 font-bold text-xs uppercase mb-2 leading-tight">Document
-                                    Processing Time</h5>
-                                <p class="text-slate-600 text-xs leading-relaxed">Time from documents submitted to admin
-                                    until the documents are fully processed.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-center text-2xl font-bold text-slate-400 px-1 py-4">+
-                        </div>
-
-                        <!-- Metric 4 -->
-                        <div class="flex-1 flex flex-col items-center text-center p-3 gap-2">
-                            <div class="text-3xl">🚦</div>
-                            <div
-                                class="p-3 rounded-xl border-2 border-purple-500 bg-purple-50 w-full flex-1 flex flex-col">
-                                <h5 class="text-purple-700 font-bold text-xs uppercase mb-2 leading-tight">Exit
-                                    Processing Time</h5>
-                                <p class="text-slate-600 text-xs leading-relaxed">Time from driver's arrival at security
-                                    until the truck is cleared to exit.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-center text-2xl font-bold text-slate-400 px-1 py-4">=
-                        </div>
-
-                        <!-- Total -->
-                        <div class="flex-1 flex flex-col items-center text-center p-3 gap-2">
-                            <div class="text-3xl">⏱️</div>
-                            <div
-                                class="p-3 rounded-xl border-2 border-[#0a2558] bg-[#0a2558] text-white w-full flex-1 flex flex-col">
-                                <h5 class="font-bold text-xs uppercase mb-2 leading-tight">Total Turnaround Time</h5>
-                                <p class="text-blue-100 text-xs leading-relaxed">Total time from truck arrival to
-                                    departure from the PT Pangan Lestari premises.</p>
-                            </div>
-                        </div>
+                        <h2
+                            class="text-xl sm:text-2xl font-bold text-slate-800"
+                        >
+                            2. Data Checkpoint
+                        </h2>
                     </div>
-                    <p class="text-xs text-slate-400 mt-2 text-right italic lg:hidden">← Scroll untuk melihat seluruh
-                        metrik</p>
-                </div>
 
-                <!-- Objective -->
-                <div class="flex flex-col lg:flex-row gap-6 mb-8 items-stretch">
-                    <div
-                        class="bg-[#0a2558] text-white rounded-xl p-6 flex items-center justify-center gap-4 shrink-0 shadow-sm">
-                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10" stroke-width="2" />
-                            <circle cx="12" cy="12" r="6" stroke-width="2" />
-                            <circle cx="12" cy="12" r="2" stroke-width="2" />
-                        </svg>
-                        <h3 class="font-bold text-xl uppercase tracking-wider">Objective</h3>
-                    </div>
-                    <div
-                        class="border-2 border-slate-200 rounded-xl p-6 bg-white flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div class="flex items-center gap-3">
-                            <div class="text-[#0a2558] shrink-0"><svg class="w-8 h-8" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                                    </path>
-                                </svg></div>
-                            <p class="text-xs text-slate-700 font-medium">Provide visibility into operational
-                                performance.</p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="text-amber-500 shrink-0"><svg class="w-8 h-8" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                                    </path>
-                                </svg></div>
-                            <p class="text-xs text-slate-700 font-medium">Identify bottlenecks and areas for
-                                improvement.</p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="text-emerald-500 shrink-0"><svg class="w-8 h-8" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                                </svg></div>
-                            <p class="text-xs text-slate-700 font-medium">Improve operational efficiency.</p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="text-[#0a2558] shrink-0"><svg class="w-8 h-8" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg></div>
-                            <p class="text-xs text-slate-700 font-medium">Ensure timely execution of logistics
-                                activities.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    class="bg-[#f0f4f8] text-[#0a2558] text-center p-4 rounded-xl border border-[#d2dfec] text-sm font-medium mb-8 mx-auto w-full max-w-4xl">
-                    This checkpoint system ensures better control, transparency, and efficiency of truck movements
-                    within PT Pangan Lestari.
-                </div>
-
-                <div class="mt-6 bg-red-50 p-4 rounded-lg border border-red-100">
-                    <h4 class="font-bold text-red-700 text-sm mb-1">
-                        Pembatalan (Cancelation Workflow)
-                    </h4>
-                    <p class="text-sm text-red-600">
-                        Jika terjadi kesalahan, transaksi tidak dapat
-                        langsung dihapus. User harus menekan tombol "Request
-                        Cancel". Transaksi akan masuk ke status
-                        <span class="font-semibold">WAITING CANCEL</span>.
-                        Supervisor/Admin kemudian harus melakukan "Approve
-                        Cancel" agar transaksi benar-benar dibatalkan.
+                    <p
+                        class="text-slate-600 leading-relaxed mb-8 text-sm sm:text-base"
+                    >
+                        Modul ini adalah core aplikasi web, digunakan untuk
+                        merekam seluruh jejak perjalanan kendaraan sejak tiba di
+                        lokasi hingga meninggalkan area gudang. Modul ini
+                        dilengkapi dengan validasi hak akses untuk memastikan
+                        integritas data.
                     </p>
-                </div>
-            </section>
 
+                    <h3
+                        class="font-bold text-lg sm:text-xl md:text-2xl text-center text-[#0a2558] mt-8 mb-6 uppercase px-2"
+                    >
+                        Truck Checkpoint System
+                    </h3>
 
-            <!-- Master Employee (Tidak Diubah) -->
-            <section id="master-employee" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="p-2 bg-orange-100 rounded-lg text-orange-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
-                            </path>
-                        </svg>
+                    <!-- Process Flow: Responsive Vertical on Mobile, Horizontal Scroll on Desktop -->
+                    <div class="w-fit max-w-full mx-auto">
+                        <div
+                            class="bg-[#0a2558] text-white text-center py-2 px-4 sm:px-6 rounded-t-lg font-bold text-sm sm:text-base inline-block w-full"
+                        >
+                            PROCESS FLOW
+                        </div>
                     </div>
-                    <h2 class="text-2xl font-bold text-slate-800">3. Master Employee</h2>
-                </div>
-                <p class="text-slate-600 leading-relaxed mb-4">Modul ini dirancang khusus untuk mempermudah akses login
-                    bagi pekerja lapangan (operator mobile) tanpa perlu menggunakan Email dan Password yang rumit.
-                    Sistem mengadopsi struktur <strong>Dual-Authentication</strong>.</p>
-                <ul class="list-disc list-inside space-y-3 text-slate-600 ml-2 mb-6">
-                    <li><strong>Manajemen Data:</strong> Admin mendata pekerja dengan memasukkan
-                        <code>Employee ID</code>.
-                    </li>
-                    <li><strong>Login Praktis:</strong> Di Mobile App, seluruh pekerja diwajibkan login hanya
-                        menggunakan Employee ID demi efisiensi.</li>
-                </ul>
-            </section>
 
-            <!-- Live Monitoring (Tidak Diubah) -->
-            <section id="live-monitoring" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="p-2 bg-red-100 rounded-lg text-red-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
-                            </path>
-                        </svg>
+                    <div
+                        class="border-2 border-[#0a2558] rounded-b-xl rounded-t-xl p-4 sm:p-6 mb-8 bg-slate-50 w-full"
+                    >
+                        <!-- Wrapper for horizontal scroll on large screens -->
+                        <div
+                            class="w-full lg:overflow-x-auto lg:custom-scrollbar lg:pb-4"
+                        >
+                            <!-- Flex container: Column on Mobile, Row on Desktop -->
+                            <div
+                                class="flex flex-col lg:flex-row items-center lg:items-stretch gap-2 lg:gap-0 lg:w-max mx-auto lg:mx-0"
+                            >
+                                <!-- Step 1 -->
+                                <div
+                                    class="flex flex-col items-center text-center w-full max-w-[280px] lg:w-40 shrink-0"
+                                >
+                                    <div
+                                        class="w-10 h-10 bg-[#0a2558] text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2 text-lg shrink-0"
+                                    >
+                                        1
+                                    </div>
+                                    <div class="text-2xl mb-2">🛡️</div>
+                                    <h4
+                                        class="font-bold text-xs text-[#0a2558] leading-tight mb-3 px-1"
+                                    >
+                                        SECURITY REGISTERS VEHICLE
+                                    </h4>
+                                    <div
+                                        class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 w-full flex-1"
+                                    >
+                                        Security records vehicle data when the
+                                        truck enters.
+                                    </div>
+                                </div>
+
+                                <!-- Arrow -->
+                                <div
+                                    class="flex items-center justify-center text-[#0a2558] py-2 lg:py-0 lg:pt-14 shrink-0 lg:px-2"
+                                >
+                                    <svg
+                                        class="w-6 h-6 rotate-90 lg:rotate-0"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="3"
+                                            d="M9 5l7 7-7 7"
+                                        ></path>
+                                    </svg>
+                                </div>
+
+                                <!-- Step 2 -->
+                                <div
+                                    class="flex flex-col items-center text-center w-full max-w-[280px] lg:w-40 shrink-0"
+                                >
+                                    <div
+                                        class="w-10 h-10 bg-[#0a2558] text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2 text-lg shrink-0"
+                                    >
+                                        2
+                                    </div>
+                                    <div class="text-2xl mb-2">📄</div>
+                                    <h4
+                                        class="font-bold text-xs text-[#0a2558] leading-tight mb-3 px-1"
+                                    >
+                                        DOCUMENTS HANDED TO ADMIN
+                                    </h4>
+                                    <div
+                                        class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 w-full flex-1"
+                                    >
+                                        Security submits documents to Inbound /
+                                        Outbound Admin.
+                                    </div>
+                                </div>
+
+                                <!-- Arrow -->
+                                <div
+                                    class="flex items-center justify-center text-[#0a2558] py-2 lg:py-0 lg:pt-14 shrink-0 lg:px-2"
+                                >
+                                    <svg
+                                        class="w-6 h-6 rotate-90 lg:rotate-0"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="3"
+                                            d="M9 5l7 7-7 7"
+                                        ></path>
+                                    </svg>
+                                </div>
+
+                                <!-- Step 3 -->
+                                <div
+                                    class="flex flex-col items-center text-center w-full max-w-[280px] lg:w-40 shrink-0"
+                                >
+                                    <div
+                                        class="w-10 h-10 bg-[#0a2558] text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2 text-lg shrink-0"
+                                    >
+                                        3
+                                    </div>
+                                    <div class="text-2xl mb-2">💻</div>
+                                    <h4
+                                        class="font-bold text-xs text-[#0a2558] leading-tight mb-3 px-1"
+                                    >
+                                        ADMIN NOTIFIES WAREHOUSE
+                                    </h4>
+                                    <div
+                                        class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 w-full flex-1"
+                                    >
+                                        Admin tells warehouse team to proceed to
+                                        loading dock.
+                                    </div>
+                                </div>
+
+                                <!-- Arrow -->
+                                <div
+                                    class="flex items-center justify-center text-[#0a2558] py-2 lg:py-0 lg:pt-14 shrink-0 lg:px-2"
+                                >
+                                    <svg
+                                        class="w-6 h-6 rotate-90 lg:rotate-0"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="3"
+                                            d="M9 5l7 7-7 7"
+                                        ></path>
+                                    </svg>
+                                </div>
+
+                                <!-- Step 4 -->
+                                <div
+                                    class="flex flex-col items-center text-center w-full max-w-[280px] lg:w-40 shrink-0"
+                                >
+                                    <div
+                                        class="w-10 h-10 bg-[#0a2558] text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2 text-lg shrink-0"
+                                    >
+                                        4
+                                    </div>
+                                    <div class="text-2xl mb-2">🚛</div>
+                                    <h4
+                                        class="font-bold text-xs text-[#0a2558] leading-tight mb-3 px-1"
+                                    >
+                                        TRUCK ENTER LOADING DOCK
+                                    </h4>
+                                    <div
+                                        class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 w-full flex-1"
+                                    >
+                                        The truck is called to enter the
+                                        assigned loading dock.
+                                    </div>
+                                </div>
+
+                                <!-- Arrow -->
+                                <div
+                                    class="flex items-center justify-center text-[#0a2558] py-2 lg:py-0 lg:pt-14 shrink-0 lg:px-2"
+                                >
+                                    <svg
+                                        class="w-6 h-6 rotate-90 lg:rotate-0"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="3"
+                                            d="M9 5l7 7-7 7"
+                                        ></path>
+                                    </svg>
+                                </div>
+
+                                <!-- Step 5 -->
+                                <div
+                                    class="flex flex-col items-center text-center w-full max-w-[280px] lg:w-40 shrink-0"
+                                >
+                                    <div
+                                        class="w-10 h-10 bg-[#0a2558] text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2 text-lg shrink-0"
+                                    >
+                                        5
+                                    </div>
+                                    <div class="text-2xl mb-2">📦</div>
+                                    <h4
+                                        class="font-bold text-xs text-[#0a2558] leading-tight mb-3 px-1"
+                                    >
+                                        LOADING PROCESS BY TEAM
+                                    </h4>
+                                    <div
+                                        class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 w-full flex-1"
+                                    >
+                                        Warehouse team performs loading and
+                                        clicks checkpoint on PDA.
+                                    </div>
+                                </div>
+
+                                <!-- Arrow -->
+                                <div
+                                    class="flex items-center justify-center text-[#0a2558] py-2 lg:py-0 lg:pt-14 shrink-0 lg:px-2"
+                                >
+                                    <svg
+                                        class="w-6 h-6 rotate-90 lg:rotate-0"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="3"
+                                            d="M9 5l7 7-7 7"
+                                        ></path>
+                                    </svg>
+                                </div>
+
+                                <!-- Step 6 -->
+                                <div
+                                    class="flex flex-col items-center text-center w-full max-w-[280px] lg:w-40 shrink-0"
+                                >
+                                    <div
+                                        class="w-10 h-10 bg-[#0a2558] text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2 text-lg shrink-0"
+                                    >
+                                        6
+                                    </div>
+                                    <div class="text-2xl mb-2">🚶</div>
+                                    <h4
+                                        class="font-bold text-xs text-[#0a2558] leading-tight mb-3 px-1"
+                                    >
+                                        DRIVER GOES TO ADMIN
+                                    </h4>
+                                    <div
+                                        class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 w-full flex-1"
+                                    >
+                                        After process is completed, driver
+                                        proceeds to Admin.
+                                    </div>
+                                </div>
+
+                                <!-- Arrow -->
+                                <div
+                                    class="flex items-center justify-center text-[#0a2558] py-2 lg:py-0 lg:pt-14 shrink-0 lg:px-2"
+                                >
+                                    <svg
+                                        class="w-6 h-6 rotate-90 lg:rotate-0"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="3"
+                                            d="M9 5l7 7-7 7"
+                                        ></path>
+                                    </svg>
+                                </div>
+
+                                <!-- Step 7 -->
+                                <div
+                                    class="flex flex-col items-center text-center w-full max-w-[280px] lg:w-40 shrink-0"
+                                >
+                                    <div
+                                        class="w-10 h-10 bg-[#0a2558] text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2 text-lg shrink-0"
+                                    >
+                                        7
+                                    </div>
+                                    <div class="text-2xl mb-2">🗂️</div>
+                                    <h4
+                                        class="font-bold text-xs text-[#0a2558] leading-tight mb-3 px-1"
+                                    >
+                                        ADMIN PROCESS DOCUMENTS
+                                    </h4>
+                                    <div
+                                        class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 w-full flex-1"
+                                    >
+                                        Admin processes the necessary documents.
+                                    </div>
+                                </div>
+
+                                <!-- Arrow -->
+                                <div
+                                    class="flex items-center justify-center text-[#0a2558] py-2 lg:py-0 lg:pt-14 shrink-0 lg:px-2"
+                                >
+                                    <svg
+                                        class="w-6 h-6 rotate-90 lg:rotate-0"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="3"
+                                            d="M9 5l7 7-7 7"
+                                        ></path>
+                                    </svg>
+                                </div>
+
+                                <!-- Step 8 -->
+                                <div
+                                    class="flex flex-col items-center text-center w-full max-w-[280px] lg:w-40 shrink-0"
+                                >
+                                    <div
+                                        class="w-10 h-10 bg-[#0a2558] text-white rounded-full flex items-center justify-center font-bold mx-auto mb-2 text-lg shrink-0"
+                                    >
+                                        8
+                                    </div>
+                                    <div class="text-2xl mb-2">🚧</div>
+                                    <h4
+                                        class="font-bold text-xs text-[#0a2558] leading-tight mb-3 px-1"
+                                    >
+                                        DRIVER EXITS VIA SECURITY
+                                    </h4>
+                                    <div
+                                        class="p-3 bg-white border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 w-full flex-1"
+                                    >
+                                        Driver goes to security to exit the
+                                        premises.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p
+                            class="text-xs text-slate-400 mt-4 text-center lg:text-right italic hidden lg:block"
+                        >
+                            ← Geser (scroll) untuk melihat seluruh alur →
+                        </p>
                     </div>
-                    <h2 class="text-2xl font-bold text-slate-800">4. Live Monitoring</h2>
-                </div>
-                <p class="text-slate-600 leading-relaxed mb-4">Modul ini didesain sebagai <strong>Dashboard
-                        Real-Time</strong> yang ditampilkan pada layar TV/Monitor besar di area operasional. Halaman ini
-                    melakukan refresh otomatis.</p>
-            </section>
 
-            <!-- Report Checkpoint (Tidak Diubah) -->
-            <section id="report-checkpoint" class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="p-2 bg-teal-100 rounded-lg text-teal-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                            </path>
-                        </svg>
+                    <!-- Key Time Checkpoints & Metrics -->
+                    <div class="w-fit max-w-full mx-auto mt-10">
+                        <div
+                            class="bg-[#0a2558] text-white text-center py-2 px-4 sm:px-6 rounded-t-lg font-bold text-sm sm:text-base inline-block w-full"
+                        >
+                            KEY TIME CHECKPOINTS & METRICS
+                        </div>
                     </div>
-                    <h2 class="text-2xl font-bold text-slate-800">5. Report Checkpoint</h2>
-                </div>
-                <p class="text-slate-600 leading-relaxed mb-4">Modul laporan ini memfasilitasi pengguna untuk melihat,
-                    memfilter, dan mengekspor seluruh jejak historis checkpoint ke dalam format Microsoft Excel.</p>
-            </section>
+                    <div
+                        class="border-2 border-slate-300 rounded-b-xl rounded-t-xl p-4 sm:p-6 mb-8 bg-white w-full"
+                    >
+                        <!-- Column on mobile, row on large screens -->
+                        <div
+                            class="flex flex-col lg:flex-row items-stretch justify-between gap-4 lg:gap-2 w-full text-sm"
+                        >
+                            <!-- Metric 1 -->
+                            <div
+                                class="flex-1 flex flex-col items-center text-center w-full gap-2"
+                            >
+                                <div class="text-3xl">🚛</div>
+                                <div
+                                    class="p-4 rounded-xl border-2 border-[#0a2558] bg-blue-50 w-full flex-1 flex flex-col justify-center"
+                                >
+                                    <h5
+                                        class="text-[#0a2558] font-bold text-xs uppercase mb-2 leading-tight"
+                                    >
+                                        Truck Waiting Time
+                                    </h5>
+                                    <p
+                                        class="text-slate-600 text-xs leading-relaxed"
+                                    >
+                                        Time from arrival until entering loading
+                                        dock.
+                                    </p>
+                                </div>
+                            </div>
 
-            <footer class="text-center text-sm text-slate-500 py-6 border-t border-slate-200 mt-12">
-                &copy; 2026 Checkpoint System PT Pangan Lestari. All Rights Reserved.
-            </footer>
-        </main>
-    </div>
-</body>
+                            <!-- Plus Sign -->
+                            <div
+                                class="flex items-center justify-center text-3xl font-bold text-slate-300 py-1 lg:py-4 shrink-0"
+                            >
+                                +
+                            </div>
 
+                            <!-- Metric 2 -->
+                            <div
+                                class="flex-1 flex flex-col items-center text-center w-full gap-2"
+                            >
+                                <div class="text-3xl">🏭</div>
+                                <div
+                                    class="p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 w-full flex-1 flex flex-col justify-center"
+                                >
+                                    <h5
+                                        class="text-emerald-700 font-bold text-xs uppercase mb-2 leading-tight"
+                                    >
+                                        Loading Duration
+                                    </h5>
+                                    <p
+                                        class="text-slate-600 text-xs leading-relaxed"
+                                    >
+                                        Time taken to complete
+                                        loading/unloading.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Plus Sign -->
+                            <div
+                                class="flex items-center justify-center text-3xl font-bold text-slate-300 py-1 lg:py-4 shrink-0"
+                            >
+                                +
+                            </div>
+
+                            <!-- Metric 3 -->
+                            <div
+                                class="flex-1 flex flex-col items-center text-center w-full gap-2"
+                            >
+                                <div class="text-3xl">📋</div>
+                                <div
+                                    class="p-4 rounded-xl border-2 border-amber-500 bg-amber-50 w-full flex-1 flex flex-col justify-center"
+                                >
+                                    <h5
+                                        class="text-amber-700 font-bold text-xs uppercase mb-2 leading-tight"
+                                    >
+                                        Doc Processing
+                                    </h5>
+                                    <p
+                                        class="text-slate-600 text-xs leading-relaxed"
+                                    >
+                                        Time for admin to process documentation.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Plus Sign -->
+                            <div
+                                class="flex items-center justify-center text-3xl font-bold text-slate-300 py-1 lg:py-4 shrink-0"
+                            >
+                                +
+                            </div>
+
+                            <!-- Metric 4 -->
+                            <div
+                                class="flex-1 flex flex-col items-center text-center w-full gap-2"
+                            >
+                                <div class="text-3xl">🚦</div>
+                                <div
+                                    class="p-4 rounded-xl border-2 border-purple-500 bg-purple-50 w-full flex-1 flex flex-col justify-center"
+                                >
+                                    <h5
+                                        class="text-purple-700 font-bold text-xs uppercase mb-2 leading-tight"
+                                    >
+                                        Exit Process
+                                    </h5>
+                                    <p
+                                        class="text-slate-600 text-xs leading-relaxed"
+                                    >
+                                        Time from security check to final exit.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Equals Sign -->
+                            <div
+                                class="flex items-center justify-center text-3xl font-bold text-slate-300 py-1 lg:py-4 shrink-0"
+                            >
+                                =
+                            </div>
+
+                            <!-- Total -->
+                            <div
+                                class="flex-1 flex flex-col items-center text-center w-full gap-2"
+                            >
+                                <div class="text-3xl">⏱️</div>
+                                <div
+                                    class="p-4 rounded-xl border-2 border-[#0a2558] bg-[#0a2558] text-white w-full flex-1 flex flex-col justify-center shadow-md"
+                                >
+                                    <h5
+                                        class="font-bold text-xs uppercase mb-2 leading-tight text-white"
+                                    >
+                                        Total Turnaround
+                                    </h5>
+                                    <p
+                                        class="text-blue-100 text-xs leading-relaxed"
+                                    >
+                                        Total time spent within premises.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Objective -->
+                    <div
+                        class="flex flex-col lg:flex-row gap-4 sm:gap-6 mb-8 items-stretch w-full"
+                    >
+                        <div
+                            class="bg-[#0a2558] text-white rounded-xl p-4 sm:p-6 flex lg:flex-col items-center justify-center gap-3 sm:gap-4 shrink-0 shadow-sm w-full lg:w-48 text-center"
+                        >
+                            <svg
+                                class="w-8 h-8 sm:w-12 sm:h-12 shrink-0"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke-width="2"
+                                />
+                                <circle
+                                    cx="12"
+                                    cy="12"
+                                    r="6"
+                                    stroke-width="2"
+                                />
+                                <circle
+                                    cx="12"
+                                    cy="12"
+                                    r="2"
+                                    stroke-width="2"
+                                />
+                            </svg>
+                            <h3
+                                class="font-bold text-lg sm:text-xl uppercase tracking-wider"
+                            >
+                                Objective
+                            </h3>
+                        </div>
+                        <div
+                            class="border-2 border-slate-200 rounded-xl p-4 sm:p-6 bg-white flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-full"
+                        >
+                            <div class="flex items-start sm:items-center gap-3">
+                                <div
+                                    class="text-[#0a2558] shrink-0 mt-1 sm:mt-0"
+                                >
+                                    <svg
+                                        class="w-6 h-6 sm:w-8 sm:h-8"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                        ></path>
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                        ></path>
+                                    </svg>
+                                </div>
+                                <p
+                                    class="text-xs sm:text-sm text-slate-700 font-medium leading-snug"
+                                >
+                                    Provide visibility into operational
+                                    performance.
+                                </p>
+                            </div>
+                            <div class="flex items-start sm:items-center gap-3">
+                                <div
+                                    class="text-amber-500 shrink-0 mt-1 sm:mt-0"
+                                >
+                                    <svg
+                                        class="w-6 h-6 sm:w-8 sm:h-8"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                        ></path>
+                                    </svg>
+                                </div>
+                                <p
+                                    class="text-xs sm:text-sm text-slate-700 font-medium leading-snug"
+                                >
+                                    Identify bottlenecks and areas for
+                                    improvement.
+                                </p>
+                            </div>
+                            <div class="flex items-start sm:items-center gap-3">
+                                <div
+                                    class="text-emerald-500 shrink-0 mt-1 sm:mt-0"
+                                >
+                                    <svg
+                                        class="w-6 h-6 sm:w-8 sm:h-8"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                                        ></path>
+                                    </svg>
+                                </div>
+                                <p
+                                    class="text-xs sm:text-sm text-slate-700 font-medium leading-snug"
+                                >
+                                    Improve operational efficiency.
+                                </p>
+                            </div>
+                            <div class="flex items-start sm:items-center gap-3">
+                                <div
+                                    class="text-[#0a2558] shrink-0 mt-1 sm:mt-0"
+                                >
+                                    <svg
+                                        class="w-6 h-6 sm:w-8 sm:h-8"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        ></path>
+                                    </svg>
+                                </div>
+                                <p
+                                    class="text-xs sm:text-sm text-slate-700 font-medium leading-snug"
+                                >
+                                    Ensure timely execution of logistics
+                                    activities.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-[#f0f4f8] text-[#0a2558] text-center p-4 rounded-xl border border-[#d2dfec] text-xs sm:text-sm font-medium mb-8 mx-auto w-full max-w-4xl leading-relaxed"
+                    >
+                        This checkpoint system ensures better control,
+                        transparency, and efficiency of truck movements within
+                        PT Pangan Lestari.
+                    </div>
+
+                    <div
+                        class="mt-6 bg-red-50 p-4 sm:p-5 rounded-lg border border-red-100 w-full"
+                    >
+                        <h4
+                            class="font-bold text-red-700 text-sm mb-2 flex items-center gap-2"
+                        >
+                            <svg
+                                class="w-4 h-4 shrink-0"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                ></path>
+                            </svg>
+                            Pembatalan (Cancelation Workflow)
+                        </h4>
+                        <p
+                            class="text-xs sm:text-sm text-red-600 leading-relaxed"
+                        >
+                            Jika terjadi kesalahan, transaksi tidak dapat
+                            langsung dihapus. User harus menekan tombol "Request
+                            Cancel". Transaksi akan masuk ke status
+                            <span class="font-semibold bg-red-100 px-1 rounded"
+                                >WAITING CANCEL</span
+                            >. Supervisor/Admin kemudian harus melakukan
+                            "Approve Cancel" agar transaksi benar-benar
+                            dibatalkan.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Master Employee -->
+                <section
+                    id="master-employee"
+                    class="bg-white p-5 sm:p-6 lg:p-8 rounded-2xl shadow-sm border border-slate-100 w-full"
+                >
+                    <div class="flex items-center gap-3 mb-6">
+                        <div
+                            class="p-2 bg-orange-100 rounded-lg text-orange-600 shrink-0"
+                        >
+                            <svg
+                                class="w-6 h-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                                ></path>
+                            </svg>
+                        </div>
+                        <h2
+                            class="text-xl sm:text-2xl font-bold text-slate-800"
+                        >
+                            3. Master Employee
+                        </h2>
+                    </div>
+                    <p
+                        class="text-slate-600 leading-relaxed mb-4 text-sm sm:text-base"
+                    >
+                        Modul ini dirancang khusus untuk mempermudah akses login
+                        bagi pekerja lapangan (operator mobile) tanpa perlu
+                        menggunakan Email dan Password yang rumit. Sistem
+                        mengadopsi struktur
+                        <strong>Dual-Authentication</strong>.
+                    </p>
+                    <ul
+                        class="list-disc list-inside space-y-3 text-slate-600 text-sm sm:text-base ml-2 mb-2"
+                    >
+                        <li>
+                            <strong>Manajemen Data:</strong> Admin mendata
+                            pekerja dengan memasukkan
+                            <code
+                                class="bg-slate-100 px-1 rounded text-slate-700"
+                                >Employee ID</code
+                            >.
+                        </li>
+                        <li>
+                            <strong>Login Praktis:</strong> Di Mobile App,
+                            seluruh pekerja diwajibkan login hanya menggunakan
+                            Employee ID demi efisiensi.
+                        </li>
+                    </ul>
+                </section>
+
+                <!-- Live Monitoring -->
+                <section
+                    id="live-monitoring"
+                    class="bg-white p-5 sm:p-6 lg:p-8 rounded-2xl shadow-sm border border-slate-100 w-full"
+                >
+                    <div class="flex items-center gap-3 mb-6">
+                        <div
+                            class="p-2 bg-red-100 rounded-lg text-red-600 shrink-0"
+                        >
+                            <svg
+                                class="w-6 h-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                ></path>
+                            </svg>
+                        </div>
+                        <h2
+                            class="text-xl sm:text-2xl font-bold text-slate-800"
+                        >
+                            4. Live Monitoring
+                        </h2>
+                    </div>
+                    <p
+                        class="text-slate-600 leading-relaxed mb-2 text-sm sm:text-base"
+                    >
+                        Modul ini didesain sebagai
+                        <strong>Dashboard Real-Time</strong> yang ditampilkan
+                        pada layar TV/Monitor besar di area operasional. Halaman
+                        ini melakukan refresh otomatis secara berkala.
+                    </p>
+                </section>
+
+                <!-- Report Checkpoint -->
+                <section
+                    id="report-checkpoint"
+                    class="bg-white p-5 sm:p-6 lg:p-8 rounded-2xl shadow-sm border border-slate-100 w-full"
+                >
+                    <div class="flex items-center gap-3 mb-6">
+                        <div
+                            class="p-2 bg-teal-100 rounded-lg text-teal-600 shrink-0"
+                        >
+                            <svg
+                                class="w-6 h-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                ></path>
+                            </svg>
+                        </div>
+                        <h2
+                            class="text-xl sm:text-2xl font-bold text-slate-800"
+                        >
+                            5. Report Checkpoint
+                        </h2>
+                    </div>
+                    <p
+                        class="text-slate-600 leading-relaxed mb-2 text-sm sm:text-base"
+                    >
+                        Modul laporan ini memfasilitasi pengguna untuk melihat,
+                        memfilter, dan mengekspor seluruh jejak historis
+                        checkpoint ke dalam format Microsoft Excel.
+                    </p>
+                </section>
+
+                <footer
+                    class="text-center text-xs sm:text-sm text-slate-500 py-6 sm:py-8 border-t border-slate-200 mt-8 sm:mt-12 w-full"
+                >
+                    &copy; 2026 Checkpoint System PT Pangan Lestari. All Rights
+                    Reserved.
+                </footer>
+            </main>
+        </div>
+    </body>
 </html>
