@@ -76,7 +76,8 @@
                             $dotClass = 'bg-gray-400';
                         }
                     @endphp
-                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium {{ $statusClass }}">
+                    <span
+                        class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium {{ $statusClass }}">
                         <span class="w-1.5 h-1.5 rounded-full {{ $dotClass }}"></span>
                         {{ $checkpoint->status }}
                     </span>
@@ -210,6 +211,12 @@
                     </div>
 
                     <div>
+                        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">{{ __('Diterima Oleh') }}</p>
+                        <p class="text-sm text-gray-900 mt-1 font-medium">{{ $checkpoint->receivedByUser?->name ?? '-' }}
+                        </p>
+                    </div>
+
+                    <div>
                         <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">
                             {{ __('Start Loading Oleh') }}</p>
                         <p class="text-sm text-gray-900 mt-1 font-medium">{{ $checkpoint->startedByUser?->name ?? '-' }}
@@ -217,7 +224,10 @@
                     </div>
 
                     <div>
-                        &nbsp;
+                        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">{{ __('Waktu Keluar') }}</p>
+                        <p class="text-sm text-gray-900 mt-1 font-medium">
+                            {{ $checkpoint->waktu_keluar?->format('d/m/Y H:i:s') ?? '-' }}
+                        </p>
                     </div>
 
                     <div>
@@ -230,10 +240,6 @@
                         <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">{{ __('Waktu Cancel') }}</p>
                         <p class="text-sm text-gray-900 mt-1 font-medium">
                             {{ $checkpoint->canceled_at?->format('d/m/Y H:i:s') ?? '-' }}</p>
-                    </div>
-
-                    <div>
-                        &nbsp;
                     </div>
 
                     <div>
@@ -290,7 +296,8 @@
                             {{ __('Foto Identitas (SIM/KTP)') }}</p>
                         <div class="mt-2">
                             <a href="{{ asset('storage/' . $checkpoint->foto_identitas) }}" target="_blank">
-                                <img src="{{ asset('storage/' . $checkpoint->foto_identitas) }}" alt="Foto Identitas" class="max-w-xs rounded-lg shadow-sm border border-gray-200">
+                                <img src="{{ asset('storage/' . $checkpoint->foto_identitas) }}" alt="Foto Identitas"
+                                    class="max-w-xs rounded-lg shadow-sm border border-gray-200">
                             </a>
                         </div>
                     </div>

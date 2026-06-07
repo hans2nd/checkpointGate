@@ -754,12 +754,29 @@ class ApiController extends Controller
         $cp->update([
             'waktu_penyerahan_dokumen' => Carbon::now(),
             'waktu_keluar' => Carbon::now(),
-            'status' => 'COMPLETED',
         ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Dokumen diserahkan.',
+            'data' => $this->formatCheckpoint($cp->fresh()),
+        ]);
+    }
+
+    /**
+     * POST /api/checkpoints/{id}/trigger-completed
+     */
+    public function triggerCompleted($id)
+    {
+        $cp = Checkpoint::findOrFail($id);
+        $cp->update([
+            'waktu_keluar' => Carbon::now(),
+            'status' => 'COMPLETED',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kendaraan selesai (Completed).',
             'data' => $this->formatCheckpoint($cp->fresh()),
         ]);
     }

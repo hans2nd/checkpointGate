@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CheckpointController;
 use App\Http\Controllers\GateController;
 use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\VehicleTypeController;
 use App\Http\Controllers\LiveMonitoringController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\ReportController;
@@ -106,6 +107,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/web-data/vehicles/search', [VehicleController::class, 'search'])->name('vehicles.search');
     Route::get('/web-data/vehicles/lookup', [VehicleController::class, 'getByNoPolisi'])->name('vehicles.lookup');
     Route::get('/web-data/gates/available', [CheckpointController::class, 'getAvailableGates'])->name('gates.available');
+
+    // Vehicle Types
+    Route::resource('vehicle-types', VehicleTypeController::class)->except(['show']);
+    Route::get('/web-data/vehicle-types', [VehicleTypeController::class, 'apiList'])->name('vehicle-types.api');
 
     // Report
     Route::get('report', [ReportController::class, 'index'])->name('report.index')->middleware('permission:report.view');

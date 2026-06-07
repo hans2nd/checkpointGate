@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Checkpoint;
 use App\Models\Gate;
+use App\Models\VehicleType;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -77,12 +78,15 @@ class CheckpointController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
-        return view('checkpoints.index', compact('checkpoints'));
+        $vehicleTypes = VehicleType::orderBy('name')->pluck('name');
+
+        return view('checkpoints.index', compact('checkpoints', 'vehicleTypes'));
     }
 
     public function create()
     {
-        return view('checkpoints.create');
+        $vehicleTypes = VehicleType::orderBy('name')->pluck('name');
+        return view('checkpoints.create', compact('vehicleTypes'));
     }
 
     public function store(Request $request)
@@ -372,6 +376,7 @@ class CheckpointController extends Controller
             'purchase_order' => $request->purchase_order,
             'note' => $request->note,
             'waktu_penerimaan_dokumen' => \Carbon\Carbon::now(),
+            'received_by' => Auth::id(),
             'status' => 'DOC IN',
         ]);
 
@@ -462,7 +467,6 @@ class CheckpointController extends Controller
 
         $checkpoint->update([
             'waktu_penyerahan_dokumen' => Carbon::now(),
-            'status' => 'COMPLETED',
         ]);
 
         return redirect()->back()

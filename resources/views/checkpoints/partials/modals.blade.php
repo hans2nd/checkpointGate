@@ -177,14 +177,17 @@
             <form id="terimaForm" method="POST" action="">
                 @csrf
                 <div class="space-y-6 mb-12">
-                    <div class="relative">
+                    <div>
                         <label for="terima_jenis_kendaraan"
-                            class="block text-sm font-medium text-gray-700 mb-1.5">Vehicle Type <span
+                            class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Vehicle Type') }} <span
                                 class="text-red-400">*</span></label>
-                        <input type="text" id="terima_jenis_kendaraan" name="jenis_kendaraan" required autocomplete="off"
-                            placeholder="Contoh: CDD / WINGBOX"
-                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase">
-                        <div id="jk-autocomplete-list" class="hidden absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-52 overflow-y-auto"></div>
+                        <select id="terima_jenis_kendaraan" name="jenis_kendaraan" required
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="" disabled selected>{{ __('Pilih Jenis Kendaraan') }}</option>
+                            @foreach($vehicleTypes as $vt)
+                                <option value="{{ $vt }}">{{ $vt }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div>
                         <label for="terima_tipe" class="block text-sm font-medium text-gray-700 mb-1.5">Type <span

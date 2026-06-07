@@ -52,10 +52,8 @@ class LiveMonitoringController extends Controller
         $activitySummary = $this->buildActivitySummary($today, $yesterday);
 
         // Average loading time per vehicle type × jenis_barang × aktivitas
-        $vehicleTypes = Vehicle::select('jenis_kendaraan')
-            ->distinct()
-            ->orderBy('jenis_kendaraan')
-            ->pluck('jenis_kendaraan')
+        $vehicleTypes = \App\Models\VehicleType::orderBy('name')
+            ->pluck('name')
             ->toArray();
         $avgTimes = [];
 
@@ -156,10 +154,8 @@ class LiveMonitoringController extends Controller
         $activitySummary = $this->buildActivitySummary($today, $yesterday);
 
         // Average loading time per vehicle type (dynamic from master)
-        $vehicleTypes = Vehicle::select('jenis_kendaraan')
-            ->distinct()
-            ->orderBy('jenis_kendaraan')
-            ->pluck('jenis_kendaraan')
+        $vehicleTypes = \App\Models\VehicleType::orderBy('name')
+            ->pluck('name')
             ->toArray();
         $avgTimes = [];
 
@@ -220,8 +216,10 @@ class LiveMonitoringController extends Controller
         $activitySummary = [];
 
         // Row khusus untuk kendaraan yang baru Parking (belum ada aktivitas & jenis_barang)
-        $parkingBase = Checkpoint::whereDate('tanggal', $today)
-            ->whereNull('aktivitas')
+        // $parkingBase = Checkpoint::whereDate('tanggal', $today)
+        //     ->whereNull('aktivitas')
+        //     ->where('status', '!=', 'CANCEL');
+        $parkingBase = Checkpoint::whereNull('aktivitas')
             ->where('status', '!=', 'CANCEL');
 
         $activitySummary[] = [
@@ -230,35 +228,39 @@ class LiveMonitoringController extends Controller
             'doc_in' => (clone $parkingBase)->where('status', 'DOC IN')->count(),
             'waiting_gate' => (clone $parkingBase)->whereIn('status', ['ASSIGN GATE', 'WAITING', 'READY'])->count(),
             'on_process' => (clone $parkingBase)->where('status', 'ON LOADING')->count(),
-            'finish' => (clone $parkingBase)->where('status', 'FINISH')->count(),
-            'doc_out' => (clone $parkingBase)->where('status', 'COMPLETED')->count(),
-            'completed' => Checkpoint::where('status', 'COMPLETED')
-                ->whereDate('created_at', \Carbon\Carbon::today())
-                ->whereNull('aktivitas')
-                ->count(),
+            'finish' => (clone $parkingBase)->where('status', 'FINISH')->whereNull('waktu_penyerahan_dokumen')->whereDate('updated_at', $today)->count(),
+            'doc_out' => (clone $parkingBase)->whereNotNull('waktu_penyerahan_dokumen')->whereDate('waktu_penyerahan_dokumen', $today)->count(),
+            'completed' => (clone $parkingBase)->whereNotNull('waktu_penyerahan_dokumen')->whereDate('waktu_penyerahan_dokumen', $today)->count(),
         ];
 
         foreach (['INBOUND', 'OUTBOUND'] as $aktivitas) {
             foreach (['FROZEN', 'DRY', 'CHILLED'] as $jenis) {
                 $label = ($aktivitas === 'INBOUND' ? 'IN' : 'OUT') . ' ' . $jenis;
 
-                // Hitung murni berdasarkan 'tanggal' tabel checkpoint hari ini
-                $todayBase = Checkpoint::whereDate('tanggal', $today)
-                    ->where('aktivitas', $aktivitas)
+                // Base untuk status aktif: hitung semua data yang belum selesai tanpa peduli tanggal (lintas hari)
+                $activeBase = Checkpoint::where('aktivitas', $aktivitas)
                     ->where('jenis_barang', $jenis)
                     ->where('status', '!=', 'CANCEL');
 
-                $parking = (clone $todayBase)->whereIn('status', ['START', 'PARKING', 'DOC IN'])->count();
-                $docIn = (clone $todayBase)->where('status', 'DOC IN')->count();
-                $waitingGate = (clone $todayBase)->whereIn('status', ['ASSIGN GATE', 'WAITING', 'READY'])->count();
-                $onProcess = (clone $todayBase)->where('status', 'ON LOADING')->count();
-                $finish = (clone $todayBase)->where('status', 'FINISH')->count();
-                $docOut = (clone $todayBase)->where('status', 'COMPLETED')->count();
-                $completed = Checkpoint::where('status', 'COMPLETED')
-                    ->whereDate('created_at', \Carbon\Carbon::today())
-                    ->where('aktivitas', $aktivitas)
-                    ->where('jenis_barang', $jenis)
+                $parking = (clone $activeBase)->whereIn('status', ['START', 'PARKING', 'DOC IN'])->count();
+                $docIn = (clone $activeBase)->where('status', 'DOC IN')->count();
+                $waitingGate = (clone $activeBase)->whereIn('status', ['ASSIGN GATE', 'WAITING', 'READY'])->count();
+                $onProcess = (clone $activeBase)->where('status', 'ON LOADING')->count();
+
+                // Base untuk status selesai: hanya dihitung jika diselesaikan (diupdate) PADA HARI INI
+                // 'finish' berarti status FINISH dan dokumen BELUM diserahkan
+                $finish = (clone $activeBase)
+                    ->where('status', 'FINISH')
+                    ->whereNull('waktu_penyerahan_dokumen')
+                    ->whereDate('updated_at', $today)
                     ->count();
+                
+                // 'docOut' / 'completed' berarti dokumen SUDAH diserahkan hari ini
+                $docOut = (clone $activeBase)
+                    ->whereNotNull('waktu_penyerahan_dokumen')
+                    ->whereDate('waktu_penyerahan_dokumen', $today)
+                    ->count();
+                $completed = $docOut; // Completed adalah jumlah yang sama dengan Doc Out di hari ini
 
                 $activitySummary[] = [
                     'label' => $label,

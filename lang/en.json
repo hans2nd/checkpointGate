@@ -145,7 +145,7 @@
     "Print Ticket Gate setelah terima": "Print Gate Ticket after receipt",
     "Terima & Tetapkan Gate": "Receive & Assign Gate",
     "Assign Gate": "Assign Gate",
-    "Waiting Time": "Waiting Time",
+    "Waktu Tunggu": "Waiting Time",
     "Gagal memuat data gate.": "Failed to load gate data.",
     "Penerimaan dokumen:": "Document receipt:",
 
@@ -202,5 +202,11 @@
     "Diterima oleh:": "Received by:",
     "Dokumen ini sebagai bukti penerimaan dokumen dan kendaraan siap loading.": "This document serves as proof of document receipt and vehicle ready for loading.",
     "Dicetak:": "Printed:",
-    "Foto Identitas (SIM)": "Identity Photo (SIM)"
+    "Foto Identitas (SIM)": "Identity Photo (SIM)",
+    "Waktu Keluar": "Exit Time",
+    "Pencarian (Polisi, Vendor, SJ, PO, Note)": "Search (License Plate, Vendor, Delivery Note, PO, Note)",
+    "Cari kata kunci...": "Search keywords...",
+    "Search (License Plate, Vendor, Delivery Note, PO, Note)": "Search (License Plate, Vendor, Delivery Note, PO, Note)",
+    "Search keywords...": "Search keywords...",
+    "Laporan data checkpoint berdasarkan periode dan filter": "Checkpoint data report based on period and filters"
 }

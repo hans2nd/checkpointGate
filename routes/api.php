@@ -52,6 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/checkpoints/{id}/trigger-start', [ApiController::class, 'triggerStart']);
     Route::post('/checkpoints/{id}/trigger-end', [ApiController::class, 'triggerEnd']);
     Route::post('/checkpoints/{id}/trigger-penyerahan', [ApiController::class, 'triggerPenyerahan']);
+    Route::post('/checkpoints/{id}/trigger-completed', [ApiController::class, 'triggerCompleted']);
 
     // --- Gates ---
     Route::get('/gates/available', [ApiController::class, 'availableGates']);

@@ -124,15 +124,20 @@
                         <input type="hidden" name="tipe" id="tipe_hidden" value="{{ old('tipe', 'EKSTERNAL') }}">
                     </div>
 
-                    {{-- Jenis Kendaraan (auto-filled) --}}
+                    {{-- Jenis Kendaraan (dropdown from master) --}}
                     <div>
                         <label for="jenis_kendaraan"
                             class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Jenis Kendaraan') }}
                             <span class="text-red-400">*</span></label>
-                        <input type="text" id="jenis_kendaraan" name="jenis_kendaraan"
-                            value="{{ old('jenis_kendaraan') }}" required placeholder="Jenis kendaraan"
-                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-gray-50"
-                            readonly>
+                        <select id="jenis_kendaraan" name="jenis_kendaraan" required
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-gray-50 transition-all"
+                            disabled>
+                            <option value="">-- {{ __('Pilih Jenis Kendaraan') }} --</option>
+                            @foreach($vehicleTypes as $vt)
+                                <option value="{{ $vt }}" {{ old('jenis_kendaraan') == $vt ? 'selected' : '' }}>{{ $vt }}</option>
+                            @endforeach
+                        </select>
+                        <input type="hidden" name="jenis_kendaraan" id="jenis_kendaraan_hidden" value="{{ old('jenis_kendaraan') }}">
                     </div>
 
                     {{-- Jenis Barang --}}
@@ -301,7 +306,11 @@
                 noPolisiInput.value = vehicle.no_polisi;
                 document.getElementById('driver').value = vehicle.driver;
                 document.getElementById('vendor').value = vehicle.vendor;
-                document.getElementById('jenis_kendaraan').value = vehicle.jenis_kendaraan;
+
+                // Set jenis_kendaraan select & hidden
+                const jkSelect = document.getElementById('jenis_kendaraan');
+                jkSelect.value = vehicle.jenis_kendaraan;
+                document.getElementById('jenis_kendaraan_hidden').value = vehicle.jenis_kendaraan;
 
                 // Set tipe
                 document.getElementById('tipe').value = vehicle.tipe;
@@ -325,14 +334,23 @@
                 // Make fields editable again if user wants to type manually
                 document.getElementById('driver').removeAttribute('readonly');
                 document.getElementById('vendor').removeAttribute('readonly');
-                document.getElementById('jenis_kendaraan').removeAttribute('readonly');
+                document.getElementById('jenis_kendaraan').removeAttribute('disabled');
                 document.getElementById('tipe').removeAttribute('disabled');
 
-                ['driver', 'vendor', 'jenis_kendaraan'].forEach(id => {
+                ['driver', 'vendor'].forEach(id => {
                     document.getElementById(id).classList.remove('bg-gray-50');
                 });
+                document.getElementById('jenis_kendaraan').classList.remove('bg-gray-50');
                 document.getElementById('tipe').classList.remove('bg-gray-50');
             });
+
+            // Sync jenis_kendaraan hidden field when select changes
+            const jkSelect = document.getElementById('jenis_kendaraan');
+            if (jkSelect) {
+                jkSelect.addEventListener('change', function() {
+                    document.getElementById('jenis_kendaraan_hidden').value = this.value;
+                });
+            }
         });
 
         // Live clock for arrival time

@@ -181,5 +181,9 @@
     "Received by:": "Diterima oleh:",
     "This document serves as proof of document receipt and vehicle ready for loading.": "Dokumen ini sebagai bukti penerimaan dokumen dan kendaraan siap loading.",
     "Printed:": "Dicetak:",
-    "Identity Photo (SIM)": "Foto Identitas (SIM)"
+    "Identity Photo (SIM)": "Foto Identitas (SIM)",
+    "Exit Time": "Waktu Keluar",
+    "Search (License Plate, Vendor, Delivery Note, PO, Note)": "Pencarian (Polisi, Vendor, SJ, PO, Note)",
+    "Search keywords...": "Cari kata kunci...",
+    "Laporan data checkpoint berdasarkan periode dan filter": "Laporan data checkpoint berdasarkan periode dan filter"
 }

@@ -40,6 +40,7 @@ class Checkpoint extends Model
         'cancel_approved_by',
         'created_at',
         'foto_identitas',
+        'received_by',
     ];
 
     protected $casts = [
@@ -91,5 +92,13 @@ class Checkpoint extends Model
     public function cancelApprover()
     {
         return $this->belongsTo(User::class, 'cancel_approved_by');
+    }
+
+    /**
+     * User who received the document.
+     */
+    public function receivedByUser()
+    {
+        return $this->belongsTo(User::class, 'received_by');
     }
 }

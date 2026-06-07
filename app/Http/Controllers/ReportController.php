@@ -20,16 +20,17 @@ class ReportController extends Controller
         $aktivitas = $request->input('aktivitas', '');
         $jenisBarang = $request->input('jenis_barang', '');
         $status = $request->input('status', '');
+        $search = $request->input('search', '');
 
-        $query = $this->buildQuery($startDate, $endDate, $aktivitas, $jenisBarang, $status);
+        $query = $this->buildQuery($startDate, $endDate, $aktivitas, $jenisBarang, $status, $search);
 
         $checkpoints = $query->orderBy('tanggal', 'desc')
             ->orderBy('created_at', 'desc')
-            ->paginate(25)
+            ->paginate(15)
             ->appends($request->query());
 
         // Summary stats
-        $summaryQuery = $this->buildQuery($startDate, $endDate, $aktivitas, $jenisBarang, $status);
+        $summaryQuery = $this->buildQuery($startDate, $endDate, $aktivitas, $jenisBarang, $status, $search);
         $totalKendaraan = (clone $summaryQuery)->count();
         $totalFinish = (clone $summaryQuery)->where('status', 'FINISH')->count();
         $totalCancel = (clone $summaryQuery)->where('status', 'CANCEL')->count();
@@ -67,7 +68,8 @@ class ReportController extends Controller
             'totalFinish',
             'totalCancel',
             'totalOnLoading',
-            'avgDurasi'
+            'avgDurasi',
+            'search'
         ));
     }
 
@@ -78,46 +80,85 @@ class ReportController extends Controller
         $aktivitas = $request->input('aktivitas', '');
         $jenisBarang = $request->input('jenis_barang', '');
         $status = $request->input('status', '');
+        $search = $request->input('search', '');
 
-        $data = $this->buildQuery($startDate, $endDate, $aktivitas, $jenisBarang, $status)
+        $data = $this->buildQuery($startDate, $endDate, $aktivitas, $jenisBarang, $status, $search)
             ->orderBy('tanggal', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle('Report Checkpoint');
+        $sheet->setTitle(__('Report Checkpoint'));
 
         // Title row
-        $sheet->mergeCells('A1:R1');
-        $sheet->setCellValue('A1', 'LAPORAN DATA CHECKPOINT');
+        $sheet->mergeCells('A1:AC1');
+        $sheet->setCellValue('A1', __('LAPORAN DATA CHECKPOINT'));
         $sheet->getStyle('A1')->applyFromArray([
             'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => '1F2937']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
 
         // Info row
-        $sheet->mergeCells('A2:R2');
+        $sheet->mergeCells('A2:AC2');
         $periodLabel = Carbon::parse($startDate)->format('d/m/Y') . ' - ' . Carbon::parse($endDate)->format('d/m/Y');
         $filterLabels = [];
-        if ($aktivitas) $filterLabels[] = "Aktivitas: {$aktivitas}";
-        if ($jenisBarang) $filterLabels[] = "Jenis: {$jenisBarang}";
-        if ($status) $filterLabels[] = "Status: {$status}";
+        if ($aktivitas)
+            $filterLabels[] = __('Aktivitas') . ": {$aktivitas}";
+        if ($jenisBarang)
+            $filterLabels[] = __('Jenis') . ": {$jenisBarang}";
+        if ($status)
+            $filterLabels[] = __('Status') . ": {$status}";
+        if ($search)
+            $filterLabels[] = __('Pencarian') . ": {$search}";
         $filterInfo = $filterLabels ? ' | ' . implode(', ', $filterLabels) : '';
-        $sheet->setCellValue('A2', "Periode: {$periodLabel}{$filterInfo} | Total: {$data->count()} kendaraan");
+        $sheet->setCellValue('A2', __('Periode') . ": {$periodLabel}{$filterInfo} | " . __('Total') . ": {$data->count()} " . __('kendaraan'));
         $sheet->getStyle('A2')->applyFromArray([
             'font' => ['size' => 10, 'color' => ['rgb' => '6B7280']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
 
         // Headers
-        $headers = ['No', 'Tanggal', 'No Polisi', 'Vendor', 'Kendaraan', 'Barang', 'Aktivitas', 'Penerimaan Dokumen', 'Start Loading', 'End Loading', 'Gate', 'Status', 'Catatan', 'Durasi Loading', 'Penyerahan Dokumen', 'Durasi Dokumen', 'No. Surat Jalan', 'Purchase Order'];
+        $headers = [
+            __('No'),
+            __('Tanggal'),
+            __('No Polisi'),
+            __('Vendor'),
+            __('Driver'),
+            __('Tipe'),
+            __('Jenis Kendaraan'),
+            __('Jenis Barang'),
+            __('Aktivitas'),
+            __('No. Surat Jalan'),
+            __('Purchase Order'),
+            __('Gate'),
+            __('Status'),
+            __('Waktu Tunggu'),
+            __('Waktu Penerimaan Dokumen'),
+            __('Waktu Penyerahan Dokumen'),
+            __('Waktu Keluar'),
+            __('Durasi Dokumen'),
+            __('Waktu Start Loading'),
+            __('Waktu End Loading'),
+            __('Durasi Loading/Unloading'),
+            __('Dibuat Oleh'),
+            __('Diterima Oleh'),
+            __('Start Loading Oleh'),
+            __('Cancel Oleh'),
+            __('Waktu Cancel'),
+            __('Note'),
+            __('Dibuat'),
+            __('Diperbarui')
+        ];
+
         foreach ($headers as $col => $header) {
-            $cell = chr(65 + $col) . '4';
+            // Converts 0-25 to A-Z, 26-51 to AA-AZ, etc.
+            $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col + 1);
+            $cell = $colLetter . '4';
             $sheet->setCellValue($cell, $header);
         }
 
-        $sheet->getStyle('A4:R4')->applyFromArray([
+        $sheet->getStyle('A4:AC4')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 10],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F97316']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
@@ -128,38 +169,57 @@ class ReportController extends Controller
         $row = 5;
         /** @var Checkpoint $cp */
         foreach ($data as $index => $cp) {
+            $waktuTunggu = '';
+            if ($cp->created_at && $cp->waktu_penerimaan_dokumen) {
+                $diffTunggu = $cp->created_at->diff($cp->waktu_penerimaan_dokumen);
+                $hoursTunggu = $diffTunggu->days * 24 + $diffTunggu->h;
+                $waktuTunggu = sprintf('%02d:%02d:%02d', $hoursTunggu, $diffTunggu->i, $diffTunggu->s);
+            }
+
             $sheet->setCellValue('A' . $row, $index + 1);
             $sheet->setCellValue('B' . $row, $cp->tanggal ? $cp->tanggal->format('d/m/Y') : '');
             $sheet->setCellValue('C' . $row, $cp->no_polisi);
             $sheet->setCellValue('D' . $row, $cp->vendor);
-            $sheet->setCellValue('E' . $row, $cp->jenis_kendaraan);
-            $sheet->setCellValue('F' . $row, $cp->jenis_barang);
-            $sheet->setCellValue('G' . $row, $cp->aktivitas);
-            $sheet->setCellValue('H' . $row, $cp->waktu_penerimaan_dokumen ? $cp->waktu_penerimaan_dokumen->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('I' . $row, $cp->waktu_start ? $cp->waktu_start->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('J' . $row, $cp->waktu_end ? $cp->waktu_end->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('K' . $row, $this->formatGateLabel($cp->gate));
-            $sheet->setCellValue('L' . $row, $cp->status);
-            $sheet->setCellValue('M' . $row, $cp->status === 'CANCEL' ? $cp->cancel_note : $cp->note);
-            $sheet->setCellValue('N' . $row, $cp->durasi);
-            $sheet->setCellValue('O' . $row, $cp->waktu_penyerahan_dokumen ? $cp->waktu_penyerahan_dokumen->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('P' . $row, $this->calculateDurasiDokumen($cp));
-            $sheet->setCellValue('Q' . $row, $cp->no_surat_jalan);
-            $sheet->setCellValue('R' . $row, $cp->purchase_order);
+            $sheet->setCellValue('E' . $row, $cp->driver);
+            $sheet->setCellValue('F' . $row, $cp->tipe);
+            $sheet->setCellValue('G' . $row, $cp->jenis_kendaraan);
+            $sheet->setCellValue('H' . $row, $cp->jenis_barang);
+            $sheet->setCellValue('I' . $row, $cp->aktivitas);
+            $sheet->setCellValue('J' . $row, $cp->no_surat_jalan);
+            $sheet->setCellValue('K' . $row, $cp->purchase_order);
+            $sheet->setCellValue('L' . $row, $this->formatGateLabel($cp->gate));
+            $sheet->setCellValue('M' . $row, $cp->status);
+            $sheet->setCellValue('N' . $row, $waktuTunggu);
+            $sheet->setCellValue('O' . $row, $cp->waktu_penerimaan_dokumen ? $cp->waktu_penerimaan_dokumen->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('P' . $row, $cp->waktu_penyerahan_dokumen ? $cp->waktu_penyerahan_dokumen->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('Q' . $row, $cp->waktu_keluar ? $cp->waktu_keluar->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('R' . $row, $this->calculateDurasiDokumen($cp));
+            $sheet->setCellValue('S' . $row, $cp->waktu_start ? $cp->waktu_start->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('T' . $row, $cp->waktu_end ? $cp->waktu_end->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('U' . $row, $cp->durasi);
+            $sheet->setCellValue('V' . $row, optional($cp->createdByUser)->name);
+            $sheet->setCellValue('W' . $row, optional($cp->receivedByUser)->name);
+            $sheet->setCellValue('X' . $row, optional($cp->startedByUser)->name);
+            $sheet->setCellValue('Y' . $row, optional($cp->canceledByUser)->name);
+            $sheet->setCellValue('Z' . $row, $cp->canceled_at ? $cp->canceled_at->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('AA' . $row, $cp->note);
+            $sheet->setCellValue('AB' . $row, $cp->created_at ? $cp->created_at->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('AC' . $row, $cp->updated_at ? $cp->updated_at->format('d/m/Y H:i:s') : '');
             $row++;
         }
 
         // Data borders
         if ($row > 5) {
-            $sheet->getStyle('A5:R' . ($row - 1))->applyFromArray([
+            $sheet->getStyle('A5:AC' . ($row - 1))->applyFromArray([
                 'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 'font' => ['size' => 10],
             ]);
         }
 
         // Auto-size columns
-        foreach (range('A', 'R') as $col) {
-            $sheet->getColumnDimension($col)->setAutoSize(true);
+        foreach (range(1, 29) as $colIndex) {
+            $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
+            $sheet->getColumnDimension($colLetter)->setAutoSize(true);
         }
 
         $filename = 'report_checkpoint_' . Carbon::parse($startDate)->format('Ymd') . '_' . Carbon::parse($endDate)->format('Ymd') . '.xlsx';
@@ -170,13 +230,13 @@ class ReportController extends Controller
         return response()->download($temp, $filename)->deleteFileAfterSend(true);
     }
 
-    private function buildQuery(string $startDate, string $endDate, ?string $aktivitas, ?string $jenisBarang, ?string $status)
+    private function buildQuery(string $startDate, string $endDate, ?string $aktivitas, ?string $jenisBarang, ?string $status, ?string $search = null)
     {
         $parsedStart = Carbon::parse($startDate)->startOfDay();
         $parsedEnd = Carbon::parse($endDate)->endOfDay();
         $dayBeforeStart = Carbon::parse($startDate)->subDay();
 
-        $query = Checkpoint::where(function ($dateScope) use ($parsedStart, $parsedEnd, $dayBeforeStart) {
+        $query = Checkpoint::with(['createdByUser', 'receivedByUser', 'startedByUser', 'canceledByUser'])->where(function ($dateScope) use ($parsedStart, $parsedEnd, $dayBeforeStart) {
             // Main date range
             $dateScope->whereBetween('tanggal', [$parsedStart, $parsedEnd])
                 // Overnight: started day before but still active or finished after midnight
@@ -185,35 +245,52 @@ class ReportController extends Controller
                         ->where('status', '!=', 'CANCEL')
                         ->where(function ($inner) use ($parsedStart) {
                             $inner->where('status', 'ON LOADING')
-                                  ->orWhere(function ($fin) use ($parsedStart) {
-                                      $fin->where('status', 'FINISH')
-                                          ->whereNotNull('waktu_end')
-                                          ->where('waktu_end', '>=', $parsedStart);
-                                  });
+                                ->orWhere(function ($fin) use ($parsedStart) {
+                                    $fin->where('status', 'FINISH')
+                                        ->whereNotNull('waktu_end')
+                                        ->where('waktu_end', '>=', $parsedStart);
+                                });
                         });
                 });
         });
 
         // Apply filters OUTSIDE the date scope so they apply to ALL results
-        if ($aktivitas) $query->where('aktivitas', $aktivitas);
-        if ($jenisBarang) $query->where('jenis_barang', $jenisBarang);
-        if ($status) $query->where('status', $status);
+        if ($aktivitas)
+            $query->where('aktivitas', $aktivitas);
+        if ($jenisBarang)
+            $query->where('jenis_barang', $jenisBarang);
+        if ($status)
+            $query->where('status', $status);
+            
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('no_polisi', 'like', "%{$search}%")
+                  ->orWhere('vendor', 'like', "%{$search}%")
+                  ->orWhere('no_surat_jalan', 'like', "%{$search}%")
+                  ->orWhere('purchase_order', 'like', "%{$search}%")
+                  ->orWhere('note', 'like', "%{$search}%");
+            });
+        }
 
         return $query;
     }
 
     private function formatGateLabel($gate): string
     {
-        if (!$gate) return '-';
+        if (!$gate)
+            return '-';
         $gateNumber = (int) $gate;
-        if ($gateNumber >= 1 && $gateNumber <= 16) return 'F-' . $gateNumber;
-        if ($gateNumber >= 17 && $gateNumber <= 27) return 'D-' . ($gateNumber - 16);
+        if ($gateNumber >= 1 && $gateNumber <= 16)
+            return 'F-' . $gateNumber;
+        if ($gateNumber >= 17 && $gateNumber <= 27)
+            return 'D-' . ($gateNumber - 16);
         return 'Gate-' . $gate;
     }
 
     private function calculateDurasiDokumen(Checkpoint $checkpoint): string
     {
-        if (!$checkpoint->waktu_penerimaan_dokumen || !$checkpoint->waktu_penyerahan_dokumen) return '';
+        if (!$checkpoint->waktu_penerimaan_dokumen || !$checkpoint->waktu_penyerahan_dokumen)
+            return '';
         $diff = $checkpoint->waktu_penerimaan_dokumen->diff($checkpoint->waktu_penyerahan_dokumen);
         $hours = ($diff->days * 24) + $diff->h;
         return sprintf('%02d:%02d:%02d', $hours, $diff->i, $diff->s);

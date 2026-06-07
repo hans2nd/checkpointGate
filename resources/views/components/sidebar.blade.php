@@ -25,7 +25,8 @@
 
     {{-- Navigation Links --}}
     <nav class="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
-        <p class="sidebar-label px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">{{ __('Menu') }}</p>
+        <p class="sidebar-label px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">
+            {{ __('Menu') }}</p>
 
         {{-- Dashboard --}}
         <a href="{{ route('dashboard') }}"
@@ -66,21 +67,22 @@
         </a>
 
         {{-- Report --}}
-        @if(Auth::user()->hasPermission('report.view'))
-        <a href="{{ route('report.index') }}"
-            class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
+        @if (Auth::user()->hasPermission('report.view'))
+            <a href="{{ route('report.index') }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                   {{ request()->routeIs('report.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
-            title="Report">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span class="sidebar-label">{{ __('Report') }}</span>
-        </a>
+                title="Report">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span class="sidebar-label">{{ __('Report') }}</span>
+            </a>
         @endif
 
         <div class="pt-3">
-            <p class="sidebar-label px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">{{ __('Master Data') }}</p>
+            <p class="sidebar-label px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                {{ __('Master Data') }}</p>
 
             {{-- Gates --}}
             {{-- <a href="{{ route('gates.index') }}"
@@ -103,74 +105,87 @@
                 <span class="sidebar-label">{{ __('Master Kendaraan') }}</span>
             </a>
 
-            {{-- Employees (Admin only) --}}
-            @if(Auth::user()->isAdmin())
-            <a href="{{ route('employees.index') }}"
+            {{-- Vehicle Types --}}
+            <a href="{{ route('vehicle-types.index') }}"
                 class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
-                      {{ request()->routeIs('employees.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
-                title="Master Employee">
+                      {{ request()->routeIs('vehicle-types.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
+                title="Master Vehicle Type">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
-                <span class="sidebar-label">{{ __('Master Employee') }}</span>
+                <span class="sidebar-label">{{ __('Jenis Kendaraan') }}</span>
             </a>
+
+            {{-- Employees (Admin only) --}}
+            @if (Auth::user()->isAdmin())
+                <a href="{{ route('employees.index') }}"
+                    class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
+                      {{ request()->routeIs('employees.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
+                    title="Master Employee">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                    </svg>
+                    <span class="sidebar-label">{{ __('Master Employee') }}</span>
+                </a>
             @endif
         </div>
 
         <div class="pt-3">
-            <p class="sidebar-label px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">{{ __('Akun') }}</p>
+            <p class="sidebar-label px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                {{ __('Akun') }}</p>
 
             {{-- User Management (Admin only) --}}
-            @if(Auth::user()->isAdmin())
-            <a href="{{ route('users.index') }}"
-                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
+            @if (Auth::user()->isAdmin())
+                <a href="{{ route('users.index') }}"
+                    class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                       {{ request()->routeIs('users.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
-                title="User Management">
-                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                <span class="sidebar-label">{{ __('User Management') }}</span>
-            </a>
+                    title="User Management">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span class="sidebar-label">{{ __('User Management') }}</span>
+                </a>
 
-            {{-- Role Management --}}
-            <a href="{{ route('roles.index') }}"
-                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
+                {{-- Role Management --}}
+                <a href="{{ route('roles.index') }}"
+                    class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                       {{ request()->routeIs('roles.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
-                title="Role Management">
-                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                <span class="sidebar-label">{{ __('Role Management') }}</span>
-            </a>
+                    title="Role Management">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <span class="sidebar-label">{{ __('Role Management') }}</span>
+                </a>
 
-            {{-- Permission Management --}}
-            <a href="{{ route('permissions.index') }}"
-                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
+                {{-- Permission Management --}}
+                <a href="{{ route('permissions.index') }}"
+                    class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                       {{ request()->routeIs('permissions.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
-                title="Permission Management">
-                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                </svg>
-                <span class="sidebar-label">{{ __('Permission') }}</span>
-            </a>
-            
-            {{-- Maintenance Mode --}}
-            <a href="{{ route('maintenance.index') }}"
-                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
+                    title="Permission Management">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
+                    <span class="sidebar-label">{{ __('Permission') }}</span>
+                </a>
+
+                {{-- Maintenance Mode --}}
+                <a href="{{ route('maintenance.index') }}"
+                    class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                       {{ request()->routeIs('maintenance.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
-                title="Maintenance Mode">
-                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span class="sidebar-label">{{ __('Maintenance Mode') }}</span>
-            </a>
+                    title="Maintenance Mode">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span class="sidebar-label">{{ __('Maintenance Mode') }}</span>
+                </a>
             @endif
 
             {{-- Profile --}}
