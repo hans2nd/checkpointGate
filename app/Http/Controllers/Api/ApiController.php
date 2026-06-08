@@ -232,10 +232,10 @@ class ApiController extends Controller
             'outbound' => Checkpoint::whereDate('tanggal', $date)->where('aktivitas', 'OUTBOUND')->count(),
             'parking' => Checkpoint::whereIn('status', ['START', 'PARKING', 'DOC IN', 'ASSIGN GATE', 'WAITING', 'READY'])->count(),
             'on_loading' => Checkpoint::where('status', 'ON LOADING')->count(),
-            'finish' => Checkpoint::where('status', 'FINISH')->count(),
+            'finish' => Checkpoint::where('status', 'FINISH')->whereNotNull('waktu_penyerahan_dokumen')->count(),
             'frozen' => Checkpoint::whereDate('tanggal', $date)->where('jenis_barang', 'FROZEN')->count(),
             'dry' => Checkpoint::whereDate('tanggal', $date)->where('jenis_barang', 'DRY')->count(),
-            'completed' => Checkpoint::where('status', 'COMPLETED')->whereDate('created_at', $date)->count(),
+            'completed' => Checkpoint::where('status', 'COMPLETED')->whereDate('waktu_keluar', $date)->count(),
         ];
 
         $recent = Checkpoint::whereDate('tanggal', $date)
@@ -401,6 +401,18 @@ class ApiController extends Controller
         if ($request->filled('tanggal'))
             $query->whereDate('tanggal', $request->tanggal);
 
+        if ($request->filled('waktu_penyerahan_dokumen')) {
+            if (strtolower($request->waktu_penyerahan_dokumen) === 'is not null') {
+                $query->whereNotNull('waktu_penyerahan_dokumen');
+            } elseif (strtolower($request->waktu_penyerahan_dokumen) === 'is null') {
+                $query->whereNull('waktu_penyerahan_dokumen');
+            }
+        }
+
+        if ($request->filled('waktu_keluar_date')) {
+            $query->whereDate('waktu_keluar', $request->waktu_keluar_date);
+        }
+
         $perPage = min($request->input('per_page', 15), 100);
         $data = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
@@ -489,12 +501,12 @@ class ApiController extends Controller
             $file = $request->file('foto_identitas');
             $filename = $file->hashName();
             $path = 'checkpoints/' . $filename;
-            
+
             // Bypass store() yang menggunakan getRealPath() di dalam FilesystemAdapter.
             // Di beberapa environment Windows (Laragon), getRealPath() pada file temp bisa me-return false
             // yang menyebabkan error ValueError: Path cannot be empty saat fopen(false, 'r').
             \Illuminate\Support\Facades\Storage::disk('public')->put($path, file_get_contents($file->getPathname()));
-            
+
             $dataToSave['foto_identitas'] = $path;
         }
 
@@ -879,6 +891,7 @@ class ApiController extends Controller
             'waktu_start' => $cp->waktu_start?->toIso8601String(),
             'waktu_end' => $cp->waktu_end?->toIso8601String(),
             'waktu_penyerahan_dokumen' => $cp->waktu_penyerahan_dokumen?->toIso8601String(),
+            'waktu_keluar' => $cp->waktu_keluar?->toIso8601String(),
             'created_at' => $cp->created_at?->toIso8601String(),
             'foto_identitas_url' => $cp->foto_identitas ? asset('storage/' . $cp->foto_identitas) : null,
         ];
