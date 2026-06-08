@@ -47,7 +47,7 @@
         <div class="inner">
             <p class="card-title">Average Loading Time</p>
             <div style="flex: 1; min-height: 0; overflow: auto; width: 100%;">
-                <table style="border-collapse:collapse; width: 100%; min-width: 800px;">
+                <table style="border-collapse:separate; border-spacing:0; width: 100%; min-width: 800px;">
                     <thead>
                         <tr>
                             <th rowspan="3" style="position: sticky; left: 0; background: #fff; z-index: 10; text-align:left;font-weight:600;color:#6b7280;padding:2px 8px 2px 0;border-right:1px solid #e5e7eb;white-space:nowrap;vertical-align:bottom;min-width:80px;font-size:1.5em">Kendaraan</th>

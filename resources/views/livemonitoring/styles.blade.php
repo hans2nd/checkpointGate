@@ -102,10 +102,10 @@
         font-size: 0.9em;
     }
 
-    #avg-card {
+#avg-card {
         flex: 1.4;
         display: flex;
-        flex-direction: column;
+            flex-direction: column;
         border: 1px solid #e5e7eb;
         border-radius: 8px;
         background: #fff;
@@ -138,6 +138,11 @@
     #avg-card td {
         font-size: 0.8em;
         vertical-align: middle;
+    }
+
+    #avg-card thead th {
+        position: relative;
+        z-index: 6;
     }
 
     #avg-card .mono-val {
@@ -181,6 +186,7 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 1cqw;
+        flex-direction: row;
     }
 
     .gate-side {
@@ -381,13 +387,10 @@
         /* Jarak antara icon dan waktu */
     }
 
-    /* ===== DRY LEGEND ===== */
-    .dry-side-bottom {
+    /* ===== GATE LEGEND ===== */
+    .gate-legend {
         flex-shrink: 0;
         margin-top: 6px;
-    }
-
-    .gate-legend {
         background: #fff;
         border-radius: 6px;
         border: 1px solid #e5e7eb;
@@ -485,4 +488,214 @@
         padding: 8px 12px;
         height: 100vh;
     }
+
+
+
+
+@media screen and (max-width: 480px) {
+
+    /* ===== GLOBAL SLIDE FIX ===== */
+    /* Let each slide scroll vertically on its own */
+    .slider-slide {
+        min-width: 100% !important;
+        height: 100% !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+
+    /* ===== SLIDE 1: SUMMARY (mobile) ===== */
+    .slide-1-content {
+        flex: none !important;
+        min-height: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+        padding: 8px;
+        gap: 10px;
+        font-size: 12px;
+    }
+
+    #activity-card {
+        flex: none !important;
+        min-height: auto !important;
+        overflow: visible !important;
+        
+    }
+
+    #activity-card .inner {
+        flex: none !important;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        padding: 10px;
+    }
+
+    #activity-card table {
+        width: 100%;
+        min-width: 600px;
+        border-collapse: collapse;
+        flex: none !important;
+        height: auto !important;
+    }
+
+    #avg-card {
+        flex: none !important;
+        min-height: auto !important;
+        overflow: visible !important;
+    }
+
+    #avg-card .inner {
+        flex: none !important;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        padding: 10px;
+    }
+
+    /* Disable sticky Kendaraan column on mobile — rowspan + sticky causes overlap bugs */
+    #avg-card thead th,
+    #avg-card tbody td {
+        position: static !important;
+        z-index: auto !important;
+    }
+
+    /* ===== SLIDE 2: GATES (mobile) ===== */
+    .slide-2-content {
+        flex: none !important;
+        min-height: auto !important;
+        height: auto !important;
+    }
+
+    #gate-section {
+        flex: none !important;
+        min-height: auto !important;
+        overflow: visible !important;
+    }
+
+    #gate-grid-body {
+        flex: none !important;
+        min-height: auto !important;
+        overflow: visible !important;
+        padding: 8px;
+    }
+
+    /* Stack Frozen and Dry in a single column */
+    #gate-unified-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        min-height: auto !important;
+        flex: none !important;
+    }
+
+    /* Each side flows naturally, no nested scroll */
+    .gate-side {
+        display: flex;
+        flex-direction: column;
+        min-height: auto !important;
+        overflow: visible !important;
+    }
+
+    .frozen-side-wrapper {
+        border-right: none !important;
+        padding-right: 0 !important;
+    }
+
+    .gate-side-title {
+        font-size: 16px !important;
+    }
+
+    /* Grid auto-rows so cards have consistent height */
+    #frozen-grid-inner,
+    #dry-grid-inner {
+        flex: none !important;
+        min-height: auto !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        grid-template-rows: auto !important;
+        gap: 6px;
+    }
+
+    .gate-card {
+        height: 120px;
+    }
+
+    /* Legend at the bottom, no overlap */
+    .gate-legend {
+        margin-top: 8px;
+    }
+}
+
+
+
+/* HD sampai 4K — sama semua, tulis sekali */
+
+
+/* Activity card lebih compact */
+#activity-card .inner {
+    padding: 0.8em 1.2em;
+}
+
+#activity-card th {
+    font-size: 0.75em;
+    padding: 0.3em 0.6em;
+}
+
+#activity-card td {
+    padding: 0.25em 0.6em;
+}
+
+#activity-card .stat-num {
+    font-size: 1.1em;  /* dari 1.4em */
+    font-weight: 700;
+}
+
+#activity-card .lbl {
+    font-size: 0.8em;
+}
+
+/* Kurangi porsi activity card, besarkan avg */
+#activity-card {
+    flex: 0.4;  /* dari 0.6 */
+}
+
+#avg-card {
+    flex: 1.6;  /* dari 1.4 */
+}
+
+    #avg-card {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #fff;
+    }
+
+    #avg-card .inner {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 1.5em;
+        overflow: hidden;
+    }
+
+    #avg-card table {
+        width: 100%;
+        border-collapse: collapse;
+        flex: 1;
+        height: 100%;
+    }
+
+    #avg-card th,
+    #avg-card td {
+        font-size: 0.8em;
+        vertical-align: middle;
+    }
+
+    #avg-card .mono-val {
+        font-size: 0.95em;
+        font-weight: 700;
+        font-family: monospace;
+    }
+
+
+
+
 </style>
