@@ -186,5 +186,11 @@
     "Exit Time": "Waktu Keluar",
     "Search (License Plate, Vendor, Delivery Note, PO, Note)": "Pencarian (Polisi, Vendor, SJ, PO, Note)",
     "Search keywords...": "Cari kata kunci...",
-    "Laporan data checkpoint berdasarkan periode dan filter": "Laporan data checkpoint berdasarkan periode dan filter"
+    "Laporan data checkpoint berdasarkan periode dan filter": "Laporan data checkpoint berdasarkan periode dan filter",
+    "Checkpoint data report based on period and filters": "Laporan data checkpoint berdasarkan periode dan filter",
+    "Report Checkpoint": "Laporan Checkpoint",
+    "Start Date": "Tanggal Mulai",
+    "End Date": "Tanggal Akhir",
+    "Checkpoint Status": "Status Checkpoint",
+    "Note": "Catatan"
 }

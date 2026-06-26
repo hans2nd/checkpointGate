@@ -209,5 +209,10 @@
     "Cari kata kunci...": "Search keywords...",
     "Search (License Plate, Vendor, Delivery Note, PO, Note)": "Search (License Plate, Vendor, Delivery Note, PO, Note)",
     "Search keywords...": "Search keywords...",
-    "Laporan data checkpoint berdasarkan periode dan filter": "Checkpoint data report based on period and filters"
+    "Laporan data checkpoint berdasarkan periode dan filter": "Checkpoint data report based on period and filters",
+    "Report Checkpoint": "Report Checkpoint",
+    "Tanggal Mulai": "Start Date",
+    "Tanggal Akhir": "End Date",
+    "Semua": "All",
+    "Tidak ada data": "No data"
 }
