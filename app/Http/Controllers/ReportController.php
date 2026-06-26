@@ -92,7 +92,7 @@ class ReportController extends Controller
         $sheet->setTitle(__('Report Checkpoint'));
 
         // Title row
-        $sheet->mergeCells('A1:AC1');
+        $sheet->mergeCells('A1:AH1');
         $sheet->setCellValue('A1', __('LAPORAN DATA CHECKPOINT'));
         $sheet->getStyle('A1')->applyFromArray([
             'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => '1F2937']],
@@ -100,7 +100,7 @@ class ReportController extends Controller
         ]);
 
         // Info row
-        $sheet->mergeCells('A2:AC2');
+        $sheet->mergeCells('A2:AH2');
         $periodLabel = Carbon::parse($startDate)->format('d/m/Y') . ' - ' . Carbon::parse($endDate)->format('d/m/Y');
         $filterLabels = [];
         if ($aktivitas)
@@ -131,6 +131,7 @@ class ReportController extends Controller
             __('Aktivitas'),
             __('No. Surat Jalan'),
             __('Purchase Order'),
+            __('Receipt Number'),
             __('Gate'),
             __('Status'),
             __('Waktu Tunggu'),
@@ -142,9 +143,13 @@ class ReportController extends Controller
             __('Waktu End Loading'),
             __('Durasi Loading/Unloading'),
             __('Dibuat Oleh'),
+            __('Employee ID') . ' (' . __('Dibuat Oleh') . ')',
             __('Diterima Oleh'),
+            __('Employee ID') . ' (' . __('Diterima Oleh') . ')',
             __('Start Loading Oleh'),
+            __('Employee ID') . ' (' . __('Start Loading Oleh') . ')',
             __('Cancel Oleh'),
+            __('Employee ID') . ' (' . __('Cancel Oleh') . ')',
             __('Waktu Cancel'),
             __('Note'),
             __('Dibuat'),
@@ -158,7 +163,7 @@ class ReportController extends Controller
             $sheet->setCellValue($cell, $header);
         }
 
-        $sheet->getStyle('A4:AC4')->applyFromArray([
+        $sheet->getStyle('A4:AH4')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 10],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F97316']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
@@ -187,37 +192,42 @@ class ReportController extends Controller
             $sheet->setCellValue('I' . $row, $cp->aktivitas);
             $sheet->setCellValue('J' . $row, $cp->no_surat_jalan);
             $sheet->setCellValue('K' . $row, $cp->purchase_order);
-            $sheet->setCellValue('L' . $row, $this->formatGateLabel($cp->gate));
-            $sheet->setCellValue('M' . $row, $cp->status);
-            $sheet->setCellValue('N' . $row, $waktuTunggu);
-            $sheet->setCellValue('O' . $row, $cp->waktu_penerimaan_dokumen ? $cp->waktu_penerimaan_dokumen->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('P' . $row, $cp->waktu_penyerahan_dokumen ? $cp->waktu_penyerahan_dokumen->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('Q' . $row, $cp->waktu_keluar ? $cp->waktu_keluar->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('R' . $row, $this->calculateDurasiDokumen($cp));
-            $sheet->setCellValue('S' . $row, $cp->waktu_start ? $cp->waktu_start->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('T' . $row, $cp->waktu_end ? $cp->waktu_end->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('U' . $row, $cp->durasi);
-            $sheet->setCellValue('V' . $row, optional($cp->createdByUser)->name);
-            $sheet->setCellValue('W' . $row, optional($cp->receivedByUser)->name);
-            $sheet->setCellValue('X' . $row, optional($cp->startedByUser)->name);
-            $sheet->setCellValue('Y' . $row, optional($cp->canceledByUser)->name);
-            $sheet->setCellValue('Z' . $row, $cp->canceled_at ? $cp->canceled_at->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('AA' . $row, $cp->note);
-            $sheet->setCellValue('AB' . $row, $cp->created_at ? $cp->created_at->format('d/m/Y H:i:s') : '');
-            $sheet->setCellValue('AC' . $row, $cp->updated_at ? $cp->updated_at->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('L' . $row, $cp->receipt_number);
+            $sheet->setCellValue('M' . $row, $this->formatGateLabel($cp->gate));
+            $sheet->setCellValue('N' . $row, $cp->status);
+            $sheet->setCellValue('O' . $row, $waktuTunggu);
+            $sheet->setCellValue('P' . $row, $cp->waktu_penerimaan_dokumen ? $cp->waktu_penerimaan_dokumen->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('Q' . $row, $cp->waktu_penyerahan_dokumen ? $cp->waktu_penyerahan_dokumen->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('R' . $row, $cp->waktu_keluar ? $cp->waktu_keluar->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('S' . $row, $this->calculateDurasiDokumen($cp));
+            $sheet->setCellValue('T' . $row, $cp->waktu_start ? $cp->waktu_start->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('U' . $row, $cp->waktu_end ? $cp->waktu_end->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('V' . $row, $cp->durasi);
+            $sheet->setCellValue('W' . $row, optional($cp->createdByUser)->name);
+            $sheet->setCellValue('X' . $row, optional(optional($cp->createdByUser)->employee)->employee_id ?? optional($cp->createdByUser)->employee_id);
+            $sheet->setCellValue('Y' . $row, optional($cp->receivedByUser)->name);
+            $sheet->setCellValue('Z' . $row, optional(optional($cp->receivedByUser)->employee)->employee_id ?? optional($cp->receivedByUser)->employee_id);
+            $sheet->setCellValue('AA' . $row, optional($cp->startedByUser)->name);
+            $sheet->setCellValue('AB' . $row, optional(optional($cp->startedByUser)->employee)->employee_id ?? optional($cp->startedByUser)->employee_id);
+            $sheet->setCellValue('AC' . $row, optional($cp->canceledByUser)->name);
+            $sheet->setCellValue('AD' . $row, optional(optional($cp->canceledByUser)->employee)->employee_id ?? optional($cp->canceledByUser)->employee_id);
+            $sheet->setCellValue('AE' . $row, $cp->canceled_at ? $cp->canceled_at->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('AF' . $row, $cp->note);
+            $sheet->setCellValue('AG' . $row, $cp->created_at ? $cp->created_at->format('d/m/Y H:i:s') : '');
+            $sheet->setCellValue('AH' . $row, $cp->updated_at ? $cp->updated_at->format('d/m/Y H:i:s') : '');
             $row++;
         }
 
         // Data borders
         if ($row > 5) {
-            $sheet->getStyle('A5:AC' . ($row - 1))->applyFromArray([
+            $sheet->getStyle('A5:AH' . ($row - 1))->applyFromArray([
                 'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 'font' => ['size' => 10],
             ]);
         }
 
         // Auto-size columns
-        foreach (range(1, 29) as $colIndex) {
+        foreach (range(1, 34) as $colIndex) {
             $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
             $sheet->getColumnDimension($colLetter)->setAutoSize(true);
         }
@@ -261,14 +271,14 @@ class ReportController extends Controller
             $query->where('jenis_barang', $jenisBarang);
         if ($status)
             $query->where('status', $status);
-            
+
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('no_polisi', 'like', "%{$search}%")
-                  ->orWhere('vendor', 'like', "%{$search}%")
-                  ->orWhere('no_surat_jalan', 'like', "%{$search}%")
-                  ->orWhere('purchase_order', 'like', "%{$search}%")
-                  ->orWhere('note', 'like', "%{$search}%");
+                    ->orWhere('vendor', 'like', "%{$search}%")
+                    ->orWhere('no_surat_jalan', 'like', "%{$search}%")
+                    ->orWhere('purchase_order', 'like', "%{$search}%")
+                    ->orWhere('note', 'like', "%{$search}%");
             });
         }
 

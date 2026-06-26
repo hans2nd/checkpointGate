@@ -11,7 +11,7 @@
             <img src="{{ asset('images/logo-icon.png') }}" alt="Finna" class="h-9 w-9 rounded-lg object-cover shrink-0">
             <span class="sidebar-label whitespace-nowrap">
                 <h2 class="text-sm font-bold tracking-wide leading-tight">CHECKPOINT</h2>
-                <p class="text-[10px] text-slate-400 font-medium">GIIC Gate System</p>
+                <p class="text-[10px] text-slate-400 font-medium">Gate System</p>
             </span>
         </div>
         {{-- Close button (mobile only) --}}

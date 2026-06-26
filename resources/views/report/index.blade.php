@@ -157,6 +157,9 @@
                                 {{ __('Purchase Order') }}</th>
                             <th
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                {{ __('Receipt Number') }}</th>
+                            <th
+                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
                                 {{ __('Gate') }}</th>
                             <th
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
@@ -261,6 +264,7 @@
                                 <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{{ $cp->aktivitas }}</td>
                                 <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{{ $cp->no_surat_jalan ?: '—' }}</td>
                                 <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{{ $cp->purchase_order ?: '—' }}</td>
+                                <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{{ $cp->receipt_number ?: '—' }}</td>
                                 <td class="px-3 py-2.5 text-gray-600 text-center text-xs">{{ $gateLabel }}</td>
                                 <td class="px-3 py-2.5 whitespace-nowrap">
                                     @if ($cp->status === 'CANCEL')

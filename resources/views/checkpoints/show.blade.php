@@ -135,7 +135,7 @@
 
                     <div>
                         <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Gate</p>
-                        <p class="text-sm text-gray-900 mt-1 font-medium">{{ $checkpoint->gate ?? '-' }}</p>
+                        <p class="text-sm text-gray-900 mt-1 font-medium">{{ $checkpoint->formatted_gate }}</p>
                     </div>
 
                     <div>
@@ -255,10 +255,10 @@
                     </div>
                 </div>
 
-                {{-- No. Surat Jalan & Purchase Order --}}
-                @if ($checkpoint->no_surat_jalan || $checkpoint->purchase_order)
+                {{-- No. Surat Jalan, Purchase Order & Receipt Number --}}
+                @if ($checkpoint->no_surat_jalan || $checkpoint->purchase_order || $checkpoint->receipt_number)
                     <div class="mt-6 pt-4 border-t border-gray-100">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">
                                     {{ __('No. Surat Jalan') }}</p>
@@ -268,6 +268,11 @@
                             <div>
                                 <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Purchase Order</p>
                                 <p class="text-sm text-gray-900 mt-1 font-medium">{{ $checkpoint->purchase_order ?? '-' }}
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Receipt Number</p>
+                                <p class="text-sm text-gray-900 mt-1 font-medium">{{ $checkpoint->receipt_number ?? '-' }}
                                 </p>
                             </div>
                         </div>

@@ -132,12 +132,19 @@
                         btn.type = 'button';
                         let label = '';
 
-                        if (gate.nomor >= 1 && gate.nomor <= 16) {
-                            label = 'F-' + gate.nomor;
-                        } else if (gate.nomor >= 17 && gate.nomor <= 27) {
-                            label = 'D-' + (gate.nomor - 16);
+                        if (gate.jenis_barang === 'DRY') {
+                            const num = gate.nomor > 16 ? gate.nomor - 16 : gate.nomor;
+                            label = 'D' + num;
+                        } else if (gate.jenis_barang === 'FROZEN') {
+                            label = 'F' + gate.nomor;
                         } else {
-                            label = 'Gate-' + gate.nomor;
+                            if (gate.nomor >= 1 && gate.nomor <= 16) {
+                                label = 'F' + gate.nomor;
+                            } else if (gate.nomor >= 17 && gate.nomor <= 27) {
+                                label = 'D' + (gate.nomor - 16);
+                            } else {
+                                label = 'Gate-' + gate.nomor;
+                            }
                         }
 
                         btn.textContent = label;
@@ -221,39 +228,39 @@
             document.getElementById('terima_tipe').value = tipe || '';
             document.getElementById('terima_jenis_barang').value = barang || '';
             document.getElementById('terima_aktivitas').value = aktivitas || '';
-            
+
             const container = document.getElementById('suratJalanContainer');
             if (container) {
                 container.innerHTML = '';
                 let sjArray = [];
                 if (suratJalan) {
-                    sjArray = String(suratJalan).split(',').map(s => s.trim()).filter(s => s);
+                    sjArray = String(suratJalan).split('/').map(s => s.trim()).filter(s => s);
                 }
                 if (sjArray.length === 0) sjArray = [''];
-                
+
                 sjArray.forEach((val, idx) => {
                     addSuratJalanInput(val, idx === 0);
                 });
             } else if (document.getElementById('terima_no_surat_jalan')) {
                 document.getElementById('terima_no_surat_jalan').value = suratJalan || '';
             }
-            
+
             const poContainer = document.getElementById('poContainer');
             if (poContainer) {
                 poContainer.innerHTML = '';
                 let poArray = [];
                 if (po) {
-                    poArray = String(po).split(',').map(s => s.trim()).filter(s => s);
+                    poArray = String(po).split('/').map(s => s.trim()).filter(s => s);
                 }
                 if (poArray.length === 0) poArray = [''];
-                
+
                 poArray.forEach((val, idx) => {
                     addPOInput(val, idx === 0);
                 });
             } else if (document.getElementById('terima_purchase_order')) {
                 document.getElementById('terima_purchase_order').value = po || '';
             }
-            
+
             document.getElementById('terima_note').value = note || '';
 
             modal.classList.remove('hidden');
@@ -262,31 +269,36 @@
         function addSuratJalanInput(val = '', isFirst = false) {
             const container = document.getElementById('suratJalanContainer');
             if (!container) return;
-            
+
             const div = document.createElement('div');
             div.className = 'flex gap-2';
-            
+
             const input = document.createElement('input');
             input.type = 'text';
-            input.className = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase surat-jalan-input';
+            input.className =
+                'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase surat-jalan-input';
             input.placeholder = 'EXAMPLE: SJ-123456/SC0126-XXXXX';
             input.value = val;
-            
+
             div.appendChild(input);
 
             const btn = document.createElement('button');
             btn.type = 'button';
-            
+
             if (isFirst) {
                 btn.onclick = () => addSuratJalanInput();
-                btn.className = 'px-3 py-2 bg-blue-50 text-blue-600 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors flex-shrink-0';
-                btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>';
+                btn.className =
+                    'px-3 py-2 bg-blue-50 text-blue-600 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors flex-shrink-0';
+                btn.innerHTML =
+                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>';
             } else {
                 btn.onclick = () => div.remove();
-                btn.className = 'px-3 py-2 bg-red-50 text-red-600 rounded-lg border border-red-200 hover:bg-red-100 transition-colors flex-shrink-0';
-                btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>';
+                btn.className =
+                    'px-3 py-2 bg-red-50 text-red-600 rounded-lg border border-red-200 hover:bg-red-100 transition-colors flex-shrink-0';
+                btn.innerHTML =
+                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>';
             }
-            
+
             div.appendChild(btn);
             container.appendChild(div);
         }
@@ -294,42 +306,50 @@
         function addPOInput(val = '', isFirst = false) {
             const container = document.getElementById('poContainer');
             if (!container) return;
-            
+
             const div = document.createElement('div');
             div.className = 'flex gap-2';
-            
+
             const input = document.createElement('input');
             input.type = 'text';
-            input.className = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase po-input';
+            input.className =
+                'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase po-input';
             input.placeholder = 'EXAMPLE: PO0126-XXXXX';
             input.value = val;
-            
+
             div.appendChild(input);
 
             const btn = document.createElement('button');
             btn.type = 'button';
-            
+
             if (isFirst) {
                 btn.onclick = () => addPOInput();
-                btn.className = 'px-3 py-2 bg-blue-50 text-blue-600 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors flex-shrink-0';
-                btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>';
+                btn.className =
+                    'px-3 py-2 bg-blue-50 text-blue-600 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors flex-shrink-0';
+                btn.innerHTML =
+                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>';
             } else {
                 btn.onclick = () => div.remove();
-                btn.className = 'px-3 py-2 bg-red-50 text-red-600 rounded-lg border border-red-200 hover:bg-red-100 transition-colors flex-shrink-0';
-                btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>';
+                btn.className =
+                    'px-3 py-2 bg-red-50 text-red-600 rounded-lg border border-red-200 hover:bg-red-100 transition-colors flex-shrink-0';
+                btn.innerHTML =
+                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>';
             }
-            
+
             div.appendChild(btn);
             container.appendChild(div);
         }
 
         document.getElementById('terimaForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+
             const sjInputs = document.querySelectorAll('.surat-jalan-input');
             if (sjInputs.length > 0) {
                 const vals = Array.from(sjInputs).map(i => i.value.trim()).filter(v => v);
                 const hiddenInput = document.getElementById('terima_no_surat_jalan');
                 if (hiddenInput) {
-                    hiddenInput.value = vals.join(', ');
+                    hiddenInput.value = vals.join('/');
                 }
             }
 
@@ -338,9 +358,24 @@
                 const vals = Array.from(poInputs).map(i => i.value.trim()).filter(v => v);
                 const hiddenInput = document.getElementById('terima_purchase_order');
                 if (hiddenInput) {
-                    hiddenInput.value = vals.join(', ');
+                    hiddenInput.value = vals.join('/');
                 }
             }
+
+            Swal.fire({
+                title: 'Konfirmasi Penerimaan',
+                text: 'Apakah Anda yakin data penerimaan dokumen sudah benar?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3B82F6',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'Ya, Simpan & Terima',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
         });
 
         function closeTerimaModal() {
@@ -364,6 +399,100 @@
                 }
             });
         }
+
+        // ===== SERAH MODAL =====
+        function openSerahModal(checkpointId, noPolisi, vendor, driver, suratJalan, po) {
+            const modal = document.getElementById('serahModal');
+            const form = document.getElementById('serahForm');
+            const subtitle = document.getElementById('serahModalSubtitle');
+
+            form.action = '{{ url('checkpoints') }}/' + checkpointId + '/trigger-penyerahan';
+            subtitle.textContent = 'No Polisi: ' + noPolisi;
+
+            document.getElementById('serah_kendaraan').textContent = noPolisi || '-';
+            document.getElementById('serah_vendor').textContent = vendor || '-';
+            document.getElementById('serah_driver').textContent = driver || '-';
+            document.getElementById('serah_surat_jalan').textContent = suratJalan || '-';
+            document.getElementById('serah_po').textContent = po || '-';
+
+            const container = document.getElementById('receiptContainer');
+            if (container) {
+                container.innerHTML = '';
+                addReceiptInput('', true);
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeSerahModal() {
+            document.getElementById('serahModal').classList.add('hidden');
+        }
+
+        function addReceiptInput(val = '', isFirst = false) {
+            const container = document.getElementById('receiptContainer');
+            if (!container) return;
+
+            const div = document.createElement('div');
+            div.className = 'flex gap-2';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className =
+                'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 uppercase receipt-input';
+            input.placeholder = 'EXAMPLE: REC-12345';
+            input.value = val;
+
+            div.appendChild(input);
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+
+            if (isFirst) {
+                btn.onclick = () => addReceiptInput();
+                btn.className =
+                    'px-3 py-2 bg-purple-50 text-purple-600 rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors flex-shrink-0';
+                btn.innerHTML =
+                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>';
+            } else {
+                btn.onclick = () => div.remove();
+                btn.className =
+                    'px-3 py-2 bg-red-50 text-red-600 rounded-lg border border-red-200 hover:bg-red-100 transition-colors flex-shrink-0';
+                btn.innerHTML =
+                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>';
+            }
+
+            div.appendChild(btn);
+            container.appendChild(div);
+        }
+
+        document.getElementById('serahForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+
+            const rInputs = document.querySelectorAll('.receipt-input');
+            if (rInputs.length > 0) {
+                const vals = Array.from(rInputs).map(i => i.value.trim()).filter(v => v);
+                const hiddenInput = document.getElementById('serah_receipt_number');
+                if (hiddenInput) {
+                    hiddenInput.value = vals.join('/');
+                }
+            }
+
+            Swal.fire({
+                title: 'Konfirmasi Penyerahan',
+                text: 'Apakah Anda yakin ingin menyerahkan dokumen ini?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#A855F7',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'Ya, Konfirmasi Serah',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
 
         // ===== PRINT TICKET =====
         function handleGateSubmit(e) {
@@ -399,12 +528,19 @@
 
             let gateLabel = '';
 
-            if (data.gate >= 1 && data.gate <= 16) {
-                gateLabel = 'F-' + data.gate;
-            } else if (data.gate >= 17 && data.gate <= 27) {
-                gateLabel = 'D-' + (data.gate - 16);
+            if (data.jenisBarang === 'DRY') {
+                const num = data.gate > 16 ? data.gate - 16 : data.gate;
+                gateLabel = 'D' + num;
+            } else if (data.jenisBarang === 'FROZEN') {
+                gateLabel = 'F' + data.gate;
             } else {
-                gateLabel = 'Gate-' + data.gate;
+                if (data.gate >= 1 && data.gate <= 16) {
+                    gateLabel = 'F' + data.gate;
+                } else if (data.gate >= 17 && data.gate <= 27) {
+                    gateLabel = 'D' + (data.gate - 16);
+                } else {
+                    gateLabel = 'Gate-' + data.gate;
+                }
             }
 
             printWindow.document.write(`<!DOCTYPE html>

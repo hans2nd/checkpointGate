@@ -6,7 +6,11 @@
     {{-- Help Button --}}
     <a href="{{ asset('/public/tutorial') }}" target="_blank" title="{{ __('Buku Panduan / Help') }}"
         class="fixed top-4 right-4 sm:top-6 sm:right-6 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white/80 hover:text-white backdrop-blur-md transition-all duration-200 shadow-lg">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+            </path>
+        </svg>
         <span class="font-medium text-sm">{{ __('Help') }}</span>
     </a>
 
@@ -17,7 +21,7 @@
                 <img src="{{ asset('images/logo-icon.png') }}" alt="Finna - PT. Pangan Lestari"
                     class="h-20 w-20 mx-auto rounded-2xl object-cover shadow-lg shadow-orange-500/20">
             </div>
-            <h2 class="text-2xl font-bold text-white">Checkpoint GIIC</h2>
+            <h2 class="text-2xl font-bold text-white">Checkpoint Gate</h2>
             <p class="text-slate-400 text-sm mt-1">{{ __('Masuk ke akun Anda') }}</p>
         </div>
 
@@ -49,14 +53,16 @@
                 <input type="hidden" name="login_mode" value="email">
 
                 <div>
-                    <label for="email" class="block text-sm font-medium text-slate-300 mb-1.5">{{ __('Email') }}</label>
+                    <label for="email"
+                        class="block text-sm font-medium text-slate-300 mb-1.5">{{ __('Email') }}</label>
                     <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
                         class="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500
                               focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
                 </div>
 
                 <div>
-                    <label for="password" class="block text-sm font-medium text-slate-300 mb-1.5">{{ __('Password') }}</label>
+                    <label for="password"
+                        class="block text-sm font-medium text-slate-300 mb-1.5">{{ __('Password') }}</label>
                     <input id="password" type="password" name="password" required
                         class="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500
                               focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
@@ -84,7 +90,8 @@
                 <input type="hidden" name="login_mode" value="employee">
 
                 <div>
-                    <label for="employee_id" class="block text-sm font-medium text-slate-300 mb-1.5">{{ __('Employee ID') }}</label>
+                    <label for="employee_id"
+                        class="block text-sm font-medium text-slate-300 mb-1.5">{{ __('Employee ID') }}</label>
                     <input id="employee_id" type="text" name="employee_id" value="{{ old('employee_id') }}" required
                         placeholder="{{ __('Masukkan Employee ID Anda') }}"
                         class="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500
@@ -117,18 +124,22 @@
             if (mode === 'email') {
                 formEmail.classList.remove('hidden');
                 formEmployee.classList.add('hidden');
-                btnEmail.className = 'flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 bg-orange-500 text-white shadow-sm';
-                btnEmployee.className = 'flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 text-slate-400 hover:text-white';
+                btnEmail.className =
+                    'flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 bg-orange-500 text-white shadow-sm';
+                btnEmployee.className =
+                    'flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 text-slate-400 hover:text-white';
             } else {
                 formEmail.classList.add('hidden');
                 formEmployee.classList.remove('hidden');
-                btnEmployee.className = 'flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 bg-emerald-500 text-white shadow-sm';
-                btnEmail.className = 'flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 text-slate-400 hover:text-white';
+                btnEmployee.className =
+                    'flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 bg-emerald-500 text-white shadow-sm';
+                btnEmail.className =
+                    'flex-1 py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200 text-slate-400 hover:text-white';
             }
         }
 
         // Auto-switch to employee mode if there was an employee_id error
-        @if(old('login_mode') === 'employee')
+        @if (old('login_mode') === 'employee')
             switchLoginMode('employee');
         @endif
     </script>

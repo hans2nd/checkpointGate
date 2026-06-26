@@ -254,3 +254,70 @@
         </div>
     </div>
 </div>
+
+<!-- MODAL SERAH DOKUMEN -->
+<div id="serahModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="fixed inset-0 bg-black/50" onclick="closeSerahModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6 z-10">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Penyerahan Dokumen</h3>
+                    <p class="text-sm text-gray-500 mt-0.5" id="serahModalSubtitle">Detail Penyerahan</p>
+                </div>
+                <button type="button" onclick="closeSerahModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Form -->
+            <form id="serahForm" method="POST" action="">
+                @csrf
+                <div class="space-y-4 mb-6">
+                    <!-- Info Text -->
+                    <div class="bg-gray-50 rounded-lg p-4 text-sm text-gray-700">
+                        <div class="grid grid-cols-3 gap-2 mb-2">
+                            <span class="font-semibold text-gray-500">Kendaraan</span>
+                            <span class="col-span-2 font-medium" id="serah_kendaraan">-</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 mb-2">
+                            <span class="font-semibold text-gray-500">Vendor</span>
+                            <span class="col-span-2 font-medium" id="serah_vendor">-</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 mb-2">
+                            <span class="font-semibold text-gray-500">Driver</span>
+                            <span class="col-span-2 font-medium" id="serah_driver">-</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 mb-2">
+                            <span class="font-semibold text-gray-500">Surat Jalan</span>
+                            <span class="col-span-2 font-medium" id="serah_surat_jalan">-</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <span class="font-semibold text-gray-500">PO Number</span>
+                            <span class="col-span-2 font-medium" id="serah_po">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Receipt Number Input Container -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Receipt Number</label>
+                        <div id="receiptContainer" class="space-y-2">
+                            <!-- Inputs will be generated here by JS -->
+                        </div>
+                        <input type="hidden" id="serah_receipt_number" name="receipt_number">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 mt-4">
+                    <button type="button" onclick="closeSerahModal()"
+                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-lg">{{ __('Batal') }}</button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white text-sm font-semibold rounded-lg">Simpan & Serah</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

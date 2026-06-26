@@ -458,15 +458,20 @@ class CheckpointController extends Controller
     /**
      * Trigger: Penyerahan Dokumen (OUTBOUND - dokumen diserahkan)
      */
-    public function triggerPenyerahan(Checkpoint $checkpoint)
+    public function triggerPenyerahan(Request $request, Checkpoint $checkpoint)
     {
         if ($checkpoint->status === 'CANCEL') {
             return redirect()->back()
                 ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
         }
 
+        $request->validate([
+            'receipt_number' => 'nullable|string|max:100',
+        ]);
+
         $checkpoint->update([
             'waktu_penyerahan_dokumen' => Carbon::now(),
+            'receipt_number' => $request->receipt_number,
         ]);
 
         return redirect()->back()

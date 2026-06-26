@@ -41,6 +41,7 @@ class Checkpoint extends Model
         'created_at',
         'foto_identitas',
         'received_by',
+        'receipt_number',
     ];
 
     protected $casts = [
@@ -94,11 +95,33 @@ class Checkpoint extends Model
         return $this->belongsTo(User::class, 'cancel_approved_by');
     }
 
-    /**
-     * User who received the document.
-     */
     public function receivedByUser()
     {
         return $this->belongsTo(User::class, 'received_by');
+    }
+
+    /**
+     * Get the formatted gate label.
+     */
+    public function getFormattedGateAttribute()
+    {
+        if (!$this->gate) {
+            return '-';
+        }
+
+        if (strtoupper($this->jenis_barang) === 'DRY') {
+            $gateNum = $this->gate > 16 ? $this->gate - 16 : $this->gate;
+            return 'D-' . $gateNum;
+        } elseif (strtoupper($this->jenis_barang) === 'FROZEN') {
+            return 'F-' . $this->gate;
+        }
+
+        if ($this->gate >= 1 && $this->gate <= 16) {
+            return 'F-' . $this->gate;
+        } elseif ($this->gate >= 17 && $this->gate <= 27) {
+            return 'D-' . ($this->gate - 16);
+        }
+
+        return 'Gate-' . $this->gate;
     }
 }

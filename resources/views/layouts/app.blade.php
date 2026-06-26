@@ -58,7 +58,7 @@
                         <button type="button" onclick="document.getElementById('langDropdown').classList.toggle('hidden')"
                             class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-all duration-200"
                             id="langSwitcherBtn">
-                            <span class="text-base leading-none">{{ app()->getLocale() === 'id' ? '🇮🇩' : '🇬🇧' }}</span>
+                            <span class="text-base leading-none">{{ app()->getLocale() === 'id' ? '🇮🇩' : (app()->getLocale() === 'ja' ? '🇯🇵' : '🇬🇧') }}</span>
                             <span class="hidden sm:inline text-xs font-semibold uppercase">{{ app()->getLocale() }}</span>
                             <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -86,6 +86,18 @@
                                     <span class="text-base leading-none">🇬🇧</span>
                                     <span>{{ __('English') }}</span>
                                     @if(app()->getLocale() === 'en')
+                                        <svg class="w-4 h-4 ml-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    @endif
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ route('locale.switch') }}">
+                                @csrf
+                                <input type="hidden" name="locale" value="ja">
+                                <button type="submit"
+                                    class="w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors {{ app()->getLocale() === 'ja' ? 'bg-orange-50 text-orange-700 font-semibold' : 'text-gray-600 hover:bg-gray-50' }}">
+                                    <span class="text-base leading-none">🇯🇵</span>
+                                    <span>{{ __('Japanese') }}</span>
+                                    @if(app()->getLocale() === 'ja')
                                         <svg class="w-4 h-4 ml-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                     @endif
                                 </button>

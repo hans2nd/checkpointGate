@@ -50,6 +50,18 @@
                         @endif
                     </button>
                 </form>
+                <form method="POST" action="{{ route('locale.switch') }}">
+                    @csrf
+                    <input type="hidden" name="locale" value="ja">
+                    <button type="submit"
+                        class="w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors {{ app()->getLocale() === 'ja' ? 'bg-white/20 text-white font-semibold' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
+                        <span class="text-base leading-none">🇯🇵</span>
+                        <span>日本語</span>
+                        @if(app()->getLocale() === 'ja')
+                            <svg class="w-4 h-4 ml-auto text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        @endif
+                    </button>
+                </form>
             </div>
         </div>
     </div>

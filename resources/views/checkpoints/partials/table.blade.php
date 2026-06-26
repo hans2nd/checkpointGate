@@ -73,16 +73,7 @@
                     <tbody class="divide-y divide-gray-50">
                         @forelse($checkpoints as $index => $cp)
                             @php
-                                $gateLabel = '-';
-                                if ($cp->gate) {
-                                    if ($cp->gate >= 1 && $cp->gate <= 16) {
-                                        $gateLabel = 'F-' . $cp->gate;
-                                    } elseif ($cp->gate >= 17 && $cp->gate <= 27) {
-                                        $gateLabel = 'D-' . ($cp->gate - 16);
-                                    } else {
-                                        $gateLabel = 'Gate-' . $cp->gate;
-                                    }
-                                }
+                                $gateLabel = $cp->formatted_gate;
                             @endphp
 
                             <tr class="hover:bg-gray-50/50 transition-colors" data-cp-id="{{ $cp->id }}"
@@ -318,13 +309,10 @@
                                             $cp->cancel_status !== 'pending' &&
                                             $cp->waktu_end &&
                                             Auth::user()->hasPermission('checkpoint.trigger_serah'))
-                                        <form method="POST"
-                                            action="{{ route('checkpoints.trigger-penyerahan', $cp) }}"
-                                            class="inline">@csrf
-                                            <button type="submit"
-                                                class="px-2 py-1 bg-purple-500 hover:bg-purple-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">📤
-                                                Serah</button>
-                                        </form>
+                                        <button type="button"
+                                            onclick="openSerahModal('{{ $cp->id }}', '{{ $cp->no_polisi }}', '{{ addslashes($cp->vendor) }}', '{{ addslashes($cp->driver) }}', '{{ addslashes($cp->no_surat_jalan) }}', '{{ addslashes($cp->purchase_order) }}')"
+                                            class="px-2 py-1 bg-purple-500 hover:bg-purple-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">📤
+                                            Serah</button>
                                     @else
                                         <span class="text-xs text-gray-300">—</span>
                                     @endif
