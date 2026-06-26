@@ -221,12 +221,127 @@
             document.getElementById('terima_tipe').value = tipe || '';
             document.getElementById('terima_jenis_barang').value = barang || '';
             document.getElementById('terima_aktivitas').value = aktivitas || '';
-            document.getElementById('terima_no_surat_jalan').value = suratJalan || '';
-            document.getElementById('terima_purchase_order').value = po || '';
+            
+            const container = document.getElementById('suratJalanContainer');
+            if (container) {
+                container.innerHTML = '';
+                let sjArray = [];
+                if (suratJalan) {
+                    sjArray = String(suratJalan).split(',').map(s => s.trim()).filter(s => s);
+                }
+                if (sjArray.length === 0) sjArray = [''];
+                
+                sjArray.forEach((val, idx) => {
+                    addSuratJalanInput(val, idx === 0);
+                });
+            } else if (document.getElementById('terima_no_surat_jalan')) {
+                document.getElementById('terima_no_surat_jalan').value = suratJalan || '';
+            }
+            
+            const poContainer = document.getElementById('poContainer');
+            if (poContainer) {
+                poContainer.innerHTML = '';
+                let poArray = [];
+                if (po) {
+                    poArray = String(po).split(',').map(s => s.trim()).filter(s => s);
+                }
+                if (poArray.length === 0) poArray = [''];
+                
+                poArray.forEach((val, idx) => {
+                    addPOInput(val, idx === 0);
+                });
+            } else if (document.getElementById('terima_purchase_order')) {
+                document.getElementById('terima_purchase_order').value = po || '';
+            }
+            
             document.getElementById('terima_note').value = note || '';
 
             modal.classList.remove('hidden');
         }
+
+        function addSuratJalanInput(val = '', isFirst = false) {
+            const container = document.getElementById('suratJalanContainer');
+            if (!container) return;
+            
+            const div = document.createElement('div');
+            div.className = 'flex gap-2';
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase surat-jalan-input';
+            input.placeholder = 'EXAMPLE: SJ-123456/SC0126-XXXXX';
+            input.value = val;
+            
+            div.appendChild(input);
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            
+            if (isFirst) {
+                btn.onclick = () => addSuratJalanInput();
+                btn.className = 'px-3 py-2 bg-blue-50 text-blue-600 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors flex-shrink-0';
+                btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>';
+            } else {
+                btn.onclick = () => div.remove();
+                btn.className = 'px-3 py-2 bg-red-50 text-red-600 rounded-lg border border-red-200 hover:bg-red-100 transition-colors flex-shrink-0';
+                btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>';
+            }
+            
+            div.appendChild(btn);
+            container.appendChild(div);
+        }
+
+        function addPOInput(val = '', isFirst = false) {
+            const container = document.getElementById('poContainer');
+            if (!container) return;
+            
+            const div = document.createElement('div');
+            div.className = 'flex gap-2';
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase po-input';
+            input.placeholder = 'EXAMPLE: PO0126-XXXXX';
+            input.value = val;
+            
+            div.appendChild(input);
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            
+            if (isFirst) {
+                btn.onclick = () => addPOInput();
+                btn.className = 'px-3 py-2 bg-blue-50 text-blue-600 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors flex-shrink-0';
+                btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>';
+            } else {
+                btn.onclick = () => div.remove();
+                btn.className = 'px-3 py-2 bg-red-50 text-red-600 rounded-lg border border-red-200 hover:bg-red-100 transition-colors flex-shrink-0';
+                btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>';
+            }
+            
+            div.appendChild(btn);
+            container.appendChild(div);
+        }
+
+        document.getElementById('terimaForm')?.addEventListener('submit', function(e) {
+            const sjInputs = document.querySelectorAll('.surat-jalan-input');
+            if (sjInputs.length > 0) {
+                const vals = Array.from(sjInputs).map(i => i.value.trim()).filter(v => v);
+                const hiddenInput = document.getElementById('terima_no_surat_jalan');
+                if (hiddenInput) {
+                    hiddenInput.value = vals.join(', ');
+                }
+            }
+
+            const poInputs = document.querySelectorAll('.po-input');
+            if (poInputs.length > 0) {
+                const vals = Array.from(poInputs).map(i => i.value.trim()).filter(v => v);
+                const hiddenInput = document.getElementById('terima_purchase_order');
+                if (hiddenInput) {
+                    hiddenInput.value = vals.join(', ');
+                }
+            }
+        });
 
         function closeTerimaModal() {
             document.getElementById('terimaModal').classList.add('hidden');

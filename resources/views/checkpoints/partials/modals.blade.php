@@ -221,18 +221,19 @@
                         </select>
                     </div>
                     <div>
-                        <label for="terima_no_surat_jalan" class="block text-sm font-medium text-gray-700 mb-1.5">No.
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">No.
                             Surat Jalan</label>
-                        <input type="text" id="terima_no_surat_jalan" name="no_surat_jalan"
-                            placeholder="example: SJ-123456/SC0126-xxxxx"
-                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase">
+                        <div id="suratJalanContainer" class="space-y-2">
+                            <!-- Inputs will be generated here by JS -->
+                        </div>
+                        <input type="hidden" id="terima_no_surat_jalan" name="no_surat_jalan">
                     </div>
                     <div>
-                        <label for="terima_purchase_order"
-                            class="block text-sm font-medium text-gray-700 mb-1.5">Purchase Order</label>
-                        <input type="text" id="terima_purchase_order" name="purchase_order"
-                            placeholder="example: PO0126-xxxxx"
-                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase">
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Purchase Order</label>
+                        <div id="poContainer" class="space-y-2">
+                            <!-- Inputs will be generated here by JS -->
+                        </div>
+                        <input type="hidden" id="terima_purchase_order" name="purchase_order">
                     </div>
                     <div>
                         <label for="terima_note" class="block text-sm font-medium text-gray-700 mb-1.5">Note /
