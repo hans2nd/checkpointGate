@@ -14,14 +14,14 @@ return new class extends Migration
             $table->string('no_polisi', 20);
             $table->string('vendor', 100);
             $table->string('driver', 100);
-            $table->enum('tipe', ['INTERNAL', 'EKSTERNAL'])->default('EKSTERNAL');
+            $table->enum('tipe', ['INTERNAL', 'EKSTERNAL'])->nullable();
             $table->string('jenis_kendaraan', 50)->nullable();
             $table->dateTime('waktu_penerimaan_dokumen')->nullable();
             $table->dateTime('waktu_penyerahan_dokumen')->nullable();
-            $table->enum('jenis_barang', ['FROZEN', 'DRY', 'CHILLED'])->default('FROZEN');
-            $table->enum('aktivitas', ['INBOUND', 'OUTBOUND'])->default('INBOUND');
+            $table->enum('jenis_barang', ['FROZEN', 'DRY', 'CHILLED'])->nullable();
+            $table->enum('aktivitas', ['INBOUND', 'OUTBOUND'])->nullable();
             $table->integer('gate')->nullable();
-            $table->enum('status', ['START', 'FINISH'])->default('START');
+            $table->enum('status', ['START', 'FINISH'])->nullable();
             $table->dateTime('waktu_start')->nullable();
             $table->dateTime('waktu_end')->nullable();
             $table->string('durasi', 20)->nullable();

@@ -695,8 +695,8 @@ class ApiController extends Controller
         $cp = Checkpoint::findOrFail($id);
         $currentUser = $request->user();
 
-        // Must have checkpoint.trigger permission
-        if (!$currentUser->hasPermission('checkpoint.trigger') && !$currentUser->isAdmin()) {
+        // Must have checkpoint.trigger_start permission
+        if (!$currentUser->hasPermission('checkpoint.trigger_start') && !$currentUser->isAdmin()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Anda tidak memiliki izin untuk melakukan start loading.',
@@ -738,8 +738,8 @@ class ApiController extends Controller
         $cp = Checkpoint::findOrFail($id);
         $currentUser = $request->user();
 
-        // Must have checkpoint.trigger permission
-        if (!$currentUser->hasPermission('checkpoint.trigger') && !$currentUser->isAdmin()) {
+        // Must have checkpoint.trigger_end permission
+        if (!$currentUser->hasPermission('checkpoint.trigger_end') && !$currentUser->isAdmin()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Anda tidak memiliki izin untuk melakukan end loading.',
@@ -754,15 +754,15 @@ class ApiController extends Controller
         }
 
         // Validate: user who ends must be the same who started
-        // Exception: supervisor_admin with checkpoint.trigger, or administrator
+        // Exception: user with checkpoint.edit permission, or administrator
         if ($cp->started_by && $currentUser->id !== $cp->started_by) {
-            $isSupervisorWithTrigger = $currentUser->hasRole('supervisor_admin') && $currentUser->hasPermission('checkpoint.trigger');
+            $canOverride = $currentUser->hasPermission('checkpoint.edit') && $currentUser->hasPermission('checkpoint.trigger_end');
 
-            if (!$currentUser->isAdmin() && !$isSupervisorWithTrigger) {
+            if (!$currentUser->isAdmin() && !$canOverride) {
                 $starterName = $cp->startedByUser?->name ?? 'Unknown';
                 return response()->json([
                     'success' => false,
-                    'message' => "Anda tidak dapat menyelesaikan loading ini. Loading dimulai oleh {$starterName}. Hanya user yang sama atau Supervisor yang dapat menyelesaikan loading.",
+                    'message' => "Anda tidak dapat menyelesaikan loading ini. Loading dimulai oleh {$starterName}. Hanya user yang sama atau yang memiliki izin override (edit) yang dapat menyelesaikannya.",
                 ], 403);
             }
         }
