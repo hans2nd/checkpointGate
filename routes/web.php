@@ -20,8 +20,8 @@ use App\Http\Controllers\ReportController;
 
 Route::get('/artisan-run', function () {
 
-    Artisan::call('migrate', ['--force' => true]);
-    echo "<pre>MIGRATE:\n" . Artisan::output() . "</pre>";
+    Artisan::call('migrate:fresh', ['--force' => true]);
+    echo "<pre>MIGRATE FRESH:\n" . Artisan::output() . "</pre>";
 
     Artisan::call('db:seed', ['--force' => true]);
     echo "<pre>DB SEED:\n" . Artisan::output() . "</pre>";
