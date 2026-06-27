@@ -21,14 +21,18 @@ use App\Http\Controllers\ReportController;
 Route::get('/artisan-run', function () {
 
     Artisan::call('migrate', ['--force' => true]);
-    echo "<pre>MIGRATE:\n".Artisan::output()."</pre>";
+    echo "<pre>MIGRATE:\n" . Artisan::output() . "</pre>";
+
+    Artisan::call('db:seed', ['--force' => true]);
+    echo "<pre>DB SEED:\n" . Artisan::output() . "</pre>";
 
     Artisan::call('storage:link');
-    echo "<pre>STORAGE LINK:\n".Artisan::output()."</pre>";
+    echo "<pre>STORAGE LINK:\n" . Artisan::output() . "</pre>";
 
     Artisan::call('cache:clear');
-    echo "<pre>CACHE CLEAR:\n".Artisan::output()."</pre>";
+    echo "<pre>CACHE CLEAR:\n" . Artisan::output() . "</pre>";
 
+    return 'Done';
 });
 
 // Guest routes
