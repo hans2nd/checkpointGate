@@ -144,7 +144,8 @@
                                     @if (
                                         ($gateLabel == null || $gateLabel == '-') &&
                                             $cp->status !== 'CANCEL' &&
-                                            $cp->cancel_status !== 'pending')
+                                            $cp->cancel_status !== 'pending' &&
+                                            Auth::user()->hasPermission('checkpoint.assign_gate'))
                                         <button type="button"
                                             onclick="openGateModal({{ $cp->id }}, @js($cp->no_polisi))"
                                             class="px-2 py-1 bg-green-500 hover:bg-green-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">🔹
@@ -154,7 +155,8 @@
                                             $cp->status !== 'CANCEL' &&
                                             $cp->cancel_status !== 'pending' &&
                                             !in_array($cp->status, ['WAITING', 'READY', 'ON LOADING', 'FINISH', 'COMPLETED']) &&
-                                            $cp->status === 'ASSIGN GATE')
+                                            $cp->status === 'ASSIGN GATE' && 
+                                            Auth::user()->hasPermission('checkpoint.trigger_terima'))
                                         <span class="font-bold text-gray-700 block mb-1">{{ $gateLabel }}</span>
                                         @if($cp->waktu_penerimaan_dokumen) 
                                             <form method="POST" action="{{ route('checkpoints.confirm-gate', $cp) }}" class="inline">@csrf
@@ -181,7 +183,7 @@
                                         $cp->status !== 'CANCEL' &&
                                             $cp->cancel_status !== 'pending' &&
                                             in_array($cp->status, ['WAITING', 'READY']) &&
-                                            Auth::user()->hasPermission('checkpoint.trigger'))
+                                            Auth::user()->hasPermission('checkpoint.trigger_start'))
                                         <form method="POST" action="{{ route('checkpoints.trigger-start', $cp) }}"
                                             class="inline">@csrf
                                             <button type="submit"
@@ -200,7 +202,7 @@
                                         $cp->status !== 'CANCEL' &&
                                             $cp->cancel_status !== 'pending' &&
                                             $cp->waktu_start &&
-                                            Auth::user()->hasPermission('checkpoint.trigger'))
+                                            Auth::user()->hasPermission('checkpoint.trigger_end'))
                                         <form method="POST" action="{{ route('checkpoints.trigger-end', $cp) }}"
                                             class="inline" onsubmit="event.preventDefault(); confirmEndLoading(this);">@csrf
                                             <button type="submit"

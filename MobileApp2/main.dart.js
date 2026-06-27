@@ -92766,7 +92766,7 @@ A.a_4.prototype={}
 A.vz.prototype={
 K(a){var s=null,r=this.c
 r=r==null?s:"GoException: "+r.a
-return A.EC(!0,A.dQ(A.c6(A.b([B.Zn,B.ay,A.aL(r==null?"page not found":r,s,s,s,s,s,s),B.ay,new A.GQ(new A.a9x(a),B.Ze,s)],t.p),B.t,B.aR,B.u),s,s),!0)}}
+return A.EC(!0,A.dQ(A.c6(A.b([B.Zn,B.ay,A.aL(r==null?"page not found":r,s,s,s,s,s,s),B.ay,new A.GQ(new A.a9x(a),B.Zd,s)],t.p),B.t,B.aR,B.u),s,s),!0)}}
 A.a9x.prototype={
 $0(){return A.vI(this.a).F_("/",null)},
 $S:0}
@@ -94332,7 +94332,7 @@ var $async$kw=A.E(function(b,a0){if(b===1){o.push(a0)
 s=p}for(;;)switch(s){case 0:p=4
 g=t.N
 s=7
-return A.H(A.hu().DR("/login",A.aj(["employee_id",a,"login_mode","employee","device_name","android_flutter"],g,g),t.z),$async$kw)
+return A.H(A.hu().DR("/login",A.aj(["employee_id",a,"login_mode","employee","device_name","android_flutter","app_source","mobile2"],g,g),t.z),$async$kw)
 case 7:n=a0
 m=n.a
 s=t.P.b(m)?8:9
@@ -94467,7 +94467,7 @@ A.vI(o).F_("/home",null)}case 1:return A.B(q,r)}})
 return A.C($async$uQ,r)},
 K(a){var s,r,q=this,p=null,o=q.gmy(),n=$.LL(),m=o.eX(n,t.FB),l=m===B.ha,k=o.fP(n.gDg(),t.nT).x
 n=t.p
-o=A.b([B.Bu,new A.dp(B.jY,p,p,A.ig(p,p,p,B.IY,p,p,p,new A.awl(a),p,p,p,p),p),B.Ja,B.ay,B.ZA,B.Zc,B.Bu],n)
+o=A.b([B.Bu,new A.dp(B.jY,p,p,A.ig(p,p,p,B.IY,p,p,p,new A.awl(a),p,p,p,p),p),B.Ja,B.ay,B.ZA,B.Zb,B.Bu],n)
 if(m===B.k5&&k.length!==0){s=A.b6(8)
 r=A.hw(B.ow)
 o.push(A.c_(p,A.cq(A.b([A.d_(B.pW,B.cI,p,20),B.jb,A.ds(A.aL(k,p,p,p,A.bi(p,p,B.cI,p,p,p,p,p,p,p,p,13,p,p,p,p,p,!0,p,p,p,p,p,p,p,p),p,p),1)],n),B.t,B.v,B.u,0),B.n,p,p,new A.by(B.oS,p,r,s,p,p,B.C),p,p,B.pn,B.hT,p,p,p))}o.push(A.Td(q.w,B.JD,p,p,B.n6,p,new A.awm(q),!1,B.fX,B.n5,new A.awn()))
@@ -94539,7 +94539,7 @@ o=p.c
 o.toString
 A.fs(o,!1).eF()}case 1:return A.B(q,r)}})
 return A.C($async$A2,r)},
-K(a){var s,r,q,p=this,o=null,n=A.nA(o,o,B.Zb),m=A.b6(8),l=t.p
+K(a){var s,r,q,p=this,o=null,n=A.nA(o,o,B.Za),m=A.b6(8),l=t.p
 m=A.b([A.c_(o,B.Ge,B.n,o,o,new A.by(B.dS,o,A.hw(B.kt),m,o,o,B.C),o,o,o,B.hT,o,o,o),B.mX,B.Zv,B.bF,new A.bu(1/0,o,A.aM_(new A.aAt(p)),o),B.bF,A.aL("URL aktif saat ini: "+$.ut,o,o,o,A.bi(o,o,B.aE,o,o,o,o,o,o,o,o,11,o,o,o,o,o,!0,o,o,o,o,o,o,o,o),o,o),B.ay],l)
 if(p.f.length!==0){s=p.r.xL(0.1)
 r=A.b6(8)
@@ -95847,7 +95847,7 @@ case 1:return A.B(q,r)}})
 return A.C($async$$1,r)},
 $S:72}
 A.vN.prototype={
-l2(a,b){var s,r,q,p,o,n=null,m=b.eX($.aUs(),t.TX),l=b.eX($.LN(),t.QW),k=t.p,j=A.c6(A.b([B.Z9,A.uu(m,new A.ac4(),new A.ac5(),new A.ac6())],k),B.af,B.v,B.u)
+l2(a,b){var s,r,q,p,o,n=null,m=b.eX($.aUs(),t.TX),l=b.eX($.LN(),t.QW),k=t.p,j=A.c6(A.b([B.Zf,A.uu(m,new A.ac4(),new A.ac5(),new A.ac6())],k),B.af,B.v,B.u)
 j=A.nA(A.b([A.ig(n,n,n,B.fg,n,n,n,new A.ac7(b),n,n,n,"Refresh"),A.ig(n,n,n,B.Jc,n,n,n,new A.ac8(b),n,n,n,"Logout")],k),n,j)
 s=this.abo(b)
 r=A.cq(A.b([A.c_(n,n,B.n,n,n,new A.by(B.c2,n,n,A.b6(2),n,n,B.C),n,22,n,n,n,n,4),B.Bs,B.Zi],k),B.t,B.v,B.u,0)
@@ -103754,16 +103754,16 @@ B.Iz=new A.bn(62775,"MaterialIcons",null,!1)
 B.IZ=new A.cA(B.Iz,24,B.k,null,null,null)
 B.Bs=new A.bu(10,null,null,null)
 B.VA=new A.o(!0,B.k,null,null,null,null,16,B.am,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-B.Zf=new A.bL("Input Kedatangan Kendaraan",null,B.VA,null,null,null,null,null,null)
-B.K7=s([B.IZ,B.Bs,B.Zf],t.p)
+B.Ze=new A.bL("Input Kedatangan Kendaraan",null,B.VA,null,null,null,null,null,null)
+B.K7=s([B.IZ,B.Bs,B.Ze],t.p)
 B.Rg=new A.EB(B.ak,B.aR,B.u,B.t,null,B.bH,null,0,B.K7,null)
 B.Rh=new A.EE(1333)
 B.mq=new A.EE(2222)
 B.Ri=new A.RL(null,null)
 B.IP=new A.cA(B.pX,64,B.c2,null,null,null)
 B.ay=new A.bu(null,16,null,null)
-B.Zd=new A.bL("Memeriksa koneksi...",null,B.fY,null,null,null,null,null,null)
-B.Mo=s([B.IP,B.ay,B.kk,B.ay,B.Zd],t.p)
+B.Zc=new A.bL("Memeriksa koneksi...",null,B.fY,null,null,null,null,null,null)
+B.Mo=s([B.IP,B.ay,B.kk,B.ay,B.Zc],t.p)
 B.Gd=new A.v4(B.U,B.aR,B.u,B.t,null,B.bH,null,0,B.Mo,null)
 B.EF=new A.fD(B.a4,null,null,B.Gd,null)
 B.Rj=new A.oR(null,B.EF,null)
@@ -104018,8 +104018,8 @@ B.Tz=new A.kY(3,"hide")
 B.a2t=new A.kY(4,"remove")
 B.TA=new A.kY(5,"timeout")
 B.TB=new A.xf(null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-B.Za=new A.bL("Foto SIM/KTP wajib diambil",null,null,null,null,null,null,null,null)
-B.TC=new A.kX(B.Za,B.bX,null,null,null,null,null,null,null,null,null,null,null,B.dZ,!1,null,null,null,B.D,null)
+B.Z9=new A.bL("Foto SIM/KTP wajib diambil",null,null,null,null,null,null,null,null)
+B.TC=new A.kX(B.Z9,B.bX,null,null,null,null,null,null,null,null,null,null,null,B.dZ,!1,null,null,null,B.D,null)
 B.Zj=new A.bL("URL tidak valid. Harus diawali http:// atau https://",null,null,null,null,null,null,null,null)
 B.TD=new A.kX(B.Zj,null,null,null,null,null,null,null,null,null,null,null,null,B.dZ,!1,null,null,null,B.D,null)
 B.Zw=new A.bL("Berhasil menginput data kedatangan!",null,null,null,null,null,null,null,null)
@@ -104415,12 +104415,12 @@ B.Z4=new A.bL("Update to Completed",null,B.BR,null,null,null,null,null,null)
 B.Z6=new A.bL("Input Kedatangan",null,null,null,null,null,null,null,null)
 B.Vo=new A.o(!0,B.S,null,null,null,null,10,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
 B.Z8=new A.bL("Tap untuk refresh",null,B.Vo,null,null,null,null,null,null)
-B.Z9=new A.bL("PT.Pangan Lestari",null,B.n9,null,null,null,null,null,null)
-B.Zb=new A.bL("Pengaturan API Server",null,null,null,null,null,null,null,null)
-B.Zc=new A.bL("Registration Vehicle",null,B.fY,B.aT,null,null,null,null,null)
+B.Za=new A.bL("Pengaturan API Server",null,null,null,null,null,null,null,null)
+B.Zb=new A.bL("Registration Vehicle",null,B.fY,B.aT,null,null,null,null,null)
 B.fZ=new A.bL("Coba Lagi",null,null,null,null,null,null,null,null)
 B.VM=new A.o(!0,B.k,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
-B.Ze=new A.bL("Go to home page",null,B.VM,null,null,null,null,null,null)
+B.Zd=new A.bL("Go to home page",null,B.VM,null,null,null,null,null,null)
+B.Zf=new A.bL("Checkpoint Gate System",null,B.n9,null,null,null,null,null,null)
 B.Ga=new A.z(1,0.12156862745098039,0.1607843137254902,0.21568627450980393,B.e)
 B.Xr=new A.o(!0,B.Ga,null,null,null,null,20,B.i9,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
 B.Zi=new A.bL("Today Summary",null,B.Xr,null,null,null,null,null,null)

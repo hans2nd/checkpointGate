@@ -29,6 +29,7 @@
             {{ __('Menu') }}</p>
 
         {{-- Dashboard --}}
+        @if (Auth::user()->hasPermission('dashboard.view'))
         <a href="{{ route('dashboard') }}"
             class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                   {{ request()->routeIs('dashboard') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
@@ -39,8 +40,10 @@
             </svg>
             <span class="sidebar-label">{{ __('Dashboard') }}</span>
         </a>
+        @endif
 
         {{-- Live Monitoring --}}
+        @if (Auth::user()->hasPermission('monitoring.view'))
         <a href="{{ route('livemonitoring') }}"
             class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                   {{ request()->routeIs('livemonitoring') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
@@ -51,10 +54,10 @@
             </svg>
             <span class="sidebar-label">{{ __('Live Monitoring') }}</span>
         </a>
-
-
+        @endif
 
         {{-- Checkpoints --}}
+        @if (Auth::user()->hasPermission('checkpoint.view'))
         <a href="{{ route('checkpoints.index') }}"
             class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                   {{ request()->routeIs('checkpoints.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
@@ -65,6 +68,7 @@
             </svg>
             <span class="sidebar-label">{{ __('Data Checkpoint') }}</span>
         </a>
+        @endif
 
         {{-- Report --}}
         @if (Auth::user()->hasPermission('report.view'))
@@ -80,20 +84,13 @@
             </a>
         @endif
 
+        @if (Auth::user()->hasAnyPermission(['vehicle.view', 'vehicle_type.view', 'employee.view']))
         <div class="pt-3">
             <p class="sidebar-label px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">
                 {{ __('Master Data') }}</p>
 
-            {{-- Gates --}}
-            {{-- <a href="{{ route('gates.index') }}"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
-                      {{ request()->routeIs('gates.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
-               title="Master Gate">
-                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                <span class="sidebar-label">Master Gate</span>
-            </a> --}}
-
             {{-- Vehicles --}}
+            @if (Auth::user()->hasPermission('vehicle.view'))
             <a href="{{ route('vehicles.index') }}"
                 class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                       {{ request()->routeIs('vehicles.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
@@ -104,8 +101,10 @@
                 </svg>
                 <span class="sidebar-label">{{ __('Master Kendaraan') }}</span>
             </a>
+            @endif
 
             {{-- Vehicle Types --}}
+            @if (Auth::user()->hasPermission('vehicle_type.view'))
             <a href="{{ route('vehicle-types.index') }}"
                 class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                       {{ request()->routeIs('vehicle-types.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
@@ -116,9 +115,10 @@
                 </svg>
                 <span class="sidebar-label">{{ __('Jenis Kendaraan') }}</span>
             </a>
+            @endif
 
-            {{-- Employees (Admin only) --}}
-            @if (Auth::user()->isAdmin())
+            {{-- Employees --}}
+            @if (Auth::user()->hasPermission('employee.view'))
                 <a href="{{ route('employees.index') }}"
                     class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                       {{ request()->routeIs('employees.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
@@ -131,13 +131,15 @@
                 </a>
             @endif
         </div>
+        @endif
 
+        @if (Auth::user()->hasAnyPermission(['user.view', 'role.view', 'permission.view', 'maintenance.view']))
         <div class="pt-3">
             <p class="sidebar-label px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">
                 {{ __('Akun') }}</p>
 
-            {{-- User Management (Admin only) --}}
-            @if (Auth::user()->isAdmin())
+            {{-- User Management --}}
+            @if (Auth::user()->hasPermission('user.view'))
                 <a href="{{ route('users.index') }}"
                     class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                       {{ request()->routeIs('users.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
@@ -148,8 +150,10 @@
                     </svg>
                     <span class="sidebar-label">{{ __('User Management') }}</span>
                 </a>
+            @endif
 
-                {{-- Role Management --}}
+            {{-- Role Management --}}
+            @if (Auth::user()->hasPermission('role.view'))
                 <a href="{{ route('roles.index') }}"
                     class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                       {{ request()->routeIs('roles.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
@@ -160,8 +164,10 @@
                     </svg>
                     <span class="sidebar-label">{{ __('Role Management') }}</span>
                 </a>
+            @endif
 
-                {{-- Permission Management --}}
+            {{-- Permission Management --}}
+            @if (Auth::user()->hasPermission('permission.view'))
                 <a href="{{ route('permissions.index') }}"
                     class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                       {{ request()->routeIs('permissions.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
@@ -172,8 +178,10 @@
                     </svg>
                     <span class="sidebar-label">{{ __('Permission') }}</span>
                 </a>
+            @endif
 
-                {{-- Maintenance Mode --}}
+            {{-- Maintenance Mode --}}
+            @if (Auth::user()->hasPermission('maintenance.view'))
                 <a href="{{ route('maintenance.index') }}"
                     class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                       {{ request()->routeIs('maintenance.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
@@ -187,6 +195,8 @@
                     <span class="sidebar-label">{{ __('Maintenance Mode') }}</span>
                 </a>
             @endif
+        </div>
+        @endif
 
             {{-- Profile --}}
             <a href="{{ route('profile.index') }}"
@@ -199,7 +209,6 @@
                 </svg>
                 <span class="sidebar-label">{{ __('Profil') }}</span>
             </a>
-        </div>
     </nav>
 
     {{-- Collapse Toggle (desktop only) --}}

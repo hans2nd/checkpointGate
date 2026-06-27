@@ -57,7 +57,19 @@ class LoginController extends Controller
             }
 
             $request->session()->regenerate();
-            return redirect()->intended('/dashboard');
+            
+            $defaultRoute = '/dashboard';
+            if (!$user->hasPermission('dashboard.view')) {
+                if ($user->hasPermission('checkpoint.view')) {
+                    $defaultRoute = '/checkpoints';
+                } elseif ($user->hasPermission('monitoring.view')) {
+                    $defaultRoute = '/live-monitoring';
+                } else {
+                    $defaultRoute = '/profile';
+                }
+            }
+
+            return redirect()->intended($defaultRoute);
         }
 
         return back()->withErrors([
@@ -117,7 +129,18 @@ class LoginController extends Controller
         Auth::login($user, false);
         $request->session()->regenerate();
 
-        return redirect()->intended('/dashboard');
+        $defaultRoute = '/dashboard';
+        if (!$user->hasPermission('dashboard.view')) {
+            if ($user->hasPermission('checkpoint.view')) {
+                $defaultRoute = '/checkpoints';
+            } elseif ($user->hasPermission('monitoring.view')) {
+                $defaultRoute = '/live-monitoring';
+            } else {
+                $defaultRoute = '/profile';
+            }
+        }
+
+        return redirect()->intended($defaultRoute);
     }
 
     public function logout(Request $request)

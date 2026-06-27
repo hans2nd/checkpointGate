@@ -55,6 +55,10 @@ class PermissionController extends Controller
             'import' => 'Import',
             'approve' => 'Approve',
             'trigger' => 'Trigger',
+            'trigger_start' => 'Trigger Start',
+            'trigger_end' => 'Trigger End',
+            'trigger_terima' => 'Trigger Terima',
+            'assign_gate' => 'Assign Gate',
         ];
 
         $createdCount = 0;
@@ -92,6 +96,7 @@ class PermissionController extends Controller
             'name' => 'required|string|max:100|regex:/^[a-z_.]+$/|unique:permissions,name,' . $permission->id,
             'display_name' => 'required|string|max:150',
             'group' => 'required|string|max:50',
+            'description' => 'nullable|string|max:255',
         ]);
 
         $permission->update($validated);

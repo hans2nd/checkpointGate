@@ -23,6 +23,7 @@
                         {{ __('Import Excel') }}
                     </button>
                 @endif
+                @if (Auth::user()->hasPermission('checkpoint.export'))
                 <a href="{{ route('checkpoints.export', request()->query()) }}"
                     class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-xl shadow-sm transition-all hover:shadow-md">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,6 +32,7 @@
                     </svg>
                     {{ __('Export Excel') }}
                 </a>
+                @endif
                 @if (Auth::user()->hasPermission('checkpoint.create'))
                     <a href="{{ route('checkpoints.create') }}"
                         class="inline-flex items-center gap-2 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-xl shadow-sm transition-all hover:shadow-md">

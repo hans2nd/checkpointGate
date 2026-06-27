@@ -78,6 +78,21 @@ class ApiController extends Controller
             ], 503);
         }
 
+        $appSource = $request->input('app_source', 'mobile1');
+        if ($user->hasRole('security') && $appSource === 'mobile1') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses ditolak: Akun Security hanya dapat login di aplikasi Security (Mobile 2).',
+            ], 403);
+        }
+
+        if ($user->hasRole('operator') && $appSource === 'mobile2') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses ditolak: Akun Operator hanya dapat login di aplikasi Operator (Mobile 1).',
+            ], 403);
+        }
+
         $deviceName = $request->device_name ?? 'flutter-app';
         $token = $user->createToken($deviceName)->plainTextToken;
 
@@ -154,6 +169,21 @@ class ApiController extends Controller
                 'success' => false,
                 'message' => 'Aplikasi sedang maintenance. Tidak dapat login saat ini.',
             ], 503);
+        }
+
+        $appSource = $request->input('app_source', 'mobile1');
+        if ($user->hasRole('security') && $appSource === 'mobile1') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses ditolak: Akun Security hanya dapat login di aplikasi Security (Mobile 2).',
+            ], 403);
+        }
+
+        if ($user->hasRole('operator') && $appSource === 'mobile2') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses ditolak: Akun Operator hanya dapat login di aplikasi Operator (Mobile 1).',
+            ], 403);
         }
 
         $deviceName = $request->device_name ?? 'flutter-app';

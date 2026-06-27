@@ -83,7 +83,8 @@ class User extends Authenticatable
      */
     public function hasRole(string $roleName): bool
     {
-        return $this->role && $this->role->name === $roleName;
+        $role = $this->getEffectiveRole();
+        return $role && $role->name === $roleName;
     }
 
     /**
@@ -91,7 +92,8 @@ class User extends Authenticatable
      */
     public function hasAnyRole(array $roles): bool
     {
-        return $this->role && in_array($this->role->name, $roles);
+        $role = $this->getEffectiveRole();
+        return $role && in_array($role->name, $roles);
     }
 
     /**
@@ -99,7 +101,27 @@ class User extends Authenticatable
      */
     public function hasPermission(string $permission): bool
     {
-        return $this->role && $this->role->hasPermission($permission);
+        $role = $this->getEffectiveRole();
+        return $role && $role->hasPermission($permission);
+    }
+
+    /**
+     * Check if user has any of the given permissions.
+     */
+    public function hasAnyPermission(array $permissions): bool
+    {
+        $role = $this->getEffectiveRole();
+        if (!$role) {
+            return false;
+        }
+
+        foreach ($permissions as $permission) {
+            if ($role->hasPermission($permission)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

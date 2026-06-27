@@ -12,29 +12,27 @@ class DemoUserSeeder extends Seeder
      */
     public function run(): void
     {
-        $adminRole = \App\Models\Role::where('name', 'admin')->first();
-        $operatorRole = \App\Models\Role::where('name', 'operator')->first();
-        $viewerRole = \App\Models\Role::where('name', 'viewer')->first();
+        $roles = [
+            'administrator' => ['email' => 'admin@checkpoint.com', 'name' => 'Admin GIIC'],
+            'supervisor' => ['email' => 'supervisor@checkpoint.com', 'name' => 'Supervisor GIIC'],
+            'staff_admin' => ['email' => 'staffadmin@checkpoint.com', 'name' => 'Staff Admin GIIC'],
+            'operator' => ['email' => 'operator@checkpoint.com', 'name' => 'Operator Gate'],
+            'security' => ['email' => 'security@checkpoint.com', 'name' => 'Security Guard'],
+        ];
 
-        if ($adminRole) {
-            \App\Models\User::firstOrCreate(
-                ['email' => 'admin@gmail.com'],
-                ['name' => 'Admin GIIC', 'password' => bcrypt('password'), 'role_id' => $adminRole->id, 'is_active' => true]
-            );
-        }
-
-        if ($operatorRole) {
-            \App\Models\User::firstOrCreate(
-                ['email' => 'operator@gmail.com'],
-                ['name' => 'Operator Gate', 'password' => bcrypt('password'), 'role_id' => $operatorRole->id, 'is_active' => true]
-            );
-        }
-
-        if ($viewerRole) {
-            \App\Models\User::firstOrCreate(
-                ['email' => 'viewer@gmail.com'],
-                ['name' => 'Viewer Monitor', 'password' => bcrypt('password'), 'role_id' => $viewerRole->id, 'is_active' => true]
-            );
+        foreach ($roles as $roleName => $userData) {
+            $role = \App\Models\Role::where('name', $roleName)->first();
+            if ($role) {
+                \App\Models\User::firstOrCreate(
+                    ['email' => $userData['email']],
+                    [
+                        'name' => $userData['name'],
+                        'password' => bcrypt('password'),
+                        'role_id' => $role->id,
+                        'is_active' => true
+                    ]
+                );
+            }
         }
     }
 }

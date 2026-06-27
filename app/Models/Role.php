@@ -16,6 +16,11 @@ class Role extends Model
     ];
 
     /**
+     * Cache for role permissions array.
+     */
+    protected $permissionsCache = null;
+
+    /**
      * The permissions that belong to the role.
      */
     public function permissions()
@@ -44,6 +49,10 @@ class Role extends Model
      */
     public function hasPermission(string $permission): bool
     {
-        return $this->permissions()->where('name', $permission)->exists();
+        if ($this->permissionsCache === null) {
+            $this->permissionsCache = $this->permissions()->pluck('name')->toArray();
+        }
+
+        return in_array($permission, $this->permissionsCache);
     }
 }

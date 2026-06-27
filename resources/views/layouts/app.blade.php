@@ -55,13 +55,17 @@
 
                     {{-- Language Switcher --}}
                     <div class="relative" id="langSwitcherWrap">
-                        <button type="button" onclick="document.getElementById('langDropdown').classList.toggle('hidden')"
+                        <button type="button"
+                            onclick="document.getElementById('langDropdown').classList.toggle('hidden')"
                             class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-all duration-200"
                             id="langSwitcherBtn">
-                            <span class="text-base leading-none">{{ app()->getLocale() === 'id' ? '🇮🇩' : (app()->getLocale() === 'ja' ? '🇯🇵' : '🇬🇧') }}</span>
-                            <span class="hidden sm:inline text-xs font-semibold uppercase">{{ app()->getLocale() }}</span>
+                            <span
+                                class="text-base leading-none">{{ app()->getLocale() === 'id' ? '🇮🇩' : (app()->getLocale() === 'ja' ? '🇯🇵' : '🇬🇧') }}</span>
+                            <span
+                                class="hidden sm:inline text-xs font-semibold uppercase">{{ app()->getLocale() }}</span>
                             <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
                         <div id="langDropdown"
@@ -73,8 +77,12 @@
                                     class="w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors {{ app()->getLocale() === 'id' ? 'bg-orange-50 text-orange-700 font-semibold' : 'text-gray-600 hover:bg-gray-50' }}">
                                     <span class="text-base leading-none">🇮🇩</span>
                                     <span>{{ __('Bahasa Indonesia') }}</span>
-                                    @if(app()->getLocale() === 'id')
-                                        <svg class="w-4 h-4 ml-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    @if (app()->getLocale() === 'id')
+                                        <svg class="w-4 h-4 ml-auto text-orange-500" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
                                     @endif
                                 </button>
                             </form>
@@ -85,8 +93,12 @@
                                     class="w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors {{ app()->getLocale() === 'en' ? 'bg-orange-50 text-orange-700 font-semibold' : 'text-gray-600 hover:bg-gray-50' }}">
                                     <span class="text-base leading-none">🇬🇧</span>
                                     <span>{{ __('English') }}</span>
-                                    @if(app()->getLocale() === 'en')
-                                        <svg class="w-4 h-4 ml-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    @if (app()->getLocale() === 'en')
+                                        <svg class="w-4 h-4 ml-auto text-orange-500" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
                                     @endif
                                 </button>
                             </form>
@@ -97,8 +109,12 @@
                                     class="w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors {{ app()->getLocale() === 'ja' ? 'bg-orange-50 text-orange-700 font-semibold' : 'text-gray-600 hover:bg-gray-50' }}">
                                     <span class="text-base leading-none">🇯🇵</span>
                                     <span>{{ __('Japanese') }}</span>
-                                    @if(app()->getLocale() === 'ja')
-                                        <svg class="w-4 h-4 ml-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    @if (app()->getLocale() === 'ja')
+                                        <svg class="w-4 h-4 ml-auto text-orange-500" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
                                     @endif
                                 </button>
                             </form>
@@ -127,7 +143,7 @@
             {{-- Footer --}}
             <footer class="shrink-0 bg-white border-t border-gray-200 px-4 sm:px-6 py-2.5">
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-1 text-xs text-gray-400">
-                    <span><strong class="text-gray-500">PT. Pangan Lestari</strong></span>
+                    <span><strong class="text-gray-500">{{ config('app.name') }}</strong></span>
                     <span>&copy; {{ date('Y') }} Hans &mdash; Divisi EDP. All rights reserved.</span>
                 </div>
             </footer>
@@ -263,7 +279,8 @@
             const dd = document.getElementById('langDropdown');
             if (wrap && !wrap.contains(e.target)) dd.classList.add('hidden');
         });
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+
         function playBeep() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const oscillator = audioCtx.createOscillator();
@@ -274,7 +291,7 @@
             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
             oscillator.start();
-            
+
             // Double beep
             setTimeout(() => {
                 const osc2 = audioCtx.createOscillator();
@@ -288,115 +305,121 @@
                 osc2.stop(audioCtx.currentTime + 0.3);
             }, 200);
 
-            oscillator.stop(audioCtx.currentTime + 0.15); 
+            oscillator.stop(audioCtx.currentTime + 0.15);
         }
 
-        @if(!request()->routeIs('livemonitoring'))
-        let notifiedGateIds = JSON.parse(sessionStorage.getItem('notifiedGateIds')) || [];
-        let lastAlertClosedAt = parseInt(sessionStorage.getItem('lastAlertClosedAt')) || Date.now();
-        let nextAlertDelay = parseInt(sessionStorage.getItem('nextAlertDelay')) || 5000;
-        
-        let gateNotificationSwalOpen = false;
-        let needsReload = false;
-        
-        let currentLastUpdated = {{ \App\Models\Checkpoint::max('updated_at') ? \Carbon\Carbon::parse(\App\Models\Checkpoint::max('updated_at'))->timestamp : 0 }};
-        let globalNeedsReload = false;
+        @if (!request()->routeIs('livemonitoring'))
+            let notifiedGateIds = JSON.parse(sessionStorage.getItem('notifiedGateIds')) || [];
+            let lastAlertClosedAt = parseInt(sessionStorage.getItem('lastAlertClosedAt')) || Date.now();
+            let nextAlertDelay = parseInt(sessionStorage.getItem('nextAlertDelay')) || 5000;
 
-        setInterval(() => {
-            // Check if we can safely reload
-            const isTyping = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA');
-            const isModalOpen = document.querySelectorAll('div[id$="Modal"]:not(.hidden)').length > 0;
-            
-            if (globalNeedsReload && !isTyping && !isModalOpen && !gateNotificationSwalOpen) {
-                window.location.reload();
-                return;
-            }
+            let gateNotificationSwalOpen = false;
+            let needsReload = false;
 
-            fetch('{{ route('pending.gates') }}')
-                .then(r => r.json())
-                .then(res => {
-                    if (res.last_updated && currentLastUpdated > 0 && res.last_updated > currentLastUpdated) {
-                        globalNeedsReload = true;
-                    }
+            let currentLastUpdated =
+                {{ \App\Models\Checkpoint::max('updated_at') ? \Carbon\Carbon::parse(\App\Models\Checkpoint::max('updated_at'))->timestamp : 0 }};
+            let globalNeedsReload = false;
 
-                    if (res.data && res.data.length > 0) {
-                        const currentIds = res.data.map(cp => cp.id);
-                        const hasNew = currentIds.some(id => !notifiedGateIds.includes(id));
-                        let shouldShow = false;
-                        
-                        if (hasNew) {
-                            playBeep();
-                            sessionStorage.setItem('notifiedGateIds', JSON.stringify(currentIds));
-                            needsReload = true;
-                            shouldShow = true;
-                            
-                            // Reset delay for new gate assignment
-                            nextAlertDelay = 5000;
-                            sessionStorage.setItem('nextAlertDelay', nextAlertDelay);
-                        } else if (!gateNotificationSwalOpen) {
-                            if (Date.now() - lastAlertClosedAt >= nextAlertDelay) {
+            setInterval(() => {
+                // Check if we can safely reload
+                const isTyping = document.activeElement && (document.activeElement.tagName === 'INPUT' || document
+                    .activeElement.tagName === 'TEXTAREA');
+                const isModalOpen = document.querySelectorAll('div[id$="Modal"]:not(.hidden)').length > 0;
+
+                if (globalNeedsReload && !isTyping && !isModalOpen && !gateNotificationSwalOpen) {
+                    window.location.reload();
+                    return;
+                }
+
+                fetch('{{ route('pending.gates') }}')
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res.last_updated && currentLastUpdated > 0 && res.last_updated >
+                            currentLastUpdated) {
+                            globalNeedsReload = true;
+                        }
+
+                        if (res.data && res.data.length > 0) {
+                            const currentIds = res.data.map(cp => cp.id);
+                            const hasNew = currentIds.some(id => !notifiedGateIds.includes(id));
+                            let shouldShow = false;
+
+                            if (hasNew) {
+                                playBeep();
+                                sessionStorage.setItem('notifiedGateIds', JSON.stringify(currentIds));
+                                needsReload = true;
                                 shouldShow = true;
+
+                                // Reset delay for new gate assignment
+                                nextAlertDelay = 5000;
+                                sessionStorage.setItem('nextAlertDelay', nextAlertDelay);
+                            } else if (!gateNotificationSwalOpen) {
+                                if (Date.now() - lastAlertClosedAt >= nextAlertDelay) {
+                                    shouldShow = true;
+                                }
+                            }
+
+                            if (shouldShow) {
+                                let listHtml =
+                                    '<div style="text-align: left; margin-top: 10px; font-size: 1.1em; background: #f3f4f6; padding: 15px; border-radius: 8px;">';
+                                res.data.forEach(cp => {
+                                    let gateStr = cp.gate;
+                                    if (gateStr) {
+                                        let gNum = parseInt(gateStr);
+                                        if (gNum >= 1 && gNum <= 16) {
+                                            gateStr = 'F-' + gNum;
+                                        } else if (gNum >= 17 && gNum <= 27) {
+                                            gateStr = 'D-' + (gNum - 16);
+                                        } else {
+                                            gateStr = 'Gate ' + gNum;
+                                        }
+                                    } else {
+                                        gateStr = '-';
+                                    }
+
+                                    listHtml +=
+                                        `<div style="margin-bottom: 8px;">• Kendaraan <b class="text-blue-600">${cp.no_polisi}</b> diarahkan ke <b class="text-gray-800">${gateStr}</b> <span class="text-gray-500">(${cp.jenis_barang || '-'})</span></div>`;
+                                });
+                                listHtml += '</div>';
+
+                                gateNotificationSwalOpen = true;
+                                Swal.fire({
+                                    title: 'PANGGILAN GATE!',
+                                    html: listHtml,
+                                    icon: 'info',
+                                    position: 'center',
+                                    showConfirmButton: true,
+                                    confirmButtonText: needsReload ? 'Tutup & Refresh' : 'Tutup',
+                                    confirmButtonColor: '#3b82f6',
+                                    allowOutsideClick: false,
+                                    willClose: () => {
+                                        gateNotificationSwalOpen = false;
+                                        lastAlertClosedAt = Date.now();
+                                        sessionStorage.setItem('lastAlertClosedAt',
+                                            lastAlertClosedAt);
+
+                                        // Increase delay by 5 seconds for the next reminder
+                                        nextAlertDelay += 5000;
+                                        sessionStorage.setItem('nextAlertDelay', nextAlertDelay);
+
+                                        if (needsReload) {
+                                            window.location.reload();
+                                        }
+                                    }
+                                });
+                            }
+
+                            notifiedGateIds = currentIds;
+                        } else {
+                            notifiedGateIds = [];
+                            if (gateNotificationSwalOpen) {
+                                Swal.close();
+                                gateNotificationSwalOpen = false;
                             }
                         }
-
-                        if (shouldShow) {
-                            let listHtml = '<div style="text-align: left; margin-top: 10px; font-size: 1.1em; background: #f3f4f6; padding: 15px; border-radius: 8px;">';
-                            res.data.forEach(cp => {
-                                let gateStr = cp.gate;
-                                if (gateStr) {
-                                    let gNum = parseInt(gateStr);
-                                    if (gNum >= 1 && gNum <= 16) {
-                                        gateStr = 'F-' + gNum;
-                                    } else if (gNum >= 17 && gNum <= 27) {
-                                        gateStr = 'D-' + (gNum - 16);
-                                    } else {
-                                        gateStr = 'Gate ' + gNum;
-                                    }
-                                } else {
-                                    gateStr = '-';
-                                }
-                                
-                                listHtml += `<div style="margin-bottom: 8px;">• Kendaraan <b class="text-blue-600">${cp.no_polisi}</b> diarahkan ke <b class="text-gray-800">${gateStr}</b> <span class="text-gray-500">(${cp.jenis_barang || '-'})</span></div>`;
-                            });
-                            listHtml += '</div>';
-
-                            gateNotificationSwalOpen = true;
-                            Swal.fire({
-                                title: 'PANGGILAN GATE!',
-                                html: listHtml,
-                                icon: 'info',
-                                position: 'center',
-                                showConfirmButton: true,
-                                confirmButtonText: needsReload ? 'Tutup & Refresh' : 'Tutup',
-                                confirmButtonColor: '#3b82f6',
-                                allowOutsideClick: false,
-                                willClose: () => {
-                                    gateNotificationSwalOpen = false;
-                                    lastAlertClosedAt = Date.now();
-                                    sessionStorage.setItem('lastAlertClosedAt', lastAlertClosedAt);
-                                    
-                                    // Increase delay by 5 seconds for the next reminder
-                                    nextAlertDelay += 5000;
-                                    sessionStorage.setItem('nextAlertDelay', nextAlertDelay);
-
-                                    if (needsReload) {
-                                        window.location.reload();
-                                    }
-                                }
-                            });
-                        }
-                        
-                        notifiedGateIds = currentIds;
-                    } else {
-                        notifiedGateIds = [];
-                        if (gateNotificationSwalOpen) {
-                            Swal.close();
-                            gateNotificationSwalOpen = false;
-                        }
-                    }
-                })
-                .catch(err => console.error('Notification error:', err));
-        }, 5000);
+                    })
+                    .catch(err => console.error('Notification error:', err));
+            }, 5000);
         @endif
     </script>
 </body>
