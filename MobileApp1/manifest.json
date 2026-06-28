@@ -1,6 +1,6 @@
 {
-    "name": "mobile",
-    "short_name": "mobile",
+    "name": "WHS App",
+    "short_name": "WHS App",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
