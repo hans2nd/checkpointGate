@@ -19,9 +19,9 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
 
-        $this->call(CheckpointSeeder::class);
-        $this->call(GateSeeder::class);
-        $this->call(VehicleSeeder::class);
+        // $this->call(CheckpointSeeder::class);
+        // $this->call(GateSeeder::class);
+        // $this->call(VehicleSeeder::class);
         $this->call(DemoUserSeeder::class);
         $this->call(RolePermissionSeeder::class);
     }

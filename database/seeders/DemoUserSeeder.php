@@ -13,7 +13,7 @@ class DemoUserSeeder extends Seeder
     public function run(): void
     {
         $roles = [
-            'administrator' => ['email' => 'admin@checkpoint.com', 'name' => 'Admin GIIC'],
+            // 'administrator' => ['email' => 'admin@checkpoint.com', 'name' => 'Admin GIIC'],
             'supervisor' => ['email' => 'supervisor@checkpoint.com', 'name' => 'Supervisor GIIC'],
             'staff_admin' => ['email' => 'staffadmin@checkpoint.com', 'name' => 'Staff Admin GIIC'],
             'operator' => ['email' => 'operator@checkpoint.com', 'name' => 'Operator Gate'],
