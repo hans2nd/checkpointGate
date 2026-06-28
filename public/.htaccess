@@ -18,6 +18,26 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
+    # --- SPA Rules ---
+    # MobileApp1
+    RewriteCond %{REQUEST_URI} ^/MobileApp1/
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^MobileApp1/(.*)$ MobileApp1/index.html [L]
+
+    # MobileApp2
+    RewriteCond %{REQUEST_URI} ^/MobileApp2/
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^MobileApp2/(.*)$ MobileApp2/index.html [L]
+
+    # Tutorial
+    RewriteCond %{REQUEST_URI} ^/tutorial/
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^tutorial/(.*)$ tutorial/index.html [L]
+    # -----------------
+
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
