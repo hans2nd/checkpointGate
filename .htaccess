@@ -13,11 +13,15 @@
     RewriteRule ^storage/(.*)$ public/storage/$1 [L]
 
     # Serve static files from public folder (css, js, images, etc)
+    # Exclude MobileApp1, MobileApp2, and tutorial as they are not in the public folder
+    RewriteCond %{REQUEST_URI} !/(MobileApp1|MobileApp2|tutorial)/ [NC]
+    RewriteCond %{REQUEST_URI} !/public/ [NC]
     RewriteCond %{REQUEST_URI} \.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot|map)$ [NC]
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^(.*)$ public/$1 [L]
 
     # Serve assets folder from public
+    RewriteCond %{REQUEST_URI} !/public/ [NC]
     RewriteRule ^assets/(.*)$ public/assets/$1 [L]
 
     # --- SPA Rules ---
@@ -38,10 +42,9 @@
     # Tutorial
     RewriteRule ^tutorial$ tutorial/ [R=301,L]
     RewriteCond %{REQUEST_URI} /tutorial/
-    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f
-    RewriteRule ^(.*)$ public/$1 [L]
-    RewriteCond %{REQUEST_URI} /tutorial/
-    RewriteRule ^(.*)$ public/tutorial/index.html [L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^tutorial/(.*)$ public/tutorial/index.html [L]
     # -----------------
 
     # Serve existing files in public folder
