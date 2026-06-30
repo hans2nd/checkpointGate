@@ -3,9 +3,9 @@
 # /public/build
 /public/hot
 # /public/apk
-/public/storage
-/storage/*.key
-/storage/pail
+# /public/storage
+# /storage/*.key
+# /storage/pail
 /vendor
 .env
 .env.backup
