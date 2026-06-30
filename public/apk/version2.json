@@ -1,7 +1,7 @@
 {
-  "latest_version": "1.0.1",
-  "build_number": 2,
+  "latest_version": "1.0.3",
+  "build_number": 3,
   "is_force_update": false,
-  "changelog": "Update Fitur Test",
+  "changelog": "Ganti Title Checkpoint PDA > PL Checkpoint PDA",
   "download_url": "http://giic.panganlestari.com:8085/checkpointGate/apk/Reg-Vehicle-App.apk"
 }
