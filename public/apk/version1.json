@@ -1,7 +1,7 @@
 {
-  "latest_version": "1.0.2",
-  "build_number": 3,
+  "latest_version": "1.0.1",
+  "build_number": 2,
   "is_force_update": false,
-  "changelog": "perbaikan UI login",
+  "changelog": "Update Fitur Test WHS",
   "download_url": "http://giic.panganlestari.com:8085/checkpointGate/apk/WHS-apk.apk"
 }
