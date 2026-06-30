@@ -1,7 +1,7 @@
 {
-  "latest_version": "1.0.0",
-  "build_number": 1,
+  "latest_version": "1.0.2",
+  "build_number": 3,
   "is_force_update": false,
-  "changelog": "- Initial release\n- Added auto update feature",
-  "download_url": "http://giic.panganlestari.com:8085/checkpointGate/apk/mobile2-release.apk"
+  "changelog": "update UI login",
+  "download_url": "http://giic.panganlestari.com:8085/checkpointGate/apk/Reg-Vehicle-App.apk"
 }
