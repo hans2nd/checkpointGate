@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\Api\ReportApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,3 +61,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- Vehicles ---
     Route::get('/vehicles/search', [ApiController::class, 'vehicleSearch']);
 });
+
+// ==========================================
+// EXTERNAL INTEGRATIONS (API Key Auth)
+// ==========================================
+Route::middleware('api_key')->group(function () {
+    // --- Report (PowerBI) ---
+    Route::get('/report', [ReportApiController::class, 'index']);
+    Route::get('/report/summary', [ReportApiController::class, 'summary']);
+});
+
+

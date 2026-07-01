@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Traits\ReportQueryTrait;
 use App\Models\Checkpoint;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -13,6 +14,8 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 
 class ReportController extends Controller
 {
+    use ReportQueryTrait;
+
     public function index(Request $request)
     {
         $startDate = $request->input('start_date', Carbon::today()->startOfMonth()->format('Y-m-d'));
@@ -22,40 +25,20 @@ class ReportController extends Controller
         $status = $request->input('status', '');
         $search = $request->input('search', '');
 
-        $query = $this->buildQuery($startDate, $endDate, $aktivitas, $jenisBarang, $status, $search);
+        $query = $this->buildReportQuery($startDate, $endDate, $aktivitas, $jenisBarang, $status, $search);
 
         $checkpoints = $query->orderBy('tanggal', 'desc')
             ->orderBy('created_at', 'desc')
             ->paginate(15)
             ->appends($request->query());
 
-        // Summary stats
-        $summaryQuery = $this->buildQuery($startDate, $endDate, $aktivitas, $jenisBarang, $status, $search);
-        $totalKendaraan = (clone $summaryQuery)->count();
-        $totalFinish = (clone $summaryQuery)->where('status', 'FINISH')->count();
-        $totalCancel = (clone $summaryQuery)->where('status', 'CANCEL')->count();
-        $totalOnLoading = (clone $summaryQuery)->where('status', 'ON LOADING')->count();
-
-        // Average durasi loading (only FINISH with durasi)
-        $avgDurasi = null;
-        $durasiList = (clone $summaryQuery)->where('status', 'FINISH')
-            ->whereNotNull('durasi')
-            ->pluck('durasi');
-        if ($durasiList->isNotEmpty()) {
-            $totalSeconds = 0;
-            $count = 0;
-            foreach ($durasiList as $d) {
-                $parts = explode(':', $d);
-                if (count($parts) === 3) {
-                    $totalSeconds += ($parts[0] * 3600) + ($parts[1] * 60) + $parts[2];
-                    $count++;
-                }
-            }
-            if ($count > 0) {
-                $avg = intval($totalSeconds / $count);
-                $avgDurasi = sprintf('%02d:%02d:%02d', intdiv($avg, 3600), intdiv($avg % 3600, 60), $avg % 60);
-            }
-        }
+        // Summary stats via trait
+        $summary = $this->calculateSummary($startDate, $endDate, $aktivitas, $jenisBarang, $status, $search);
+        $totalKendaraan = $summary['total_kendaraan'];
+        $totalFinish = $summary['total_finish'];
+        $totalCancel = $summary['total_cancel'];
+        $totalOnLoading = $summary['total_on_loading'];
+        $avgDurasi = $summary['avg_durasi_loading'];
 
         return view('report.index', compact(
             'checkpoints',
@@ -82,7 +65,7 @@ class ReportController extends Controller
         $status = $request->input('status', '');
         $search = $request->input('search', '');
 
-        $data = $this->buildQuery($startDate, $endDate, $aktivitas, $jenisBarang, $status, $search)
+        $data = $this->buildReportQuery($startDate, $endDate, $aktivitas, $jenisBarang, $status, $search)
             ->orderBy('tanggal', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
@@ -174,13 +157,6 @@ class ReportController extends Controller
         $row = 5;
         /** @var Checkpoint $cp */
         foreach ($data as $index => $cp) {
-            $waktuTunggu = '';
-            if ($cp->created_at && $cp->waktu_penerimaan_dokumen) {
-                $diffTunggu = $cp->created_at->diff($cp->waktu_penerimaan_dokumen);
-                $hoursTunggu = $diffTunggu->days * 24 + $diffTunggu->h;
-                $waktuTunggu = sprintf('%02d:%02d:%02d', $hoursTunggu, $diffTunggu->i, $diffTunggu->s);
-            }
-
             $sheet->setCellValue('A' . $row, $index + 1);
             $sheet->setCellValue('B' . $row, $cp->tanggal ? $cp->tanggal->format('d/m/Y') : '');
             $sheet->setCellValue('C' . $row, $cp->no_polisi);
@@ -195,7 +171,7 @@ class ReportController extends Controller
             $sheet->setCellValue('L' . $row, $cp->receipt_number);
             $sheet->setCellValue('M' . $row, $this->formatGateLabel($cp->gate));
             $sheet->setCellValue('N' . $row, $cp->status);
-            $sheet->setCellValue('O' . $row, $waktuTunggu);
+            $sheet->setCellValue('O' . $row, $this->calculateWaktuTunggu($cp));
             $sheet->setCellValue('P' . $row, $cp->waktu_penerimaan_dokumen ? $cp->waktu_penerimaan_dokumen->format('d/m/Y H:i:s') : '');
             $sheet->setCellValue('Q' . $row, $cp->waktu_penyerahan_dokumen ? $cp->waktu_penyerahan_dokumen->format('d/m/Y H:i:s') : '');
             $sheet->setCellValue('R' . $row, $cp->waktu_keluar ? $cp->waktu_keluar->format('d/m/Y H:i:s') : '');
@@ -238,71 +214,5 @@ class ReportController extends Controller
         $writer->save($temp);
 
         return response()->download($temp, $filename)->deleteFileAfterSend(true);
-    }
-
-    private function buildQuery(string $startDate, string $endDate, ?string $aktivitas, ?string $jenisBarang, ?string $status, ?string $search = null)
-    {
-        $parsedStart = Carbon::parse($startDate)->startOfDay();
-        $parsedEnd = Carbon::parse($endDate)->endOfDay();
-        $dayBeforeStart = Carbon::parse($startDate)->subDay();
-
-        $query = Checkpoint::with(['createdByUser', 'receivedByUser', 'startedByUser', 'canceledByUser'])->where(function ($dateScope) use ($parsedStart, $parsedEnd, $dayBeforeStart) {
-            // Main date range
-            $dateScope->whereBetween('tanggal', [$parsedStart, $parsedEnd])
-                // Overnight: started day before but still active or finished after midnight
-                ->orWhere(function ($overnight) use ($dayBeforeStart, $parsedStart) {
-                    $overnight->whereDate('tanggal', $dayBeforeStart)
-                        ->where('status', '!=', 'CANCEL')
-                        ->where(function ($inner) use ($parsedStart) {
-                            $inner->where('status', 'ON LOADING')
-                                ->orWhere(function ($fin) use ($parsedStart) {
-                                    $fin->where('status', 'FINISH')
-                                        ->whereNotNull('waktu_end')
-                                        ->where('waktu_end', '>=', $parsedStart);
-                                });
-                        });
-                });
-        });
-
-        // Apply filters OUTSIDE the date scope so they apply to ALL results
-        if ($aktivitas)
-            $query->where('aktivitas', $aktivitas);
-        if ($jenisBarang)
-            $query->where('jenis_barang', $jenisBarang);
-        if ($status)
-            $query->where('status', $status);
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('no_polisi', 'like', "%{$search}%")
-                    ->orWhere('vendor', 'like', "%{$search}%")
-                    ->orWhere('no_surat_jalan', 'like', "%{$search}%")
-                    ->orWhere('purchase_order', 'like', "%{$search}%")
-                    ->orWhere('note', 'like', "%{$search}%");
-            });
-        }
-
-        return $query;
-    }
-
-    private function formatGateLabel($gate): string
-    {
-        if (!$gate)
-            return '-';
-        $gateNumber = (int) $gate;
-        if ($gateNumber >= 1 && $gateNumber <= 16)
-            return 'F-' . $gateNumber;
-        if ($gateNumber >= 17 && $gateNumber <= 27)
-            return 'D-' . ($gateNumber - 16);
-        return 'Gate-' . $gate;
-    }
-
-    private function calculateDurasiDokumen(Checkpoint $checkpoint): string
-    {
-        if (!$checkpoint->waktu_penerimaan_dokumen || !$checkpoint->waktu_penyerahan_dokumen)
-            return '';
-        $diff = $checkpoint->waktu_penerimaan_dokumen->diff($checkpoint->waktu_penyerahan_dokumen);
-        $hours = ($diff->days * 24) + $diff->h;
-        return sprintf('%02d:%02d:%02d', $hours, $diff->i, $diff->s);
     }
 }
