@@ -2,7 +2,7 @@
 
 namespace App\Http\Traits;
 
-use App\Models\Checkpoint;
+use App\Models\CheckpointGiic;
 use Carbon\Carbon;
 
 /**
@@ -28,7 +28,7 @@ trait ReportQueryTrait
         ?string $status = null,
         ?string $search = null
     ) {
-        $query = Checkpoint::with(['createdByUser', 'receivedByUser', 'startedByUser', 'canceledByUser']);
+        $query = CheckpointGiic::with(['createdByUser', 'receivedByUser', 'startedByUser', 'canceledByUser']);
 
         if ($startDate && $endDate) {
             $parsedStart = Carbon::parse($startDate)->startOfDay();
@@ -93,7 +93,7 @@ trait ReportQueryTrait
     /**
      * Calculate document processing duration (penerimaan → penyerahan).
      */
-    protected function calculateDurasiDokumen(Checkpoint $checkpoint): string
+    protected function calculateDurasiDokumen(CheckpointGiic $checkpoint): string
     {
         if (!$checkpoint->waktu_penerimaan_dokumen || !$checkpoint->waktu_penyerahan_dokumen)
             return '';
@@ -105,7 +105,7 @@ trait ReportQueryTrait
     /**
      * Calculate waiting time (created_at → waktu_penerimaan_dokumen).
      */
-    protected function calculateWaktuTunggu(Checkpoint $checkpoint): string
+    protected function calculateWaktuTunggu(CheckpointGiic $checkpoint): string
     {
         if (!$checkpoint->created_at || !$checkpoint->waktu_penerimaan_dokumen)
             return '';
