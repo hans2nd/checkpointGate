@@ -9,7 +9,7 @@ class CheckpointGiic extends Model
 {
     use HasFactory;
 
-    protected $table = 'checkpoint_giic';
+    protected $table = 'checkpoints_giic';
 
     protected $fillable = [
         'tanggal',
