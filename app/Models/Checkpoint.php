@@ -42,6 +42,7 @@ class Checkpoint extends Model
         'foto_identitas',
         'received_by',
         'receipt_number',
+        'sync',
     ];
 
     protected $casts = [
