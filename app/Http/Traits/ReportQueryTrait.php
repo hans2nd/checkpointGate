@@ -2,8 +2,10 @@
 
 namespace App\Http\Traits;
 
+use App\Models\Checkpoint;
 use App\Models\CheckpointGiic;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Shared report query logic used by both web ReportController and API ReportApiController.
@@ -18,6 +20,18 @@ use Carbon\Carbon;
 trait ReportQueryTrait
 {
     /**
+     * Get the model class to use for report queries.
+     *
+     * Override in controller to switch between:
+     *  - Checkpoint::class      (local 'checkpoints' table)
+     *  - CheckpointGiic::class  (VPS 'checkpoints_giic' table)
+     */
+    protected function getReportModel(): string
+    {
+        return Checkpoint::class;
+    }
+
+    /**
      * Build the main report query with date-range, overnight logic, and filters.
      */
     protected function buildReportQuery(
@@ -28,7 +42,8 @@ trait ReportQueryTrait
         ?string $status = null,
         ?string $search = null
     ) {
-        $query = CheckpointGiic::with(['createdByUser', 'receivedByUser', 'startedByUser', 'canceledByUser']);
+        $modelClass = $this->getReportModel();
+        $query = $modelClass::with(['createdByUser', 'receivedByUser', 'startedByUser', 'canceledByUser']);
 
         if ($startDate && $endDate) {
             $parsedStart = Carbon::parse($startDate)->startOfDay();
@@ -93,7 +108,7 @@ trait ReportQueryTrait
     /**
      * Calculate document processing duration (penerimaan → penyerahan).
      */
-    protected function calculateDurasiDokumen(CheckpointGiic $checkpoint): string
+    protected function calculateDurasiDokumen(Model $checkpoint): string
     {
         if (!$checkpoint->waktu_penerimaan_dokumen || !$checkpoint->waktu_penyerahan_dokumen)
             return '';
@@ -105,7 +120,7 @@ trait ReportQueryTrait
     /**
      * Calculate waiting time (created_at → waktu_penerimaan_dokumen).
      */
-    protected function calculateWaktuTunggu(CheckpointGiic $checkpoint): string
+    protected function calculateWaktuTunggu(Model $checkpoint): string
     {
         if (!$checkpoint->created_at || !$checkpoint->waktu_penerimaan_dokumen)
             return '';

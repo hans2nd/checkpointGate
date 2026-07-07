@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Traits\ReportQueryTrait;
+use App\Models\CheckpointGiic;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
  *
  * Provides JSON endpoints with the same 34 columns as the Excel export.
  * Uses chunked streaming for large datasets to maintain performance.
+ * Queries the VPS 'checkpoints_giic' table via CheckpointGiic model.
  *
  * Endpoints:
  *   GET /api/report         — Full report data (streamed JSON)
@@ -20,6 +22,14 @@ use Illuminate\Http\Request;
 class ReportApiController extends Controller
 {
     use ReportQueryTrait;
+
+    /**
+     * Use CheckpointGiic model (VPS checkpoints_giic table) for API reports.
+     */
+    protected function getReportModel(): string
+    {
+        return CheckpointGiic::class;
+    }
 
     /**
      * GET /api/report
