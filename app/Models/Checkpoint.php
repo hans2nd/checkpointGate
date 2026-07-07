@@ -9,6 +9,27 @@ class Checkpoint extends Model
 {
     use HasFactory;
 
+    /**
+     * Boot the model.
+     *
+     * Automatically reset the sync flag when any data field changes,
+     * so the SyncCheckpointsCommand will detect and push updates to VPS.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::updating(function ($checkpoint) {
+            // If any field other than 'sync' has changed, reset sync flag
+            $changedFields = array_keys($checkpoint->getDirty());
+            $realChanges = array_diff($changedFields, ['sync']);
+
+            if (!empty($realChanges)) {
+                $checkpoint->sync = 0;
+            }
+        });
+    }
+
     protected $fillable = [
         'tanggal',
         'no_polisi',
