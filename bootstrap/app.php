@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\CheckRole::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'api_key' => \App\Http\Middleware\VerifyApiKey::class,
+            'sync_token' => \App\Http\Middleware\VerifySyncToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

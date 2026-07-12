@@ -4,65 +4,235 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Checkpoint;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use App\Models\Employee;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Sync local data to VPS via HTTPS POST API.
+ *
+ * Sends unsynced checkpoints, all users, and all employees
+ * to the VPS endpoint in batches. On success, marks checkpoints
+ * as synced (sync=1) in the local database.
+ *
+ * Usage:
+ *   php artisan sync:checkpoints
+ *   php artisan sync:checkpoints --force   (re-sync all checkpoints)
+ *
+ * Scheduled via sync_checkpoints.bat or Task Scheduler.
+ */
 class SyncCheckpointsCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'sync:checkpoints';
+    protected $signature = 'sync:checkpoints {--force : Re-sync all checkpoints regardless of sync status}';
+
+    protected $description = 'Sync checkpoints, users, and employees data to VPS via API';
 
     /**
-     * The console command description.
-     *
-     * @var string
+     * Number of records per HTTP request batch.
      */
-    protected $description = 'Sync checkpoints data to VPS database';
+    private const CHUNK_SIZE = 50;
 
     /**
-     * Execute the console command.
+     * HTTP request timeout in seconds.
      */
+    private const TIMEOUT = 30;
+
     public function handle()
     {
-        $this->info('Starting checkpoint synchronization...');
+        $baseUrl = config('services.vps_sync.url');
+        $token = config('services.vps_sync.token');
 
-        // Get all unsynced checkpoints
-        $unsynced = Checkpoint::where('sync', 0)->get();
+        if (empty($baseUrl) || empty($token)) {
+            $this->error('VPS_SYNC_URL atau VPS_SYNC_TOKEN belum dikonfigurasi di .env');
+            return 1;
+        }
 
-        if ($unsynced->isEmpty()) {
-            $this->info('No data to sync.');
+        $this->info('=== Starting VPS Sync ===');
+        $this->newLine();
+
+        // 1. Sync employees first (no FK dependencies)
+        $this->syncEmployees($baseUrl, $token);
+
+        // 2. Sync users (depends on employees via employee_id)
+        $this->syncUsers($baseUrl, $token);
+
+        // 3. Sync checkpoints (depends on users via created_by, started_by, etc.)
+        $this->syncCheckpoints($baseUrl, $token);
+
+        $this->newLine();
+        $this->info('=== VPS Sync Completed ===');
+
+        return 0;
+    }
+
+    /**
+     * Sync all employees to VPS.
+     */
+    private function syncEmployees(string $baseUrl, string $token): void
+    {
+        $this->info('[Employees] Fetching data...');
+
+        $employees = Employee::all();
+
+        if ($employees->isEmpty()) {
+            $this->info('[Employees] No data to sync.');
             return;
         }
 
-        $this->info("Found {$unsynced->count()} records to sync.");
+        $this->info("[Employees] Sending {$employees->count()} records...");
 
-        foreach ($unsynced as $checkpoint) {
-            try {
-                $data = $checkpoint->getAttributes();
+        $totalSynced = 0;
+        $totalFailed = 0;
 
-                // Assuming the remote table has the same structure and we mark it as synced there too
-                $data['sync'] = 1;
+        foreach ($employees->chunk(self::CHUNK_SIZE) as $chunk) {
+            $payload = $chunk->map(function ($employee) {
+                return $employee->getAttributes();
+            })->values()->toArray();
 
-                // Insert or update on remote VPS
-                DB::connection('vps_mysql')->table('checkpoints_giic')->updateOrInsert(
-                    ['id' => $checkpoint->id],
-                    $data
-                );
+            $result = $this->sendToVps("{$baseUrl}/employees", $token, ['employees' => $payload]);
 
-                // Update local sync status
-                $checkpoint->update(['sync' => 1]);
-
-                $this->info("Synced checkpoint ID: {$checkpoint->id}");
-            } catch (\Exception $e) {
-                $this->error("Failed to sync checkpoint ID: {$checkpoint->id}. Error: " . $e->getMessage());
-                Log::error("Checkpoint Sync Error (ID {$checkpoint->id}): " . $e->getMessage());
+            if ($result) {
+                $totalSynced += $result['synced_count'] ?? 0;
+                $totalFailed += $result['failed_count'] ?? 0;
+            } else {
+                $totalFailed += count($payload);
             }
         }
 
-        $this->info('Synchronization completed.');
+        $this->info("[Employees] Done. Synced: {$totalSynced}, Failed: {$totalFailed}");
+    }
+
+    /**
+     * Sync all users to VPS.
+     */
+    private function syncUsers(string $baseUrl, string $token): void
+    {
+        $this->info('[Users] Fetching data...');
+
+        $users = User::all();
+
+        if ($users->isEmpty()) {
+            $this->info('[Users] No data to sync.');
+            return;
+        }
+
+        $this->info("[Users] Sending {$users->count()} records...");
+
+        $totalSynced = 0;
+        $totalFailed = 0;
+
+        foreach ($users->chunk(self::CHUNK_SIZE) as $chunk) {
+            $payload = $chunk->map(function ($user) {
+                $attrs = $user->getAttributes();
+                // Remove sensitive fields not needed on VPS
+                unset($attrs['remember_token']);
+                return $attrs;
+            })->values()->toArray();
+
+            $result = $this->sendToVps("{$baseUrl}/users", $token, ['users' => $payload]);
+
+            if ($result) {
+                $totalSynced += $result['synced_count'] ?? 0;
+                $totalFailed += $result['failed_count'] ?? 0;
+            } else {
+                $totalFailed += count($payload);
+            }
+        }
+
+        $this->info("[Users] Done. Synced: {$totalSynced}, Failed: {$totalFailed}");
+    }
+
+    /**
+     * Sync unsynced checkpoints to VPS.
+     */
+    private function syncCheckpoints(string $baseUrl, string $token): void
+    {
+        $this->info('[Checkpoints] Fetching unsynced data...');
+
+        $query = Checkpoint::query();
+
+        if ($this->option('force')) {
+            $this->warn('[Checkpoints] --force flag: re-syncing ALL checkpoints.');
+        } else {
+            $query->where('sync', 0);
+        }
+
+        $unsynced = $query->get();
+
+        if ($unsynced->isEmpty()) {
+            $this->info('[Checkpoints] No data to sync.');
+            return;
+        }
+
+        $this->info("[Checkpoints] Sending {$unsynced->count()} records...");
+
+        $totalSynced = 0;
+        $totalFailed = 0;
+
+        foreach ($unsynced->chunk(self::CHUNK_SIZE) as $chunk) {
+            $payload = $chunk->map(function ($checkpoint) {
+                return $checkpoint->getAttributes();
+            })->values()->toArray();
+
+            $result = $this->sendToVps("{$baseUrl}/checkpoints", $token, ['checkpoints' => $payload]);
+
+            if ($result && !empty($result['synced_ids'])) {
+                // Update sync flag only for successfully synced records
+                Checkpoint::whereIn('id', $result['synced_ids'])
+                    ->update(['sync' => 1]);
+
+                $totalSynced += $result['synced_count'] ?? 0;
+                $totalFailed += $result['failed_count'] ?? 0;
+
+                // Log individual failures
+                if (!empty($result['failed'])) {
+                    foreach ($result['failed'] as $failed) {
+                        $this->warn("[Checkpoints] Failed ID {$failed['id']}: {$failed['error']}");
+                    }
+                }
+            } else {
+                $totalFailed += count($payload);
+            }
+        }
+
+        $this->info("[Checkpoints] Done. Synced: {$totalSynced}, Failed: {$totalFailed}");
+    }
+
+    /**
+     * Send data to VPS via HTTPS POST.
+     *
+     * @param  string  $url     Full API endpoint URL
+     * @param  string  $token   Bearer token
+     * @param  array   $data    Request payload
+     * @return array|null       Decoded response on success, null on failure
+     */
+    private function sendToVps(string $url, string $token, array $data): ?array
+    {
+        try {
+            $response = Http::withToken($token)
+                ->timeout(self::TIMEOUT)
+                ->retry(3, 1000, function ($exception) {
+                    // Retry on connection errors and 5xx responses
+                    return $exception instanceof \Illuminate\Http\Client\ConnectionException
+                        || ($exception instanceof \Illuminate\Http\Client\RequestException
+                            && $exception->response?->status() >= 500);
+                })
+                ->post($url, $data);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            $this->error("API Error [{$response->status()}]: {$response->body()}");
+            Log::error("VPS Sync API Error [{$response->status()}] for {$url}: {$response->body()}");
+
+            return null;
+        } catch (\Exception $e) {
+            $this->error("Connection Error: {$e->getMessage()}");
+            Log::error("VPS Sync Connection Error for {$url}: {$e->getMessage()}");
+
+            return null;
+        }
     }
 }

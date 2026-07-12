@@ -39,4 +39,9 @@ return [
         'api_key' => env('POWERBI_API_KEY'),
     ],
 
+    'vps_sync' => [
+        'url' => env('VPS_SYNC_URL', 'https://checkpoint.panganlestari.id/api/sync'),
+        'token' => env('VPS_SYNC_TOKEN'),
+    ],
+
 ];

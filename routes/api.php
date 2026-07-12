@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\Api\ReportApiController;
+use App\Http\Controllers\Api\SyncApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,4 +72,11 @@ Route::middleware('api_key')->group(function () {
     Route::get('/report/summary', [ReportApiController::class, 'summary']);
 });
 
-
+// ==========================================
+// VPS SYNC (Sync Token Auth)
+// ==========================================
+Route::middleware('sync_token')->prefix('sync')->group(function () {
+    Route::post('/checkpoints', [SyncApiController::class, 'syncCheckpoints']);
+    Route::post('/users', [SyncApiController::class, 'syncUsers']);
+    Route::post('/employees', [SyncApiController::class, 'syncEmployees']);
+});
