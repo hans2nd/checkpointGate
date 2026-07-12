@@ -211,6 +211,7 @@ class SyncCheckpointsCommand extends Command
     {
         try {
             $response = Http::withToken($token)
+                ->withoutVerifying()
                 ->timeout(self::TIMEOUT)
                 ->retry(3, 1000, function ($exception) {
                     // Retry on connection errors and 5xx responses
