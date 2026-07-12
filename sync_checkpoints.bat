@@ -1,5 +1,5 @@
 @echo off
-cd /d "d:\AppInstalled\laragon\laragon\www\checkpoint-GIIC"
+cd /d "d:\laragon\www\checkpointGate"
 
 echo ============================================
 echo   Checkpoint GIIC - VPS Sync
