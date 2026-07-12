@@ -169,30 +169,37 @@ class SyncCheckpointsCommand extends Command
 
         $totalSynced = 0;
         $totalFailed = 0;
+        $batchNumber = 0;
 
         foreach ($unsynced->chunk(self::CHUNK_SIZE) as $chunk) {
+            $batchNumber++;
             $payload = $chunk->map(function ($checkpoint) {
                 return $checkpoint->getAttributes();
             })->values()->toArray();
 
             $result = $this->sendToVps("{$baseUrl}/checkpoints", $token, ['checkpoints' => $payload]);
 
-            if ($result && !empty($result['synced_ids'])) {
-                // Update sync flag only for successfully synced records
-                Checkpoint::whereIn('id', $result['synced_ids'])
-                    ->update(['sync' => 1]);
-
-                $totalSynced += $result['synced_count'] ?? 0;
-                $totalFailed += $result['failed_count'] ?? 0;
-
-                // Log individual failures
-                if (!empty($result['failed'])) {
-                    foreach ($result['failed'] as $failed) {
-                        $this->warn("[Checkpoints] Failed ID {$failed['id']}: {$failed['error']}");
-                    }
-                }
-            } else {
+            if ($result === null) {
+                // Total HTTP failure — already logged by sendToVps
                 $totalFailed += count($payload);
+                $this->warn("[Checkpoints] Batch #{$batchNumber}: HTTP request gagal total ({$totalFailed} records).");
+                continue;
+            }
+
+            // Sync successful IDs
+            $syncedIds = $result['synced_ids'] ?? [];
+            $failedItems = $result['failed'] ?? [];
+
+            if (!empty($syncedIds)) {
+                Checkpoint::whereIn('id', $syncedIds)->update(['sync' => 1]);
+            }
+
+            $totalSynced += count($syncedIds);
+            $totalFailed += count($failedItems);
+
+            // Show individual failures with detail
+            foreach ($failedItems as $failed) {
+                $this->warn("[Checkpoints] Failed ID {$failed['id']}: {$failed['error']}");
             }
         }
 
@@ -225,8 +232,22 @@ class SyncCheckpointsCommand extends Command
                 return $response->json();
             }
 
-            $this->error("API Error [{$response->status()}]: {$response->body()}");
-            Log::error("VPS Sync API Error [{$response->status()}] for {$url}: {$response->body()}");
+            // Show full error response for debugging
+            $body = $response->body();
+            $status = $response->status();
+
+            // Try to extract JSON error message
+            $json = $response->json();
+            if ($json && isset($json['message'])) {
+                $this->error("API Error [{$status}]: {$json['message']}");
+            } else {
+                // Truncate HTML responses to first meaningful line
+                $cleanBody = strip_tags($body);
+                $cleanBody = trim(preg_replace('/\s+/', ' ', $cleanBody));
+                $this->error("API Error [{$status}]: " . substr($cleanBody, 0, 200));
+            }
+
+            Log::error("VPS Sync API Error [{$status}] for {$url}: {$body}");
 
             return null;
         } catch (\Exception $e) {

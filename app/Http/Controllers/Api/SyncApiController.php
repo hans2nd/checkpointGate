@@ -50,13 +50,10 @@ class SyncApiController extends Controller
             try {
                 $id = $data['id'];
 
-                // Remove fields that should not be synced
+                // Remove fields that should not be synced to VPS
                 $syncData = collect($data)->except(['sync'])->toArray();
 
-                // Mark as synced on VPS side
-                $syncData['sync'] = 1;
-
-                DB::table('checkpoints')->updateOrInsert(
+                DB::table('checkpoints_giic')->updateOrInsert(
                     ['id' => $id],
                     $syncData
                 );
