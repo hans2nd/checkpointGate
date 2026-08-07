@@ -26,7 +26,7 @@
 
         {{-- Filter Form --}}
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                <form method="GET" action="{{ route('report.index') }}"
+            <form method="GET" action="{{ route('report.index') }}"
                 class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-8 gap-3 items-end">
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('Tanggal Mulai') }}</label>
@@ -71,8 +71,10 @@
                     </select>
                 </div>
                 <div class="lg:col-span-2">
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">{{ __('Search (License Plate, Vendor, Delivery Note, PO, Note)') }}</label>
-                    <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="{{ __('Search keywords...') }}"
+                    <label
+                        class="block text-xs font-semibold text-gray-600 mb-1">{{ __('Search (License Plate, Vendor, Delivery Note, PO, Note)') }}</label>
+                    <input type="text" name="search" value="{{ $search ?? '' }}"
+                        placeholder="{{ __('Search keywords...') }}"
                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
                 </div>
                 <div class="flex gap-2">
@@ -151,34 +153,16 @@
                                 {{ __('Aktivitas') }}</th>
                             <th
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
-                                {{ __('No. Surat Jalan') }}</th>
-                            <th
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
-                                {{ __('Purchase Order') }}</th>
-                            <th
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
-                                {{ __('Receipt Number') }}</th>
-                            <th
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
                                 {{ __('Gate') }}</th>
                             <th
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
                                 {{ __('Status') }}</th>
                             <th
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
-                                {{ __('Waktu Tunggu') }}</th>
+                                {{ __('Dibuat') }}</th>
                             <th
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
                                 {{ __('Waktu Penerimaan Dokumen') }}</th>
-                            <th
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
-                                {{ __('Waktu Penyerahan Dokumen') }}</th>
-                            <th
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
-                                {{ __('Waktu Keluar') }}</th>
-                            <th
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
-                                {{ __('Durasi Dokumen') }}</th>
                             <th
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
                                 {{ __('Waktu Start Loading') }}</th>
@@ -186,8 +170,35 @@
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
                                 {{ __('Waktu End Loading') }}</th>
                             <th
+                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
+                                {{ __('Waktu Penyerahan Dokumen') }}</th>
+                            <th
+                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
+                                {{ __('Waktu Keluar') }}</th>
+                            <th
+                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
+                                {{ __('Waktu Tunggu') }}</th>
+                            <th
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
                                 {{ __('Durasi Loading/Unloading') }}</th>
+                            <th
+                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                {{ __('Durasi Dokumen') }}</th>
+                            <th
+                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
+                                {{ __('Waktu Cancel') }}</th>
+                            <th
+                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
+                                {{ __('Diperbarui') }}</th>
+                            <th
+                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                {{ __('No. Surat Jalan') }}</th>
+                            <th
+                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                {{ __('Purchase Order') }}</th>
+                            <th
+                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                {{ __('Receipt Number') }}</th>
                             <th
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
                                 {{ __('Dibuat Oleh') }}</th>
@@ -201,17 +212,10 @@
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
                                 {{ __('Cancel Oleh') }}</th>
                             <th
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
-                                {{ __('Waktu Cancel') }}</th>
-                            <th
                                 class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
                                 {{ __('Note') }}</th>
-                            <th
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
-                                {{ __('Dibuat') }}</th>
-                            <th
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
-                                {{ __('Diperbarui') }}</th>
+
+
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50">
@@ -262,9 +266,6 @@
                                         class="inline-flex px-1.5 py-0.5 rounded text-[10px] font-semibold {{ $cp->jenis_barang === 'FROZEN' ? 'bg-cyan-50 text-cyan-700' : 'bg-orange-50 text-orange-700' }}">{{ $cp->jenis_barang }}</span>
                                 </td>
                                 <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{{ $cp->aktivitas }}</td>
-                                <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{{ $cp->no_surat_jalan ?: '—' }}</td>
-                                <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{{ $cp->purchase_order ?: '—' }}</td>
-                                <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{{ $cp->receipt_number ?: '—' }}</td>
                                 <td class="px-3 py-2.5 text-gray-600 text-center text-xs">{{ $gateLabel }}</td>
                                 <td class="px-3 py-2.5 whitespace-nowrap">
                                     @if ($cp->status === 'CANCEL')
@@ -291,10 +292,17 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td class="px-3 py-2.5 text-gray-500 font-mono text-xs whitespace-nowrap text-center">
-                                    {{ $waktuTunggu ?: '—' }}</td>
+                                <td class="px-3 py-2.5 text-center text-xs text-gray-600 whitespace-nowrap">
+                                    {{ $cp->created_at ? $cp->created_at->format('d/m/Y H:i:s') : '—' }}
+                                </td>
                                 <td class="px-3 py-2.5 text-center text-xs text-gray-600 whitespace-nowrap">
                                     {{ $cp->waktu_penerimaan_dokumen ? $cp->waktu_penerimaan_dokumen->format('H:i:s') : '—' }}
+                                </td>
+                                <td class="px-3 py-2.5 text-center text-xs text-gray-600 whitespace-nowrap">
+                                    {{ $cp->waktu_start ? $cp->waktu_start->format('H:i:s') : '—' }}
+                                </td>
+                                <td class="px-3 py-2.5 text-center text-xs text-gray-600 whitespace-nowrap">
+                                    {{ $cp->waktu_end ? $cp->waktu_end->format('H:i:s') : '—' }}
                                 </td>
                                 <td class="px-3 py-2.5 text-center text-xs text-gray-600 whitespace-nowrap">
                                     {{ $cp->waktu_penyerahan_dokumen ? $cp->waktu_penyerahan_dokumen->format('H:i:s') : '—' }}
@@ -302,14 +310,26 @@
                                 <td class="px-3 py-2.5 text-center text-xs text-gray-600 whitespace-nowrap">
                                     {{ $cp->waktu_keluar ? $cp->waktu_keluar->format('H:i:s') : '—' }}
                                 </td>
+                                <td class="px-3 py-2.5 text-gray-500 font-mono text-xs whitespace-nowrap text-center">
+                                    {{ $waktuTunggu ?: '—' }}
+                                </td>
                                 <td class="px-3 py-2.5 text-gray-500 font-mono text-xs whitespace-nowrap">
-                                    {{ $durasiDok ?: '—' }}</td>
-                                <td class="px-3 py-2.5 text-center text-xs text-gray-600 whitespace-nowrap">
-                                    {{ $cp->waktu_start ? $cp->waktu_start->format('H:i:s') : '—' }}</td>
-                                <td class="px-3 py-2.5 text-center text-xs text-gray-600 whitespace-nowrap">
-                                    {{ $cp->waktu_end ? $cp->waktu_end->format('H:i:s') : '—' }}</td>
+                                    {{ $cp->durasi ?? '—' }}
+                                </td>
                                 <td class="px-3 py-2.5 text-gray-500 font-mono text-xs whitespace-nowrap">
-                                    {{ $cp->durasi ?? '—' }}</td>
+                                    {{ $durasiDok ?: '—' }}
+                                </td>
+                                <td class="px-3 py-2.5 text-center text-xs text-gray-600 whitespace-nowrap">
+                                    {{ $cp->updated_at ? $cp->updated_at->format('d/m/Y H:i:s') : '—' }}</td>
+                                <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">
+                                    {{ $cp->no_surat_jalan ?: '—' }}
+                                </td>
+                                <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">
+                                    {{ $cp->purchase_order ?: '—' }}
+                                </td>
+                                <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">
+                                    {{ $cp->receipt_number ?: '—' }}
+                                </td>
                                 <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">
                                     {{ optional($cp->createdByUser)->name ?? '—' }}</td>
                                 <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">
@@ -320,11 +340,9 @@
                                     {{ optional($cp->canceledByUser)->name ?? '—' }}</td>
                                 <td class="px-3 py-2.5 text-center text-xs text-gray-600 whitespace-nowrap">
                                     {{ $cp->canceled_at ? $cp->canceled_at->format('d/m/Y H:i:s') : '—' }}</td>
-                                <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{{ $cp->note ?: '—' }}</td>
-                                <td class="px-3 py-2.5 text-center text-xs text-gray-600 whitespace-nowrap">
-                                    {{ $cp->created_at ? $cp->created_at->format('d/m/Y H:i:s') : '—' }}</td>
-                                <td class="px-3 py-2.5 text-center text-xs text-gray-600 whitespace-nowrap">
-                                    {{ $cp->updated_at ? $cp->updated_at->format('d/m/Y H:i:s') : '—' }}</td>
+                                <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{{ $cp->note ?: '—' }}
+                                </td>
+
                             </tr>
                         @empty
                             <tr>
