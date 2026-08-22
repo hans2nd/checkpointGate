@@ -10,7 +10,7 @@
             </div>
             <div class="flex items-center gap-2 flex-wrap">
                 <button type="button" id="bulkDeleteBtn" onclick="doBulkDelete()"
-                    class="hidden items-center gap-2 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-xl shadow-sm transition-all hover:shadow-md">
+                    class="hidden items-center gap-2 px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-bold rounded-xl shadow-sm transition-all hover:shadow-md">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -18,7 +18,7 @@
                     Hapus Terpilih (<span id="selectedCount">0</span>)
                 </button>
                 <button type="button" onclick="document.getElementById('importModal').classList.remove('hidden')"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-xl shadow-sm transition-all hover:shadow-md">
+                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl shadow-sm transition-all hover:shadow-md">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
@@ -26,7 +26,7 @@
                     Import Excel
                 </button>
                 <a href="{{ route('employees.export', request()->query()) }}"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-xl shadow-sm transition-all hover:shadow-md">
+                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-xl shadow-sm transition-all hover:shadow-md">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -34,7 +34,7 @@
                     Export Excel
                 </a>
                 <a href="{{ route('employees.create') }}"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl shadow-sm transition-all hover:shadow-md">
+                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-orange-500/30 transition-all hover:-translate-y-0.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
@@ -45,22 +45,20 @@
         </div>
 
         {{-- Filter Bar --}}
-        <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-            <form method="GET" action="{{ route('employees.index') }}" class="flex flex-col lg:flex-row gap-3">
-                <div class="flex-1">
-                    <div class="relative">
-                        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="Cari Employee ID atau nama..."
-                            class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
-                    </div>
+        <div class="checkpoint-filter-card mb-6">
+            <form method="GET" action="{{ route('employees.index') }}" class="flex flex-col lg:flex-row gap-4 items-center">
+                <div class="flex-1 w-full relative">
+                    <svg class="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input type="text" name="search" value="{{ request('search') }}"
+                        placeholder="Cari Employee ID atau nama..."
+                        class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all shadow-sm">
                 </div>
                 <select name="role"
-                    class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+                    class="border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white transition-all shadow-sm w-full lg:w-48">
                     <option value="">Semua Role</option>
                     @foreach ($roles as $role)
                         <option value="{{ $role->id }}" {{ request('role') == $role->id ? 'selected' : '' }}>
@@ -68,49 +66,59 @@
                     @endforeach
                 </select>
                 <select name="status"
-                    class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+                    class="border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white transition-all shadow-sm w-full lg:w-48">
                     <option value="">Semua Status</option>
                     <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Aktif</option>
                     <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Nonaktif</option>
                 </select>
-                <select name="per_page" onchange="this.form.submit()"
-                    class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
-                    @foreach ([10, 15, 25, 50, 100] as $size)
-                        <option value="{{ $size }}" {{ request('per_page', 15) == $size ? 'selected' : '' }}>
-                            {{ $size }} / hal</option>
-                    @endforeach
-                </select>
-                <div class="flex gap-2">
+                <div class="flex gap-2 w-full lg:w-auto">
                     <button type="submit"
-                        class="px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white text-sm font-medium rounded-lg transition-colors">Filter</button>
+                        class="flex-1 lg:flex-none px-6 py-3 bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold rounded-xl transition-all shadow-md hover:shadow-lg">Filter</button>
                     <a href="{{ route('employees.index') }}"
-                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-lg transition-colors">Reset</a>
+                        class="flex-1 lg:flex-none px-6 py-3 bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 text-sm font-bold rounded-xl transition-all text-center text-decoration-none shadow-sm hover:shadow-md">Reset</a>
                 </div>
             </form>
         </div>
 
         {{-- Data Table --}}
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="checkpoint-table-card">
+            <div class="flex items-center justify-between mb-4 mt-2 px-4">
+                <h2 class="text-lg font-bold text-gray-800">Daftar Employee</h2>
+                <div class="flex items-center gap-2">
+                    <label class="text-sm text-gray-600 font-medium">Tampilkan:</label>
+                    <form method="GET" action="{{ route('employees.index') }}">
+                        <input type="hidden" name="search" value="{{ request('search') }}">
+                        <input type="hidden" name="role" value="{{ request('role') }}">
+                        <input type="hidden" name="status" value="{{ request('status') }}">
+                        <select name="per_page" onchange="this.form.submit()" class="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white font-medium shadow-sm">
+                            @foreach([10,15,25,50,100] as $size)
+                                <option value="{{ $size }}" {{ request('per_page', 15) == $size ? 'selected' : '' }}>{{ $size }} data</option>
+                            @endforeach
+                        </select>
+                    </form>
+                </div>
+            </div>
+
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
-                        <tr class="bg-gray-50 text-left">
+                        <tr style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white;" class="text-left border-b border-orange-600 shadow-sm">
                             <th class="px-3 py-3"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"
-                                    class="rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"></th>
-                            <th class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">No</th>
-                            <th class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">Employee ID</th>
-                            <th class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">Nama</th>
-                            <th class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">Role</th>
-                            <th class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">Status</th>
-                            <th class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">Dibuat</th>
-                            <th class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">Aksi</th>
+                                    class="rounded border-white/30 bg-white/20 text-orange-600 focus:ring-white"></th>
+                            <th class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">No</th>
+                            <th class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">Employee ID</th>
+                            <th class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">Nama</th>
+                            <th class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">Role</th>
+                            <th class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap text-center">Status</th>
+                            <th class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">Dibuat</th>
+                            <th class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap text-center">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-50">
+                    <tbody class="divide-y divide-gray-200">
                         @forelse($employees as $index => $emp)
-                            <tr class="hover:bg-gray-50/50 transition-colors">
+                            <tr class="hover:bg-orange-50/30 transition-colors">
                                 <td class="px-3 py-2.5"><input type="checkbox" data-id="{{ $emp->id }}"
-                                        class="row-checkbox rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
+                                        class="row-checkbox rounded border-gray-300 text-orange-500 focus:ring-orange-500"
                                         onchange="updateSelectedCount()"></td>
                                 <td class="px-3 py-2.5 text-gray-400 text-xs">{{ format_row_number($employees, $index) }}</td>
                                 <td class="px-3 py-2.5 whitespace-nowrap">

@@ -215,39 +215,35 @@ class LiveMonitoringController extends Controller
     {
         $activitySummary = [];
 
-        // Row khusus untuk kendaraan yang baru Parking (belum ada aktivitas & jenis_barang)
-        // $parkingBase = Checkpoint::whereDate('tanggal', $today)
-        //     ->whereNull('aktivitas')
-        //     ->where('status', '!=', 'CANCEL');
-        $parkingBase = Checkpoint::whereNull('aktivitas')
-            ->where('status', '!=', 'CANCEL');
+        // Row khusus untuk kendaraan dengan status PARKING saja
+        $parkingBase = Checkpoint::where('status', 'PARKING');
 
         $activitySummary[] = [
             'label' => 'PARKING',
-            'parking' => (clone $parkingBase)->whereIn('status', ['START', 'PARKING', 'DOC IN'])->count(),
-            'doc_in' => (clone $parkingBase)->where('status', 'DOC IN')->count(),
-            'waiting_gate' => (clone $parkingBase)->whereIn('status', ['ASSIGN GATE', 'WAITING', 'READY'])->count(),
-            'on_process' => (clone $parkingBase)->where('status', 'ON LOADING')->count(),
-            'finish' => (clone $parkingBase)->where('status', 'FINISH')->whereNull('waktu_penyerahan_dokumen')->whereDate('updated_at', $today)->count(),
-            'doc_out' => (clone $parkingBase)->whereNotNull('waktu_penyerahan_dokumen')->whereDate('waktu_penyerahan_dokumen', $today)->count(),
-            'completed' => (clone $parkingBase)->whereNotNull('waktu_penyerahan_dokumen')->whereDate('waktu_penyerahan_dokumen', $today)->count(),
+            'parking' => (clone $parkingBase)->count(),
+            'doc_in' => 0,
+            'waiting_gate' => 0,
+            'on_process' => 0,
+            'finish' => 0,
+            'doc_out' => 0,
+            'completed' => 0,
         ];
 
         foreach (['INBOUND', 'OUTBOUND'] as $aktivitas) {
             foreach (['FROZEN', 'DRY', 'CHILLED'] as $jenis) {
                 $label = ($aktivitas === 'INBOUND' ? 'IN' : 'OUT') . ' ' . $jenis;
 
-                // Base untuk status aktif: hitung semua data yang belum selesai tanpa peduli tanggal (lintas hari)
+                // Base untuk kendaraan yang sudah melewati PARKING (minimal DOC IN)
                 $activeBase = Checkpoint::where('aktivitas', $aktivitas)
                     ->where('jenis_barang', $jenis)
-                    ->where('status', '!=', 'CANCEL');
+                    ->where('status', '!=', 'CANCEL')
+                    ->where('status', '!=', 'PARKING');
 
-                $parking = (clone $activeBase)->whereIn('status', ['START', 'PARKING', 'DOC IN'])->count();
+                $parking = 0; // Sudah dihitung di row khusus PARKING
                 $docIn = (clone $activeBase)->where('status', 'DOC IN')->count();
                 $waitingGate = (clone $activeBase)->whereIn('status', ['ASSIGN GATE', 'WAITING', 'READY'])->count();
                 $onProcess = (clone $activeBase)->where('status', 'ON LOADING')->count();
 
-                // Base untuk status selesai: hanya dihitung jika diselesaikan (diupdate) PADA HARI INI
                 // 'finish' berarti status FINISH dan dokumen BELUM diserahkan
                 $finish = (clone $activeBase)
                     ->where('status', 'FINISH')
@@ -255,12 +251,18 @@ class LiveMonitoringController extends Controller
                     ->whereDate('updated_at', $today)
                     ->count();
                 
-                // 'docOut' / 'completed' berarti dokumen SUDAH diserahkan hari ini
+                // 'doc_out' berarti dokumen SUDAH diserahkan tapi BELUM completed oleh security
                 $docOut = (clone $activeBase)
                     ->whereNotNull('waktu_penyerahan_dokumen')
+                    ->where('status', '!=', 'COMPLETED')
                     ->whereDate('waktu_penyerahan_dokumen', $today)
                     ->count();
-                $completed = $docOut; // Completed adalah jumlah yang sama dengan Doc Out di hari ini
+
+                // 'completed' berarti status COMPLETED
+                $completed = (clone $activeBase)
+                    ->where('status', 'COMPLETED')
+                    ->whereDate('waktu_keluar', $today)
+                    ->count();
 
                 $activitySummary[] = [
                     'label' => $label,

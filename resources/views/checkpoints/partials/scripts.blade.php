@@ -470,8 +470,33 @@
             const form = this;
 
             const rInputs = document.querySelectorAll('.receipt-input');
+            let vals = [];
+            let hasDuplicate = false;
+            let duplicateVal = '';
+
             if (rInputs.length > 0) {
-                const vals = Array.from(rInputs).map(i => i.value.trim()).filter(v => v);
+                for (let i = 0; i < rInputs.length; i++) {
+                    const v = rInputs[i].value.trim();
+                    if (v) {
+                        if (vals.includes(v)) {
+                            hasDuplicate = true;
+                            duplicateVal = v;
+                            break;
+                        }
+                        vals.push(v);
+                    }
+                }
+
+                if (hasDuplicate) {
+                    Swal.fire({
+                        title: 'Validasi Gagal',
+                        text: 'Nomor Receipt "' + duplicateVal + '" diinput lebih dari satu kali. Harap masukkan nomor yang berbeda pada setiap baris.',
+                        icon: 'error',
+                        confirmButtonColor: '#A855F7'
+                    });
+                    return;
+                }
+
                 const hiddenInput = document.getElementById('serah_receipt_number');
                 if (hiddenInput) {
                     hiddenInput.value = vals.join('/');
@@ -631,6 +656,15 @@
 <script>window.onload=function(){window.print();}<\/script>
 </body>
 </html>`);
-            printWindow.document.close();
+        }
+        
+        // ===== VALIDATION ALERT =====
+        function showValidationError(message) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Tidak Bisa Diproses',
+                text: message,
+                confirmButtonColor: '#ea580c'
+            });
         }
     </script>

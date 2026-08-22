@@ -1,72 +1,72 @@
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="checkpoint-table-card">
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
-                        <tr class="bg-gray-50 text-left">
+                        <tr style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white;" class="text-left border-b border-orange-600 shadow-sm">
                             @if (Auth::user()->hasPermission('checkpoint.delete'))
                                 <th class="px-3 py-3"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"
                                         class="rounded border-gray-300 text-orange-500 focus:ring-orange-500"></th>
                             @endif
                             <th
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
                                 No</th>
                             <th data-col="col-tanggal"
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
                                 {{ __('Tanggal') }}</th>
                             <th data-col="col-nopol"
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
                                 {{ __('No Polisi') }}</th>
                             <th data-col="col-vendor"
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
                                 Vendor</th>
                             <th data-col="col-kendaraan"
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
                                 {{ __('Kendaraan') }}</th>
                             <th data-col="col-barang"
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
                                 {{ __('Barang') }}</th>
                             <th data-col="col-aktivitas"
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
                                 {{ __('Aktivitas') }}</th>
                             <th data-col="col-penerimaan"
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap text-center">
                                 {{ __('Penerimaan') }}<br><span
-                                    class="text-[10px] font-normal normal-case text-gray-400">{{ __('Dokumen IN') }}</span>
+                                    class="text-[10px] font-normal normal-case text-white/80">{{ __('Dokumen IN') }}</span>
                             </th>
                             <th data-col="col-gate"
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
                                 Gate</th>
                             <th data-col="col-start"
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
-                                Start<br><span class="text-[10px] font-normal normal-case text-gray-400">Loading</span>
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap text-center">
+                                Start<br><span class="text-[10px] font-normal normal-case text-white/80">Loading</span>
                             </th>
                             <th data-col="col-end"
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
-                                End<br><span class="text-[10px] font-normal normal-case text-gray-400">Loading</span>
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap text-center">
+                                End<br><span class="text-[10px] font-normal normal-case text-white/80">Loading</span>
                             </th>
                             <th data-col="col-status"
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
                                 Status</th>
                             <th data-col="col-catatan"
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
                                 {{ __('Catatan') }}</th>
                             <th data-col="col-durasi"
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap">
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
                                 {{ __('Durasi') }}<br><span
-                                    class="text-[10px] font-normal normal-case text-gray-400">Loading</span>
+                                    class="text-[10px] font-normal normal-case text-white/80">Loading</span>
                             </th>
                             <th data-col="col-penyerahan"
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap text-center">
                                 {{ __('Penyerahan') }}<br><span
-                                    class="text-[10px] font-normal normal-case text-gray-400">Dokumen
+                                    class="text-[10px] font-normal normal-case text-white/80">Dokumen
                                     OUT</span></th>
                             <th data-col="col-durasi-dok"
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap text-center">
                                 {{ __('Durasi') }}<br><span
-                                    class="text-[10px] font-normal normal-case text-gray-400">Dokumen</span>
+                                    class="text-[10px] font-normal normal-case text-white/80">Dokumen</span>
                             </th>
                             <th
-                                class="px-3 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider whitespace-nowrap text-center">
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap text-center">
                                 {{ __('Aksi') }}</th>
                         </tr>
                     </thead>
@@ -146,10 +146,16 @@
                                             $cp->status !== 'CANCEL' &&
                                             $cp->cancel_status !== 'pending' &&
                                             Auth::user()->hasPermission('checkpoint.assign_gate'))
-                                        <button type="button"
-                                            onclick="openGateModal({{ $cp->id }}, @js($cp->no_polisi))"
-                                            class="px-2 py-1 bg-green-500 hover:bg-green-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">🔹
-                                            {{ __('Select Gate') }}</button>
+                                        @if(!$cp->waktu_penerimaan_dokumen)
+                                            <button type="button" onclick="showValidationError('Harap selesaikan proses Penerimaan Dokumen terlebih dahulu.')"
+                                                class="px-2 py-1 bg-gray-200 text-gray-500 text-[10px] font-semibold rounded-md shadow-sm opacity-70">🔹
+                                                {{ __('Select Gate') }}</button>
+                                        @else
+                                            <button type="button"
+                                                onclick="openGateModal({{ $cp->id }}, @js($cp->no_polisi))"
+                                                class="px-2 py-1 bg-green-500 hover:bg-green-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">🔹
+                                                {{ __('Select Gate') }}</button>
+                                        @endif
                                     @elseif (
                                         $gateLabel != null && $gateLabel != '-' &&
                                             $cp->status !== 'CANCEL' &&
@@ -166,8 +172,8 @@
                                                 </button>
                                             </form>
                                         @else
-                                            <button type="button" disabled
-                                                class="px-2 py-1 bg-gray-400 text-white text-[10px] font-semibold rounded-md shadow-sm cursor-not-allowed">
+                                            <button type="button" onclick="showValidationError('Harap selesaikan proses Penerimaan Dokumen terlebih dahulu.')"
+                                                class="px-2 py-1 bg-gray-200 text-gray-500 text-[10px] font-semibold rounded-md shadow-sm opacity-70">
                                                 Confirm Gate
                                             </button>
                                         @endif
@@ -179,17 +185,23 @@
                                     @if ($cp->waktu_start)
                                         <span
                                             class="text-xs text-gray-600">{{ $cp->waktu_start->format('H:i:s') }}</span>
-                                    @elseif(
-                                        $cp->status !== 'CANCEL' &&
-                                            $cp->cancel_status !== 'pending' &&
-                                            in_array($cp->status, ['WAITING', 'READY']) &&
-                                            Auth::user()->hasPermission('checkpoint.trigger_start'))
-                                        <form method="POST" action="{{ route('checkpoints.trigger-start', $cp) }}"
-                                            class="inline">@csrf
-                                            <button type="submit"
-                                                class="px-2 py-1 bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">▶
+                                    @elseif($cp->status !== 'CANCEL' && $cp->cancel_status !== 'pending' && Auth::user()->hasPermission('checkpoint.trigger_start'))
+                                        @if(!$cp->waktu_penerimaan_dokumen || $gateLabel == null || $gateLabel == '-')
+                                            <button type="button" onclick="showValidationError('Gate dan Penerimaan Dokumen harus diselesaikan terlebih dahulu sebelum Start Loading.')"
+                                                class="px-2 py-1 bg-gray-200 text-gray-500 text-[10px] font-semibold rounded-md shadow-sm opacity-70">▶
                                                 Start</button>
-                                        </form>
+                                        @elseif(!in_array($cp->status, ['WAITING', 'READY']))
+                                            <button type="button" onclick="showValidationError('Status kendaraan belum siap untuk Start Loading.')"
+                                                class="px-2 py-1 bg-gray-200 text-gray-500 text-[10px] font-semibold rounded-md shadow-sm opacity-70">▶
+                                                Start</button>
+                                        @else
+                                            <form method="POST" action="{{ route('checkpoints.trigger-start', $cp) }}"
+                                                class="inline">@csrf
+                                                <button type="submit"
+                                                    class="px-2 py-1 bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">▶
+                                                    Start</button>
+                                            </form>
+                                        @endif
                                     @else
                                         <span class="text-xs text-gray-300">—</span>
                                     @endif
@@ -198,17 +210,19 @@
                                     @if ($cp->waktu_end)
                                         <span
                                             class="text-xs text-gray-600">{{ $cp->waktu_end->format('H:i:s') }}</span>
-                                    @elseif(
-                                        $cp->status !== 'CANCEL' &&
-                                            $cp->cancel_status !== 'pending' &&
-                                            $cp->waktu_start &&
-                                            Auth::user()->hasPermission('checkpoint.trigger_end'))
-                                        <form method="POST" action="{{ route('checkpoints.trigger-end', $cp) }}"
-                                            class="inline" onsubmit="event.preventDefault(); confirmEndLoading(this);">@csrf
-                                            <button type="submit"
-                                                class="px-2 py-1 bg-red-500 hover:bg-red-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">⏹
+                                    @elseif($cp->status !== 'CANCEL' && $cp->cancel_status !== 'pending' && Auth::user()->hasPermission('checkpoint.trigger_end'))
+                                        @if(!$cp->waktu_start)
+                                            <button type="button" onclick="showValidationError('Harap selesaikan proses Start Loading terlebih dahulu.')"
+                                                class="px-2 py-1 bg-gray-200 text-gray-500 text-[10px] font-semibold rounded-md shadow-sm opacity-70">⏹
                                                 End</button>
-                                        </form>
+                                        @else
+                                            <form method="POST" action="{{ route('checkpoints.trigger-end', $cp) }}"
+                                                class="inline" onsubmit="event.preventDefault(); confirmEndLoading(this);">@csrf
+                                                <button type="submit"
+                                                    class="px-2 py-1 bg-red-500 hover:bg-red-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">⏹
+                                                    End</button>
+                                            </form>
+                                        @endif
                                     @else
                                         <span class="text-xs text-gray-300">—</span>
                                     @endif
@@ -306,15 +320,17 @@
                                     @if ($cp->waktu_penyerahan_dokumen)
                                         <span
                                             class="text-xs text-gray-600">{{ $cp->waktu_penyerahan_dokumen->format('H:i:s') }}</span>
-                                    @elseif(
-                                        $cp->status !== 'CANCEL' &&
-                                            $cp->cancel_status !== 'pending' &&
-                                            $cp->waktu_end &&
-                                            Auth::user()->hasPermission('checkpoint.trigger_serah'))
-                                        <button type="button"
-                                            onclick="openSerahModal('{{ $cp->id }}', '{{ $cp->no_polisi }}', '{{ addslashes($cp->vendor) }}', '{{ addslashes($cp->driver) }}', '{{ addslashes($cp->no_surat_jalan) }}', '{{ addslashes($cp->purchase_order) }}')"
-                                            class="px-2 py-1 bg-purple-500 hover:bg-purple-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">📤
-                                            Serah</button>
+                                    @elseif($cp->status !== 'CANCEL' && $cp->cancel_status !== 'pending' && Auth::user()->hasPermission('checkpoint.trigger_serah'))
+                                        @if(!$cp->waktu_end)
+                                            <button type="button" onclick="showValidationError('Proses End Loading belum selesai. Anda tidak dapat melakukan penyerahan dokumen.')"
+                                                class="px-2 py-1 bg-gray-200 text-gray-500 text-[10px] font-semibold rounded-md shadow-sm opacity-70">📤
+                                                Serah</button>
+                                        @else
+                                            <button type="button"
+                                                onclick="openSerahModal('{{ $cp->id }}', '{{ $cp->no_polisi }}', '{{ addslashes($cp->vendor) }}', '{{ addslashes($cp->driver) }}', '{{ addslashes($cp->no_surat_jalan) }}', '{{ addslashes($cp->purchase_order) }}')"
+                                                class="px-2 py-1 bg-purple-500 hover:bg-purple-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">📤
+                                                Serah</button>
+                                        @endif
                                     @else
                                         <span class="text-xs text-gray-300">—</span>
                                     @endif

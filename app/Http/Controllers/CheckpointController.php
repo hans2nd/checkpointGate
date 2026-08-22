@@ -469,6 +469,27 @@ class CheckpointController extends Controller
             'receipt_number' => 'nullable|string|max:100',
         ]);
 
+        if ($request->filled('receipt_number')) {
+            $receipts = explode('/', $request->receipt_number);
+            foreach ($receipts as $receipt) {
+                $receipt = trim($receipt);
+                if (empty($receipt)) continue;
+                
+                $exists = Checkpoint::where('id', '!=', $checkpoint->id)
+                    ->where(function($query) use ($receipt) {
+                        $query->where('receipt_number', $receipt)
+                              ->orWhere('receipt_number', 'LIKE', $receipt . '/%')
+                              ->orWhere('receipt_number', 'LIKE', '%/' . $receipt . '/%')
+                              ->orWhere('receipt_number', 'LIKE', '%/' . $receipt);
+                    })->first();
+
+                if ($exists) {
+                    return redirect()->back()
+                        ->with('error', "Nomor Receipt {$receipt} sudah pernah diinput pada checkpoint lain (No Polisi: {$exists->no_polisi}).");
+                }
+            }
+        }
+
         $checkpoint->update([
             'waktu_penyerahan_dokumen' => Carbon::now(),
             'receipt_number' => $request->receipt_number,

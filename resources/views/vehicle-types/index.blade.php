@@ -7,43 +7,41 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div><p class="text-sm text-gray-500">Total {{ $vehicleTypes->total() }} {{ __('jenis kendaraan') }}</p></div>
         <div class="flex items-center gap-2 flex-wrap">
-            <a href="{{ route('vehicle-types.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-xl shadow-sm transition-all hover:shadow-md">
+            <a href="{{ route('vehicle-types.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-orange-500/30 transition-all hover:-translate-y-0.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 {{ __('Tambah Jenis Kendaraan') }}
             </a>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-        <form method="GET" action="{{ route('vehicle-types.index') }}" class="flex flex-col lg:flex-row gap-3">
-            <div class="flex-1">
-                <div class="relative">
-                    <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('Cari jenis kendaraan...') }}" class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                </div>
+    <div class="checkpoint-filter-card mb-6">
+        <form method="GET" action="{{ route('vehicle-types.index') }}" class="flex flex-col lg:flex-row gap-4 items-center">
+            <div class="flex-1 w-full relative">
+                <svg class="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('Cari jenis kendaraan...') }}" class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all shadow-sm">
             </div>
-            <div class="flex gap-2">
-                <button type="submit" class="px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white text-sm font-medium rounded-lg transition-colors">Filter</button>
-                <a href="{{ route('vehicle-types.index') }}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-lg transition-colors">Reset</a>
+            <div class="flex gap-2 w-full lg:w-auto">
+                <button type="submit" class="flex-1 lg:flex-none px-6 py-3 bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold rounded-xl transition-all shadow-md hover:shadow-lg">Filter</button>
+                <a href="{{ route('vehicle-types.index') }}" class="flex-1 lg:flex-none px-6 py-3 bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 text-sm font-bold rounded-xl transition-all text-center text-decoration-none shadow-sm hover:shadow-md">Reset</a>
             </div>
         </form>
     </div>
 
-    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+    <div class="checkpoint-table-card">
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
-                    <tr class="bg-gray-50 text-left">
-                        <th class="px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider w-16">No</th>
-                        <th class="px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider">{{ __('Nama Jenis Kendaraan') }}</th>
-                        <th class="px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider">{{ __('Dibuat') }}</th>
-                        <th class="px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wider text-center w-32">{{ __('Aksi') }}</th>
+                    <tr style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white;" class="text-left border-b border-orange-600 shadow-sm">
+                        <th class="px-4 py-3 font-semibold text-white text-xs uppercase tracking-wider w-16">No</th>
+                        <th class="px-4 py-3 font-semibold text-white text-xs uppercase tracking-wider">{{ __('Nama Jenis Kendaraan') }}</th>
+                        <th class="px-4 py-3 font-semibold text-white text-xs uppercase tracking-wider">{{ __('Dibuat') }}</th>
+                        <th class="px-4 py-3 font-semibold text-white text-xs uppercase tracking-wider text-center w-32">{{ __('Aksi') }}</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50">
+                <tbody class="divide-y divide-gray-200">
                     @forelse($vehicleTypes as $index => $type)
-                    <tr class="hover:bg-gray-50/50 transition-colors">
-                        <td class="px-4 py-3 text-gray-400 text-xs">{{ ($vehicleTypes->currentPage() - 1) * $vehicleTypes->perPage() + $index + 1 }}</td>
+                    <tr class="hover:bg-orange-50/30 transition-colors">
+                        <td class="px-4 py-3 text-gray-500 text-xs">{{ ($vehicleTypes->currentPage() - 1) * $vehicleTypes->perPage() + $index + 1 }}</td>
                         <td class="px-4 py-3 font-semibold text-gray-900">{{ $type->name }}</td>
                         <td class="px-4 py-3 text-gray-500 text-xs">{{ $type->created_at->format('d/m/Y H:i') }}</td>
                         <td class="px-4 py-3">

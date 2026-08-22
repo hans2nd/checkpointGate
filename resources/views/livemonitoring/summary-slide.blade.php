@@ -9,13 +9,13 @@
                 <thead>
                     <tr style="border-bottom:1px solid #f3f4f6">
                         <th class="lbl" style="text-align:left;width:120px">Activity</th>
-                        <th class="lbl" style="text-align:center">Parking</th>
-                        <th class="lbl" style="text-align:center">Doc In</th>
-                        <th class="lbl" style="text-align:center">Waiting Gate</th>
-                        <th class="lbl" style="text-align:center">Loading/Unloading</th>
-                        <th class="lbl" style="text-align:center">Finish <span style="font-size:0.75em;color:#9ca3af;font-weight:normal">(Today)</span></th>
-                        <th class="lbl" style="text-align:center">Doc Out <span style="font-size:0.75em;color:#9ca3af;font-weight:normal">(Today)</span></th>
-                        <th class="lbl" style="text-align:center;color:#f59e0b;font-weight:700">Completed <span style="font-size:0.75em;color:#fcd34d;font-weight:normal">(Today)</span></th>
+                        <th class="lbl" style="text-align:center; background-color:#f3f4f6; color:#4b5563; padding: 4px 8px; border-radius: 4px 0 0 0;">Parking</th>
+                        <th class="lbl" style="text-align:center; background-color:#eff6ff; color:#2563eb; padding: 4px 8px;">Doc In</th>
+                        <th class="lbl" style="text-align:center; background-color:#eef2ff; color:#4f46e5; padding: 4px 8px;">Waiting Gate</th>
+                        <th class="lbl" style="text-align:center; background-color:#faf5ff; color:#9333ea; padding: 4px 8px;">Loading/Unloading</th>
+                        <th class="lbl" style="text-align:center; background-color:#fff1f2; color:#e11d48; padding: 4px 8px;">Finish <span style="font-size:0.75em;font-weight:normal;opacity:0.8">(Today)</span></th>
+                        <th class="lbl" style="text-align:center; background-color:#f0fdfa; color:#0d9488; padding: 4px 8px;">Doc Out <span style="font-size:0.75em;font-weight:normal;opacity:0.8">(Today)</span></th>
+                        <th class="lbl" style="text-align:center; background-color:#ecfdf5; color:#059669; padding: 4px 8px; border-radius: 0 4px 0 0;">Completed <span style="font-size:0.75em;font-weight:normal;opacity:0.8">(Today)</span></th>
                     </tr>
                 </thead>
                 <tbody id="activity-summary-body">
@@ -25,16 +25,31 @@
                             $rowStyle = $isTotal ? 'border-top:2px solid #e5e7eb; background:#f9fafb;' : 'border-top:1px solid #f9fafb;';
                             $labelStyle = $isTotal ? 'font-weight:800;color:#111827;text-transform:uppercase' : 'font-weight:600;color:#1f2937';
                             $numStyle = $isTotal ? 'font-weight:700;' : '';
+
+                            $getPill = function($val, $color) use ($isTotal, $numStyle) {
+                                if ($val == 0) return "<span class=\"stat-num text-gray-300\" style=\"{$numStyle}\">0</span>";
+                                
+                                $classes = "";
+                                if ($color === 'gray') $classes = $isTotal ? "bg-gray-200 text-gray-800" : "bg-gray-100 text-gray-700";
+                                if ($color === 'blue') $classes = $isTotal ? "bg-blue-200 text-blue-800" : "bg-blue-100 text-blue-700";
+                                if ($color === 'indigo') $classes = $isTotal ? "bg-indigo-200 text-indigo-800" : "bg-indigo-100 text-indigo-700";
+                                if ($color === 'purple') $classes = $isTotal ? "bg-purple-200 text-purple-800" : "bg-purple-100 text-purple-700";
+                                if ($color === 'rose') $classes = $isTotal ? "bg-rose-200 text-rose-800" : "bg-rose-100 text-rose-700";
+                                if ($color === 'teal') $classes = $isTotal ? "bg-teal-200 text-teal-800" : "bg-teal-100 text-teal-700";
+                                if ($color === 'emerald') $classes = $isTotal ? "bg-emerald-200 text-emerald-800" : "bg-emerald-100 text-emerald-700";
+                                
+                                return "<span class=\"stat-num px-2 py-0.5 rounded font-semibold {$classes}\" style=\"{$numStyle}\">{$val}</span>";
+                            };
                         @endphp
                         <tr style="{{ $rowStyle }}">
                             <td class="lbl" style="{{ $labelStyle }}">{{ $row['label'] }}</td>
-                            <td style="text-align:center"><span class="stat-num {{ $row['parking'] > 0 ? ($isTotal ? 'text-gray-900' : 'text-gray-800') : 'text-gray-300' }}" style="{{ $numStyle }}">{{ $row['parking'] }}</span></td>
-                            <td style="text-align:center"><span class="stat-num {{ $row['doc_in'] > 0 ? ($isTotal ? 'text-gray-900' : 'text-gray-800') : 'text-gray-300' }}" style="{{ $numStyle }}">{{ $row['doc_in'] }}</span></td>
-                            <td style="text-align:center"><span class="stat-num {{ $row['waiting_gate'] > 0 ? ($isTotal ? 'text-gray-900' : 'text-gray-800') : 'text-gray-300' }}" style="{{ $numStyle }}">{{ $row['waiting_gate'] }}</span></td>
-                            <td style="text-align:center"><span class="stat-num {{ $row['on_process'] > 0 ? ($isTotal ? 'text-gray-900' : 'text-gray-800') : 'text-gray-300' }}" style="{{ $numStyle }}">{{ $row['on_process'] }}</span></td>
-                            <td style="text-align:center"><span class="stat-num {{ $row['finish'] > 0 ? ($isTotal ? 'text-gray-900' : 'text-gray-800') : 'text-gray-300' }}" style="{{ $numStyle }}">{{ $row['finish'] }}</span></td>
-                            <td style="text-align:center"><span class="stat-num {{ $row['doc_out'] > 0 ? ($isTotal ? 'text-gray-900' : 'text-gray-800') : 'text-gray-300' }}" style="{{ $numStyle }}">{{ $row['doc_out'] }}</span></td>
-                            <td style="text-align:center"><span class="stat-num" style="font-weight:800;{{ $row['completed'] > 0 ? 'color:#d97706' : 'color:#d1d5db' }}">{{ $row['completed'] }}</span></td>
+                            <td style="text-align:center; padding: 6px 0;">{!! $getPill($row['parking'], 'gray') !!}</td>
+                            <td style="text-align:center; padding: 6px 0;">{!! $getPill($row['doc_in'], 'blue') !!}</td>
+                            <td style="text-align:center; padding: 6px 0;">{!! $getPill($row['waiting_gate'], 'indigo') !!}</td>
+                            <td style="text-align:center; padding: 6px 0;">{!! $getPill($row['on_process'], 'purple') !!}</td>
+                            <td style="text-align:center; padding: 6px 0;">{!! $getPill($row['finish'], 'rose') !!}</td>
+                            <td style="text-align:center; padding: 6px 0;">{!! $getPill($row['doc_out'], 'teal') !!}</td>
+                            <td style="text-align:center; padding: 6px 0;">{!! $getPill($row['completed'], 'emerald') !!}</td>
                         </tr>
                     @endforeach
                 </tbody>
