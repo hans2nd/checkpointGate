@@ -14,10 +14,7 @@
                     </svg></button>
             </div>
             <div class="mb-4 p-3 bg-blue-50 rounded-lg">
-                <p class="text-xs text-blue-700"><strong>Format kolom:</strong> Tanggal | No Polisi | Vendor |
-                    Driver |
-                    Tipe (INTERNAL/EKSTERNAL) | Jenis Kendaraan | Jenis Barang (FROZEN/DRY) | Aktivitas
-                    (INBOUND/OUTBOUND) | Gate</p>
+                <p class="text-xs text-blue-700"><strong>Format kolom:</strong> Tanggal | Nomor Kendaraan | Vendor | Type Kendaraan | Product Type Storage (FROZEN/DRY/CHILLED) | Activity (INBOUND/OUTBOUND) | Surat Jalan | Purchase Order | Note</p>
                 <p class="text-xs text-blue-600 mt-1">{{ __('Baris pertama = header (dilewati).') }}</p>
                 <a href="{{ route('checkpoints.template') }}"
                     class="inline-flex items-center gap-1 mt-2 text-xs font-semibold text-blue-700 hover:text-blue-900">

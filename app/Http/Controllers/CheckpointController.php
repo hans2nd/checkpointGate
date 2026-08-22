@@ -724,33 +724,63 @@ class CheckpointController extends Controller
 
         $imported = 0;
         $skipped = 0;
+        $importErrors = [];
 
         foreach ($rows as $index => $row) {
             if ($index === 0)
                 continue; // Skip header
 
+            $rowNum = $index + 1;
             $tanggal = trim($row[0] ?? '');
             $noPolisi = strtoupper(trim($row[1] ?? ''));
+            
+            $vehicle = \App\Models\Vehicle::where('no_polisi', $noPolisi)->first();
+
             $vendor = trim($row[2] ?? '');
-            $driver = trim($row[3] ?? '');
-            $tipe = strtoupper(trim($row[4] ?? ''));
-            $jenisKendaraan = trim($row[5] ?? '');
-            $jenisBarang = strtoupper(trim($row[6] ?? ''));
-            $aktivitas = strtoupper(trim($row[7] ?? ''));
-            $gate = trim($row[8] ?? '');
+            if (empty($vendor) && $vehicle) {
+                $vendor = $vehicle->vendor;
+            }
 
-            if (empty($noPolisi) || empty($vendor) || empty($driver) || empty($jenisBarang) || empty($aktivitas)) {
+            $jenisKendaraan = trim($row[3] ?? '');
+            if (empty($jenisKendaraan) && $vehicle) {
+                $jenisKendaraan = $vehicle->jenis_kendaraan;
+            }
+
+            $jenisBarang = strtoupper(trim($row[4] ?? ''));
+            $aktivitas = strtoupper(trim($row[5] ?? ''));
+            $suratJalan = trim($row[6] ?? '');
+            $po = trim($row[7] ?? '');
+            $note = trim($row[8] ?? '');
+
+            // Validasi kelengkapan data (selain yang di-lookup otomatis)
+            $rowErrors = [];
+            if (empty($tanggal)) $rowErrors[] = 'Tanggal kosong';
+            if (empty($noPolisi)) $rowErrors[] = 'Nomor Kendaraan kosong';
+            if (empty($vendor)) $rowErrors[] = 'Vendor kosong';
+            if (empty($jenisBarang)) $rowErrors[] = 'Product Type Storage kosong';
+            elseif (!in_array($jenisBarang, ['FROZEN', 'DRY', 'CHILLED'])) $rowErrors[] = "Product Type Storage tidak valid ($jenisBarang)";
+            
+            if (empty($aktivitas)) $rowErrors[] = 'Activity kosong';
+            elseif (!in_array($aktivitas, ['INBOUND', 'OUTBOUND'])) $rowErrors[] = "Activity tidak valid ($aktivitas)";
+
+            if (!empty($rowErrors)) {
                 $skipped++;
+                $importErrors[] = "Baris {$rowNum}: " . implode(', ', $rowErrors);
                 continue;
             }
 
-            if (!in_array($jenisBarang, ['FROZEN', 'DRY']) || !in_array($aktivitas, ['INBOUND', 'OUTBOUND'])) {
-                $skipped++;
-                continue;
-            }
+            $tipe = $vehicle ? $vehicle->tipe : 'EKSTERNAL';
+            $driver = $vehicle ? $vehicle->driver : '-';
 
-            if (!in_array($tipe, ['INTERNAL', 'EKSTERNAL'])) {
-                $tipe = 'EKSTERNAL';
+            // Auto-insert Master Vehicle jika belum ada
+            if (!$vehicle) {
+                \App\Models\Vehicle::create([
+                    'no_polisi' => $noPolisi,
+                    'driver' => $driver,
+                    'vendor' => $vendor,
+                    'tipe' => $tipe,
+                    'jenis_kendaraan' => $jenisKendaraan,
+                ]);
             }
 
             try {
@@ -768,10 +798,18 @@ class CheckpointController extends Controller
                 'jenis_kendaraan' => $jenisKendaraan,
                 'jenis_barang' => $jenisBarang,
                 'aktivitas' => $aktivitas,
-                'gate' => $gate ? (int) $gate : null,
+                'no_surat_jalan' => $suratJalan,
+                'purchase_order' => $po,
+                'note' => $note,
                 'status' => 'PARKING',
             ]);
             $imported++;
+        }
+
+        if (count($importErrors) > 0) {
+            return redirect()->route('checkpoints.index')
+                ->with('warning', "{$imported} data berhasil diimport. {$skipped} baris dilewati karena ada error kelengkapan/format data.")
+                ->withErrors($importErrors);
         }
 
         $message = "{$imported} data checkpoint berhasil diimport.";
@@ -791,7 +829,7 @@ class CheckpointController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Template Checkpoint');
 
-        $headers = ['Tanggal (dd/mm/yyyy)', 'No Polisi', 'Vendor', 'Driver', 'Tipe (INTERNAL/EKSTERNAL)', 'Jenis Kendaraan', 'Jenis Barang (FROZEN/DRY)', 'Aktivitas (INBOUND/OUTBOUND)', 'Gate (Nomor)'];
+        $headers = ['Tanggal (dd/mm/yyyy)', 'Nomor Kendaraan', 'Vendor', 'Type Kendaraan', 'Product Type Storage', 'Activity', 'Surat Jalan', 'Purchase Order', 'Note'];
         foreach ($headers as $col => $header) {
             $cell = chr(65 + $col) . '1';
             $sheet->setCellValue($cell, $header);
