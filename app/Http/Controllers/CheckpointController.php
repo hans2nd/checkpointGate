@@ -79,8 +79,9 @@ class CheckpointController extends Controller
             ->withQueryString();
 
         $vehicleTypes = VehicleType::orderBy('name')->pluck('name');
+        $productCategories = \App\Models\ProductCategory::orderBy('name')->get();
 
-        return view('checkpoints.index', compact('checkpoints', 'vehicleTypes'));
+        return view('checkpoints.index', compact('checkpoints', 'vehicleTypes', 'productCategories'));
     }
 
     public function create()
@@ -107,6 +108,10 @@ class CheckpointController extends Controller
         $validated['tanggal'] = Carbon::today();
         $validated['status'] = 'PARKING';
         $validated['created_by'] = Auth::id();
+
+        if ($error = $this->validateDuplicateSjAndPo($request)) {
+            return redirect()->back()->with('error', $error)->withInput();
+        }
 
         if ($request->hasFile('foto_identitas')) {
             $path = $request->file('foto_identitas')->store('checkpoints', 'public');
@@ -137,7 +142,8 @@ class CheckpointController extends Controller
 
     public function edit(Checkpoint $checkpoint)
     {
-        return view('checkpoints.edit', compact('checkpoint'));
+        $productCategories = \App\Models\ProductCategory::orderBy('name')->get();
+        return view('checkpoints.edit', compact('checkpoint', 'productCategories'));
     }
 
     public function update(Request $request, Checkpoint $checkpoint)
@@ -153,6 +159,9 @@ class CheckpointController extends Controller
             'waktu_penyerahan_dokumen' => 'nullable|date|after_or_equal:waktu_penerimaan_dokumen',
             'jenis_barang' => 'required|in:FROZEN,DRY,CHILLED',
             'aktivitas' => 'required|in:INBOUND,OUTBOUND',
+            'type_of_load' => 'required|in:Full,Mix,Cross Dock',
+            'shipping_type' => 'nullable|string|max:100',
+            'product_category_id' => 'nullable|exists:product_categories,id|required_if:type_of_load,Full',
             'gate' => 'nullable|string|max:30',
             'status' => 'required|in:PARKING,DOC IN,WAITING,READY,ON LOADING,FINISH,CANCEL',
             'waktu_start' => 'nullable|date|before_or_equal:waktu_end|after_or_equal:waktu_penerimaan_dokumen',
@@ -169,7 +178,12 @@ class CheckpointController extends Controller
             'waktu_start.before_or_equal' => 'Waktu start tidak boleh lebih besar dari waktu end.',
             'waktu_end.after_or_equal' => 'Waktu end tidak boleh kurang dari waktu start.',
             'waktu_start.after_or_equal' => 'Waktu start tidak boleh kurang dari tanggal penerimaan dokumen.',
+            'product_category_id.required_if' => 'Category product wajib diisi jika Type Of Load adalah Full.',
         ]);
+
+        if ($error = $this->validateDuplicateSjAndPo($request, $checkpoint->id)) {
+            return redirect()->back()->with('error', $error)->withInput();
+        }
 
         if ($validated['status'] === 'CANCEL') {
             $validated['canceled_at'] = $checkpoint->canceled_at ?? Carbon::now();
@@ -357,21 +371,49 @@ class CheckpointController extends Controller
                 ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah selesai.");
         }
 
-        $request->validate([
+        $rules = [
             'jenis_kendaraan' => 'required|string|max:255',
             'tipe' => 'required|in:INTERNAL,EKSTERNAL',
             'jenis_barang' => 'required|in:FROZEN,DRY,CHILLED',
             'aktivitas' => 'required|in:INBOUND,OUTBOUND',
-            'no_surat_jalan' => 'nullable|string|max:100',
-            'purchase_order' => 'nullable|string|max:100',
+            'type_of_load' => 'required|in:Full,Mix,Cross Dock',
+            'shipping_type' => 'nullable|string|max:100',
+            'product_category_id' => 'nullable|exists:product_categories,id|required_if:type_of_load,Full',
             'note' => 'nullable|string|max:500',
+        ];
+
+        if ($request->aktivitas === 'OUTBOUND' || ($request->aktivitas === 'INBOUND' && $request->shipping_type === 'SC Interbranch')) {
+            $rules['no_surat_jalan'] = 'required|string|max:100';
+        } else {
+            $rules['no_surat_jalan'] = 'nullable|string|max:100';
+        }
+
+        if ($request->aktivitas === 'INBOUND' && $request->shipping_type === 'PO Vendor') {
+            $rules['purchase_order'] = 'required|string|max:100';
+        } else {
+            $rules['purchase_order'] = 'nullable|string|max:100';
+        }
+
+        $request->validate($rules, [
+            'product_category_id.required_if' => 'Category product wajib diisi jika Type Of Load adalah Full.',
+            'no_surat_jalan.required' => 'Nomor Surat Jalan wajib diisi.',
+            'purchase_order.required' => 'Purchase Order wajib diisi.',
         ]);
+
+        if ($error = $this->validateDuplicateSjAndPo($request, $checkpoint->id)) {
+            return redirect()->back()->with('error', $error)->withInput();
+        }
+
+        $productCategoryId = $request->type_of_load === 'Full' ? $request->product_category_id : null;
 
         $checkpoint->update([
             'jenis_kendaraan' => strtoupper($request->jenis_kendaraan),
             'tipe' => $request->tipe,
             'jenis_barang' => $request->jenis_barang,
             'aktivitas' => $request->aktivitas,
+            'type_of_load' => $request->type_of_load,
+            'shipping_type' => $request->shipping_type,
+            'product_category_id' => $productCategoryId,
             'no_surat_jalan' => $request->no_surat_jalan,
             'purchase_order' => $request->purchase_order,
             'note' => $request->note,
@@ -906,5 +948,61 @@ class CheckpointController extends Controller
         $hours = ($diff->days * 24) + $diff->h;
 
         return sprintf('%02d:%02d:%02d', $hours, $diff->i, $diff->s);
+    }
+
+    /**
+     * Validate duplicate Surat Jalan and Purchase Order across the database.
+     */
+    private function validateDuplicateSjAndPo(Request $request, $ignoreId = null)
+    {
+        if ($request->filled('no_surat_jalan')) {
+            $sjList = explode('/', $request->no_surat_jalan);
+            foreach ($sjList as $sj) {
+                $sj = trim($sj);
+                if (empty($sj)) continue;
+                
+                $query = Checkpoint::query();
+                if ($ignoreId) {
+                    $query->where('id', '!=', $ignoreId);
+                }
+                
+                $exists = $query->where(function($q) use ($sj) {
+                    $q->where('no_surat_jalan', $sj)
+                        ->orWhere('no_surat_jalan', 'LIKE', $sj . '/%')
+                        ->orWhere('no_surat_jalan', 'LIKE', '%/' . $sj . '/%')
+                        ->orWhere('no_surat_jalan', 'LIKE', '%/' . $sj);
+                })->first();
+
+                if ($exists) {
+                    return "Nomor Surat Jalan {$sj} sudah pernah diinput pada checkpoint lain (No Polisi: {$exists->no_polisi}).";
+                }
+            }
+        }
+
+        if ($request->filled('purchase_order')) {
+            $poList = explode('/', $request->purchase_order);
+            foreach ($poList as $po) {
+                $po = trim($po);
+                if (empty($po)) continue;
+                
+                $query = Checkpoint::query();
+                if ($ignoreId) {
+                    $query->where('id', '!=', $ignoreId);
+                }
+                
+                $exists = $query->where(function($q) use ($po) {
+                    $q->where('purchase_order', $po)
+                        ->orWhere('purchase_order', 'LIKE', $po . '/%')
+                        ->orWhere('purchase_order', 'LIKE', '%/' . $po . '/%')
+                        ->orWhere('purchase_order', 'LIKE', '%/' . $po);
+                })->first();
+
+                if ($exists) {
+                    return "Purchase Order {$po} sudah pernah diinput pada checkpoint lain (No Polisi: {$exists->no_polisi}).";
+                }
+            }
+        }
+
+        return null;
     }
 }

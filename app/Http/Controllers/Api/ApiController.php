@@ -409,7 +409,7 @@ class ApiController extends Controller
 
     public function checkpoints(Request $request)
     {
-        $query = Checkpoint::query();
+        $query = Checkpoint::with(['createdByUser', 'receivedByUser', 'startedByUser', 'canceledByUser', 'productCategory']);
 
         if ($request->filled('search')) {
             $s = $request->search;
@@ -464,7 +464,7 @@ class ApiController extends Controller
      */
     public function checkpointShow($id)
     {
-        $cp = Checkpoint::findOrFail($id);
+        $cp = Checkpoint::with(['createdByUser', 'receivedByUser', 'startedByUser', 'canceledByUser', 'productCategory'])->findOrFail($id);
 
         return response()->json([
             'success' => true,
@@ -489,7 +489,12 @@ class ApiController extends Controller
             'note' => 'nullable|string|max:500',
             'no_surat_jalan' => 'nullable|string|max:100',
             'purchase_order' => 'nullable|string|max:100',
+            'type_of_load' => 'nullable|in:Full,Mix,Cross Dock',
+            'product_category_id' => 'nullable|exists:product_categories,id|required_if:type_of_load,Full',
+            'shipping_type' => 'nullable|string|max:100',
             'foto_identitas' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+        ], [
+            'product_category_id.required_if' => 'Category product wajib diisi jika Type Of Load adalah Full.',
         ]);
 
         if ($validator->fails()) {
@@ -521,6 +526,9 @@ class ApiController extends Controller
             'note',
             'no_surat_jalan',
             'purchase_order',
+            'type_of_load',
+            'product_category_id',
+            'shipping_type',
         ]), [
             'no_polisi' => $noPolisiFormatted,
             'tanggal' => Carbon::today(),
@@ -907,6 +915,10 @@ class ApiController extends Controller
             'durasi' => $cp->durasi,
             'durasi_dokumen' => $durasiDokumen,
             'note' => $cp->note,
+            'type_of_load' => $cp->type_of_load,
+            'product_category_id' => $cp->product_category_id,
+            'product_category_name' => $cp->productCategory?->name,
+            'shipping_type' => $cp->shipping_type,
             'no_surat_jalan' => $cp->no_surat_jalan,
             'purchase_order' => $cp->purchase_order,
             'cancel_note' => $cp->cancel_note,

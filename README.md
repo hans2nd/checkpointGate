@@ -22,9 +22,13 @@ The application has recently undergone a comprehensive UI/UX overhaul to provide
 3. **Checkpoint Data**
    - Modernized the Index, Show, and Edit pages to follow the new premium design language.
    - Integrated intuitive **SweetAlert** pop-ups for action confirmations (e.g., delete validations) providing safety and better visual feedback.
+   - **Dynamic Document Receipt Modal**: 
+     - Restructured form to prioritize Activity selection (Inbound/Outbound) upfront.
+     - Dynamically updates *Shipping Type* options, *Type Of Load*, and UI labels based on the selected Activity.
+     - Auto-adjusts form validations, enforcing mandatory *Purchase Order* or *Delivery Note (Surat Jalan)* inputs depending on the specific activity and shipping configuration.
    - **Enhanced Excel Import**: 
-     - Expanded template mapping to cover transaction fields: Tanggal, Nomor Kendaraan, Vendor, Type Kendaraan, Product Type Storage, Activity, Surat Jalan, Purchase Order, dan Note.
-     - **Smart Lookup (Auto-Mapping)**: Automatically retrieves Vendor, Type Kendaraan, and Driver from the Vehicle Master based on the vehicle's plate number (Nomor Kendaraan).
+     - Expanded template mapping to cover transaction fields: Date, Vehicle Plate Number, Vendor, Vehicle Type, Product Type Storage, Activity, Delivery Note (Surat Jalan), Purchase Order, and Note.
+     - **Smart Lookup (Auto-Mapping)**: Automatically retrieves Vendor, Vehicle Type, and Driver from the Vehicle Master based on the vehicle's plate number.
      - **Auto-Insert Master**: Automatically registers new, unrecognized vehicles directly into the Vehicle Master database during the import process.
      - **Row-Level Error Validation**: Replaced silent error-skipping with detailed row-by-row validation using SweetAlert pop-ups, pointing out exactly which rows are missing required data or contain invalid formats.
    
@@ -38,3 +42,12 @@ The application has recently undergone a comprehensive UI/UX overhaul to provide
 - **Backend**: Laravel (PHP)
 - **Frontend**: Blade Templating, Tailwind CSS
 - **Interactivity**: Vanilla JavaScript, Chart.js (Dashboard), SweetAlert2 (Popups/Validations)
+
+---
+
+## Update History
+
+- **September 13, 2026** — *Created/Updated by Hans*
+  - Comprehensive UI/UX overhaul (Dashboard, Report Menu, Master Data).
+  - Added smart Excel import feature (auto-mapping & auto-insert).
+  - Updated dynamic logic for the **Document Receipt (Penerimaan Dokumen)** modal (Inbound/Outbound activity, Delivery Note & PO validations).

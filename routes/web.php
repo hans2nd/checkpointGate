@@ -19,21 +19,46 @@ use App\Http\Controllers\ReportController;
 */
 
 Route::get('/artisan-run', function () {
+    return view('artisan-run');
+});
 
-    // Artisan::call('migrate:fresh', ['--force' => true]);
-    Artisan::call('migrate', ['--force' => true]);
-    echo "<pre>MIGRATE:\n" . Artisan::output() . "</pre>";
+Route::post('/artisan-run', function (\Illuminate\Http\Request $request) {
+    $command = $request->input('command');
+    $output = '';
 
-    Artisan::call('db:seed', ['--force' => true]);
-    echo "<pre>DB SEED:\n" . Artisan::output() . "</pre>";
-
-    Artisan::call('storage:link');
-    echo "<pre>STORAGE LINK:\n" . Artisan::output() . "</pre>";
-
-    Artisan::call('cache:clear');
-    echo "<pre>CACHE CLEAR:\n" . Artisan::output() . "</pre>";
-
-    return 'Done';
+    try {
+        switch ($command) {
+            case 'migrate':
+                Artisan::call('migrate', ['--force' => true]);
+                $output = Artisan::output();
+                break;
+            case 'migrate:fresh':
+                Artisan::call('migrate:fresh', ['--force' => true]);
+                $output = Artisan::output();
+                break;
+            case 'db:seed':
+                Artisan::call('db:seed', ['--force' => true]);
+                $output = Artisan::output();
+                break;
+            case 'storage:link':
+                Artisan::call('storage:link');
+                $output = Artisan::output();
+                break;
+            case 'cache:clear':
+                Artisan::call('cache:clear');
+                $output = Artisan::output();
+                break;
+            case 'optimize:clear':
+                Artisan::call('optimize:clear');
+                $output = Artisan::output();
+                break;
+            default:
+                return response()->json(['success' => false, 'message' => 'Unknown command: ' . $command]);
+        }
+        return response()->json(['success' => true, 'output' => $output]);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => $e->getMessage()]);
+    }
 });
 
 // Guest routes
@@ -79,11 +104,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/web-data/pending-gates', [CheckpointController::class, 'pendingConfirmGates'])->name('pending.gates');
     // Bulk delete routes (protected by delete permissions)
     Route::post('checkpoints/bulk-delete', [CheckpointController::class, 'bulkDelete'])
-         ->name('checkpoints.bulk-delete')->middleware('permission:checkpoint.delete');
+        ->name('checkpoints.bulk-delete')->middleware('permission:checkpoint.delete');
     Route::post('gates/bulk-delete', [GateController::class, 'bulkDelete'])
-         ->name('gates.bulk-delete')->middleware('permission:checkpoint.delete');
+        ->name('gates.bulk-delete')->middleware('permission:checkpoint.delete');
     Route::post('vehicles/bulk-delete', [VehicleController::class, 'bulkDelete'])
-         ->name('vehicles.bulk-delete')->middleware('permission:vehicle.delete');
+        ->name('vehicles.bulk-delete')->middleware('permission:vehicle.delete');
 
     // Export routes (protected by view permissions)
     Route::get('checkpoints/export', [CheckpointController::class, 'export'])->name('checkpoints.export')->middleware('permission:checkpoint.export');
@@ -126,6 +151,12 @@ Route::middleware('auth')->group(function () {
     // Vehicle Types
     Route::resource('vehicle-types', VehicleTypeController::class)->except(['show']);
     Route::get('/web-data/vehicle-types', [VehicleTypeController::class, 'apiList'])->name('vehicle-types.api');
+
+    // Product Categories
+    Route::get('product-categories/template', [\App\Http\Controllers\Admin\ProductCategoryController::class, 'template'])->name('product-categories.template');
+    Route::get('product-categories/export', [\App\Http\Controllers\Admin\ProductCategoryController::class, 'export'])->name('product-categories.export');
+    Route::post('product-categories/import', [\App\Http\Controllers\Admin\ProductCategoryController::class, 'import'])->name('product-categories.import');
+    Route::resource('product-categories', \App\Http\Controllers\Admin\ProductCategoryController::class)->except(['show']);
 
     // Report
     Route::get('report', [ReportController::class, 'index'])->name('report.index')->middleware('permission:report.view');

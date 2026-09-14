@@ -166,6 +166,26 @@
                             </span>
                         </div>
                     </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="detail-label">{{ __('Type Of Load') }}</p>
+                            <span class="inline-flex px-2 py-0.5 rounded-md text-xs font-bold bg-indigo-100 text-indigo-700">
+                                {{ $checkpoint->type_of_load ?? '-' }}
+                            </span>
+                        </div>
+                        <div>
+                            <p class="detail-label">{{ __('Shipping Type') }}</p>
+                            <span class="inline-flex px-2 py-0.5 rounded-md text-xs font-bold bg-teal-100 text-teal-700">
+                                {{ $checkpoint->shipping_type ?? '-' }}
+                            </span>
+                        </div>
+                    </div>
+                    @if ($checkpoint->type_of_load === 'Full' && $checkpoint->productCategory)
+                    <div>
+                        <p class="detail-label">{{ __('Category Product') }}</p>
+                        <p class="detail-value">{{ $checkpoint->productCategory->name }}</p>
+                    </div>
+                    @endif
                 </div>
             </div>
 
@@ -274,7 +294,9 @@
                     @endif
                     @if($checkpoint->purchase_order)
                     <div>
-                        <p class="detail-label">Purchase Order (PO)</p>
+                        <p class="detail-label">
+                            {{ $checkpoint->aktivitas === 'INBOUND' ? 'PO VENDOR' : ($checkpoint->aktivitas === 'OUTBOUND' ? 'PO CUSTOMER' : 'Purchase Order') }}
+                        </p>
                         <p class="detail-value font-mono bg-gray-50 p-2 rounded-lg border border-gray-100 text-sm">{{ $checkpoint->purchase_order }}</p>
                     </div>
                     @endif

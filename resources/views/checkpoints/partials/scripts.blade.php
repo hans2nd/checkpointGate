@@ -227,7 +227,19 @@
             document.getElementById('terima_jenis_kendaraan').value = kendaraan || '';
             document.getElementById('terima_tipe').value = tipe || '';
             document.getElementById('terima_jenis_barang').value = barang || '';
-            document.getElementById('terima_aktivitas').value = aktivitas || '';
+            const aktivitasEl = document.getElementById('terima_aktivitas');
+            if (aktivitasEl) {
+                aktivitasEl.value = aktivitas || '';
+                // Trigger change to update dynamic shipping type options
+                aktivitasEl.dispatchEvent(new Event('change'));
+            }
+            
+            const shippingType = document.getElementById('terima_shipping_type');
+            if(shippingType) {
+                // Do not clear it if the event above set it to a valid default,
+                // but if we want to ensure it's unselected initially:
+                shippingType.value = '';
+            }
 
             const container = document.getElementById('suratJalanContainer');
             if (container) {
@@ -343,22 +355,99 @@
         document.getElementById('terimaForm')?.addEventListener('submit', function(e) {
             e.preventDefault();
             const form = this;
+            
+            const sjAsterisk = document.getElementById('terima_sj_asterisk');
+            const poAsterisk = document.getElementById('terima_po_asterisk');
 
             const sjInputs = document.querySelectorAll('.surat-jalan-input');
+            let sjVals = [];
+            let hasDuplicateSj = false;
+            let duplicateSjVal = '';
+
             if (sjInputs.length > 0) {
-                const vals = Array.from(sjInputs).map(i => i.value.trim()).filter(v => v);
+                const firstVal = sjInputs[0].value.trim();
+                if (sjAsterisk && !sjAsterisk.classList.contains('hidden') && !firstVal) {
+                    Swal.fire({
+                        title: 'Validasi Gagal',
+                        text: 'Nomor Surat Jalan wajib diisi.',
+                        icon: 'error',
+                        confirmButtonColor: '#3B82F6'
+                    });
+                    sjInputs[0].focus();
+                    return;
+                }
+                
+                for (let i = 0; i < sjInputs.length; i++) {
+                    const v = sjInputs[i].value.trim();
+                    if (v) {
+                        if (sjVals.includes(v)) {
+                            hasDuplicateSj = true;
+                            duplicateSjVal = v;
+                            break;
+                        }
+                        sjVals.push(v);
+                    }
+                }
+
+                if (hasDuplicateSj) {
+                    Swal.fire({
+                        title: 'Validasi Gagal',
+                        text: 'Nomor Surat Jalan "' + duplicateSjVal + '" diinput lebih dari satu kali. Harap masukkan nomor yang berbeda pada setiap baris.',
+                        icon: 'error',
+                        confirmButtonColor: '#3B82F6'
+                    });
+                    return;
+                }
+
                 const hiddenInput = document.getElementById('terima_no_surat_jalan');
                 if (hiddenInput) {
-                    hiddenInput.value = vals.join('/');
+                    hiddenInput.value = sjVals.join('/');
                 }
             }
 
             const poInputs = document.querySelectorAll('.po-input');
+            let poVals = [];
+            let hasDuplicatePo = false;
+            let duplicatePoVal = '';
+
             if (poInputs.length > 0) {
-                const vals = Array.from(poInputs).map(i => i.value.trim()).filter(v => v);
+                const firstVal = poInputs[0].value.trim();
+                if (poAsterisk && !poAsterisk.classList.contains('hidden') && !firstVal) {
+                    Swal.fire({
+                        title: 'Validasi Gagal',
+                        text: 'Purchase Order wajib diisi.',
+                        icon: 'error',
+                        confirmButtonColor: '#3B82F6'
+                    });
+                    poInputs[0].focus();
+                    return;
+                }
+                
+                for (let i = 0; i < poInputs.length; i++) {
+                    const v = poInputs[i].value.trim();
+                    if (v) {
+                        if (poVals.includes(v)) {
+                            hasDuplicatePo = true;
+                            duplicatePoVal = v;
+                            break;
+                        }
+                        poVals.push(v);
+                    }
+                }
+
+                if (hasDuplicatePo) {
+                    Swal.fire({
+                        title: 'Validasi Gagal',
+                        text: 'Purchase Order "' + duplicatePoVal + '" diinput lebih dari satu kali. Harap masukkan nomor yang berbeda pada setiap baris.',
+                        icon: 'error',
+                        confirmButtonColor: '#3B82F6'
+                    });
+                    return;
+                }
+
                 const hiddenInput = document.getElementById('terima_purchase_order');
                 if (hiddenInput) {
-                    hiddenInput.value = vals.join('/');
+                    hiddenInput.value = poVals.join('/');
                 }
             }
 

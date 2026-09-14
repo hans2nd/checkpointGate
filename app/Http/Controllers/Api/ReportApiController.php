@@ -106,6 +106,9 @@ class ReportApiController extends Controller
                             'employee_id_cancel_oleh' => optional(optional($cp->canceledByUser)->employee)->employee_id ?? optional($cp->canceledByUser)->employee_id,
                             'waktu_cancel' => $cp->canceled_at ? $cp->canceled_at->toIso8601String() : null,
                             'note' => $cp->note,
+                            'type_of_load' => $cp->type_of_load,
+                            'category_product' => optional($cp->productCategory)->name,
+                            'shipping_type' => $cp->shipping_type,
                             'dibuat' => $cp->created_at ? $cp->created_at->toIso8601String() : null,
                             'diperbarui' => $cp->updated_at ? $cp->updated_at->toIso8601String() : null,
                         ];

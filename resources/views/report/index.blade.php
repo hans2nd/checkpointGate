@@ -491,6 +491,15 @@
                             <th
                                 class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
                                 {{ __('Note') }}</th>
+                            <th
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
+                                {{ __('Type Of Load') }}</th>
+                            <th
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
+                                {{ __('Category Product') }}</th>
+                            <th
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
+                                {{ __('Shipping Type') }}</th>
 
 
                         </tr>
@@ -619,6 +628,9 @@
                                     {{ $cp->canceled_at ? $cp->canceled_at->format('d/m/Y H:i:s') : '—' }}</td>
                                 <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{{ $cp->note ?: '—' }}
                                 </td>
+                                <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{{ $cp->type_of_load ?: '—' }}</td>
+                                <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{{ optional($cp->productCategory)->name ?: '—' }}</td>
+                                <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{{ $cp->shipping_type ?: '—' }}</td>
 
                             </tr>
                         @empty

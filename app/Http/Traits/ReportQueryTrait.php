@@ -43,7 +43,7 @@ trait ReportQueryTrait
         ?string $search = null
     ) {
         $modelClass = $this->getReportModel();
-        $query = $modelClass::with(['createdByUser', 'receivedByUser', 'startedByUser', 'canceledByUser']);
+        $query = $modelClass::with(['createdByUser', 'receivedByUser', 'startedByUser', 'canceledByUser', 'productCategory']);
 
         if ($startDate && $endDate) {
             $parsedStart = Carbon::parse($startDate)->startOfDay();

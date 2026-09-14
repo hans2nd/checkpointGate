@@ -180,6 +180,38 @@
                         </select>
                     </div>
 
+                    {{-- Type of Load --}}
+                    <div class="form-group">
+                        <label for="type_of_load">{{ __('Type Of Load') }} <span class="text-orange-500">*</span></label>
+                        <select id="type_of_load" name="type_of_load" required class="premium-input bg-white">
+                            <option value="Full" {{ old('type_of_load', $checkpoint->type_of_load) == 'Full' ? 'selected' : '' }}>FULL</option>
+                            <option value="Mix" {{ old('type_of_load', $checkpoint->type_of_load) == 'Mix' ? 'selected' : '' }}>MIX</option>
+                            <option value="Cross Dock" {{ old('type_of_load', $checkpoint->type_of_load) == 'Cross Dock' ? 'selected' : '' }}>CROSS DOCK</option>
+                        </select>
+                    </div>
+
+                    {{-- Category Product --}}
+                    <div class="form-group {{ old('type_of_load', $checkpoint->type_of_load) === 'Full' ? '' : 'hidden' }}" id="category_product_container">
+                        <label for="product_category_id">{{ __('Category product') }} <span class="text-orange-500">*</span></label>
+                        <select id="product_category_id" name="product_category_id" class="premium-input bg-white" {{ old('type_of_load', $checkpoint->type_of_load) === 'Full' ? 'required' : '' }}>
+                            <option value="" disabled {{ old('product_category_id', $checkpoint->product_category_id) ? '' : 'selected' }}>Pilih Category product</option>
+                            @if (isset($productCategories))
+                                @foreach ($productCategories as $cat)
+                                    <option value="{{ $cat->id }}" {{ old('product_category_id', $checkpoint->product_category_id) == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+
+                    {{-- Shipping Type --}}
+                    <div class="form-group">
+                        <label for="shipping_type">{{ __('Shipping Type') }} <span class="text-orange-500">*</span></label>
+                        <select id="shipping_type" name="shipping_type" required class="premium-input bg-white" data-selected="{{ old('shipping_type', $checkpoint->shipping_type) }}">
+                            <option value="" selected>Pilih Shipping Type</option>
+                            {{-- Options will be populated dynamically via JS --}}
+                        </select>
+                    </div>
+
                     {{-- Gate --}}
                     <div class="form-group">
                         <label for="gate">Gate</label>
@@ -257,13 +289,13 @@
                 {{-- No. Surat Jalan & Purchase Order --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div class="form-group">
-                        <label for="no_surat_jalan">{{ __('No. Surat Jalan') }}</label>
+                        <label for="no_surat_jalan">{{ __('No. Surat Jalan') }} <span class="text-orange-500 hidden" id="sj_asterisk">*</span></label>
                         <input type="text" id="no_surat_jalan" name="no_surat_jalan"
                             value="{{ old('no_surat_jalan', $checkpoint->no_surat_jalan) }}"
                             placeholder="Masukkan no surat jalan (opsional)" class="premium-input">
                     </div>
                     <div class="form-group">
-                        <label for="purchase_order">{{ __('Purchase Order') }}</label>
+                        <label for="purchase_order"><span id="po_label">{{ __('Purchase Order') }}</span> <span class="text-orange-500 hidden" id="po_asterisk">*</span></label>
                         <input type="text" id="purchase_order" name="purchase_order"
                             value="{{ old('purchase_order', $checkpoint->purchase_order) }}"
                             placeholder="Masukkan no purchase order (opsional)" class="premium-input">
@@ -357,6 +389,104 @@
 
             // Filter when jenis_barang changes
             jenisBarangSelect.addEventListener('change', filterGateOptions);
+
+            // Dynamic Logic for Aktivitas, Type of Load, Shipping Type
+            const aktivitasSelect = document.getElementById('aktivitas');
+            const typeOfLoadSelect = document.getElementById('type_of_load');
+            const categoryProductContainer = document.getElementById('category_product_container');
+            const productCategorySelect = document.getElementById('product_category_id');
+            const shippingTypeSelect = document.getElementById('shipping_type');
+            
+            const sjAsterisk = document.getElementById('sj_asterisk');
+            const poAsterisk = document.getElementById('po_asterisk');
+            const poLabel = document.getElementById('po_label');
+
+            if (typeOfLoadSelect) {
+                typeOfLoadSelect.addEventListener('change', function() {
+                    if (this.value === 'Full') {
+                        categoryProductContainer.classList.remove('hidden');
+                        productCategorySelect.setAttribute('required', 'required');
+                    } else {
+                        categoryProductContainer.classList.add('hidden');
+                        productCategorySelect.removeAttribute('required');
+                        productCategorySelect.value = '';
+                    }
+                });
+            }
+
+            function updatePenerimaanLogic() {
+                if (!aktivitasSelect) return;
+                
+                const act = aktivitasSelect.value;
+                const currentShp = shippingTypeSelect.value || shippingTypeSelect.dataset.selected;
+                
+                shippingTypeSelect.innerHTML = '<option value="" selected>Pilih Shipping Type</option>';
+                
+                if (act === 'INBOUND') {
+                    // Update typeOfLoad only if there's no existing valid value, or if user triggers change
+                    if (!typeOfLoadSelect.value) typeOfLoadSelect.value = 'Full';
+                    poLabel.textContent = 'PO VENDOR';
+                    
+                    shippingTypeSelect.insertAdjacentHTML('beforeend', '<option value="SC INTERBRANCH">SC INTERBRANCH</option>');
+                    shippingTypeSelect.insertAdjacentHTML('beforeend', '<option value="PO VENDOR">PO VENDOR</option>');
+                    
+                    if (['SC INTERBRANCH', 'PO VENDOR'].includes(currentShp)) {
+                        shippingTypeSelect.value = currentShp;
+                    } else {
+                        shippingTypeSelect.value = '';
+                    }
+                    
+                    const newShp = shippingTypeSelect.value;
+                    if (newShp === 'SC INTERBRANCH') {
+                        sjAsterisk.classList.remove('hidden');
+                        poAsterisk.classList.add('hidden');
+                    } else if (newShp === 'PO VENDOR') {
+                        sjAsterisk.classList.add('hidden');
+                        poAsterisk.classList.remove('hidden');
+                    } else {
+                        sjAsterisk.classList.add('hidden');
+                        poAsterisk.classList.add('hidden');
+                    }
+                    
+                } else if (act === 'OUTBOUND') {
+                    if (!typeOfLoadSelect.value) typeOfLoadSelect.value = 'Mix';
+                    poLabel.textContent = 'PO CUSTOMER';
+                    
+                    shippingTypeSelect.insertAdjacentHTML('beforeend', '<option value="REGULAR - OUTER ISLAND">REGULAR - OUTER ISLAND</option>');
+                    shippingTypeSelect.insertAdjacentHTML('beforeend', '<option value="REGULAR - LAST MILE">REGULAR - LAST MILE</option>');
+                    shippingTypeSelect.insertAdjacentHTML('beforeend', '<option value="SC INTERBRANCH">SC INTERBRANCH</option>');
+                    
+                    if (['REGULAR - OUTER ISLAND', 'REGULAR - LAST MILE', 'SC INTERBRANCH'].includes(currentShp)) {
+                        shippingTypeSelect.value = currentShp;
+                    } else {
+                        shippingTypeSelect.value = '';
+                    }
+                    
+                    sjAsterisk.classList.remove('hidden');
+                    poAsterisk.classList.add('hidden');
+                } else {
+                    sjAsterisk.classList.add('hidden');
+                    poAsterisk.classList.add('hidden');
+                }
+
+                typeOfLoadSelect.dispatchEvent(new Event('change'));
+            }
+
+            if (aktivitasSelect) {
+                aktivitasSelect.addEventListener('change', function() {
+                    shippingTypeSelect.dataset.selected = ''; // Clear selected if user manually changes
+                    updatePenerimaanLogic();
+                });
+            }
+            if (shippingTypeSelect) {
+                shippingTypeSelect.addEventListener('change', function() {
+                    shippingTypeSelect.dataset.selected = this.value; // Store the new selected value
+                    updatePenerimaanLogic();
+                });
+            }
+            
+            // Run on load
+            updatePenerimaanLogic();
 
             // Validation Waktu Penerimaan & Penyerahan Dokumen vs Tanggal
             const tanggalInput = document.getElementById('tanggal');

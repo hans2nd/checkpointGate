@@ -64,6 +64,9 @@ class Checkpoint extends Model
         'received_by',
         'receipt_number',
         'sync',
+        'type_of_load',
+        'product_category_id',
+        'shipping_type',
     ];
 
     protected $casts = [
@@ -120,6 +123,11 @@ class Checkpoint extends Model
     public function receivedByUser()
     {
         return $this->belongsTo(User::class, 'received_by');
+    }
+
+    public function productCategory()
+    {
+        return $this->belongsTo(ProductCategory::class);
     }
 
     /**

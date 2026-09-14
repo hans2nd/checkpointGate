@@ -75,7 +75,7 @@ class ReportController extends Controller
         $sheet->setTitle(__('Report Checkpoint'));
 
         // Title row
-        $sheet->mergeCells('A1:AH1');
+        $sheet->mergeCells('A1:AK1');
         $sheet->setCellValue('A1', __('LAPORAN DATA CHECKPOINT'));
         $sheet->getStyle('A1')->applyFromArray([
             'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => '1F2937']],
@@ -83,7 +83,7 @@ class ReportController extends Controller
         ]);
 
         // Info row
-        $sheet->mergeCells('A2:AH2');
+        $sheet->mergeCells('A2:AK2');
         $periodLabel = Carbon::parse($startDate)->format('d/m/Y') . ' - ' . Carbon::parse($endDate)->format('d/m/Y');
         $filterLabels = [];
         if ($aktivitas)
@@ -112,19 +112,22 @@ class ReportController extends Controller
             __('Jenis Kendaraan'),
             __('Jenis Barang'),
             __('Aktivitas'),
+            __('Gate'),
+            __('Status'),
+            __('Dibuat'),
+            __('Waktu Penerimaan Dokumen'),
+            __('Waktu Start Loading'),
+            __('Waktu End Loading'),
+            __('Waktu Penyerahan Dokumen'),
+            __('Waktu Keluar'),
+            __('Waktu Tunggu'),
+            __('Durasi Loading/Unloading'),
+            __('Durasi Dokumen'),
+            __('Waktu Cancel'),
+            __('Diperbarui'),
             __('No. Surat Jalan'),
             __('Purchase Order'),
             __('Receipt Number'),
-            __('Gate'),
-            __('Status'),
-            __('Waktu Tunggu'),
-            __('Waktu Penerimaan Dokumen'),
-            __('Waktu Penyerahan Dokumen'),
-            __('Waktu Keluar'),
-            __('Durasi Dokumen'),
-            __('Waktu Start Loading'),
-            __('Waktu End Loading'),
-            __('Durasi Loading/Unloading'),
             __('Dibuat Oleh'),
             __('Employee ID') . ' (' . __('Dibuat Oleh') . ')',
             __('Diterima Oleh'),
@@ -133,10 +136,10 @@ class ReportController extends Controller
             __('Employee ID') . ' (' . __('Start Loading Oleh') . ')',
             __('Cancel Oleh'),
             __('Employee ID') . ' (' . __('Cancel Oleh') . ')',
-            __('Waktu Cancel'),
             __('Note'),
-            __('Dibuat'),
-            __('Diperbarui')
+            __('Type Of Load'),
+            __('Category Product'),
+            __('Shipping Type')
         ];
 
         foreach ($headers as $col => $header) {
@@ -146,7 +149,7 @@ class ReportController extends Controller
             $sheet->setCellValue($cell, $header);
         }
 
-        $sheet->getStyle('A4:AH4')->applyFromArray([
+        $sheet->getStyle('A4:AK4')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 10],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F97316']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
@@ -191,19 +194,22 @@ class ReportController extends Controller
             $sheet->setCellValue('AF' . $row, optional($cp->canceledByUser)->name);
             $sheet->setCellValue('AG' . $row, optional(optional($cp->canceledByUser)->employee)->employee_id ?? optional($cp->canceledByUser)->employee_id);
             $sheet->setCellValue('AH' . $row, $cp->note);
+            $sheet->setCellValue('AI' . $row, $cp->type_of_load);
+            $sheet->setCellValue('AJ' . $row, optional($cp->productCategory)->name);
+            $sheet->setCellValue('AK' . $row, $cp->shipping_type);
             $row++;
         }
 
         // Data borders
         if ($row > 5) {
-            $sheet->getStyle('A5:AH' . ($row - 1))->applyFromArray([
+            $sheet->getStyle('A5:AK' . ($row - 1))->applyFromArray([
                 'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 'font' => ['size' => 10],
             ]);
         }
 
         // Auto-size columns
-        foreach (range(1, 34) as $colIndex) {
+        foreach (range(1, 37) as $colIndex) {
             $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
             $sheet->getColumnDimension($colLetter)->setAutoSize(true);
         }

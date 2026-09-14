@@ -14,7 +14,9 @@
                     </svg></button>
             </div>
             <div class="mb-4 p-3 bg-blue-50 rounded-lg">
-                <p class="text-xs text-blue-700"><strong>Format kolom:</strong> Tanggal | Nomor Kendaraan | Vendor | Type Kendaraan | Product Type Storage (FROZEN/DRY/CHILLED) | Activity (INBOUND/OUTBOUND) | Surat Jalan | Purchase Order | Note</p>
+                <p class="text-xs text-blue-700"><strong>Format kolom:</strong> Tanggal | Nomor Kendaraan | Vendor |
+                    Type Kendaraan | Product Type Storage (FROZEN/DRY/CHILLED) | Activity (INBOUND/OUTBOUND) | Surat
+                    Jalan | Purchase Order | Note</p>
                 <p class="text-xs text-blue-600 mt-1">{{ __('Baris pertama = header (dilewati).') }}</p>
                 <a href="{{ route('checkpoints.template') }}"
                     class="inline-flex items-center gap-1 mt-2 text-xs font-semibold text-blue-700 hover:text-blue-900">
@@ -107,7 +109,8 @@
             <div id="gateModalLoading" class="py-8 text-center">
                 <svg class="animate-spin h-8 w-8 text-orange-500 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg"
                     fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                        stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z">
                     </path>
                 </svg>
@@ -157,7 +160,7 @@
 <div id="terimaModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
     <div class="flex items-center justify-center min-h-screen px-4">
         <div class="fixed inset-0 bg-black/50" onclick="closeTerimaModal()"></div>
-        <div class="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6 z-10">
+        <div class="relative bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6 z-10">
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h3 class="text-lg font-bold text-gray-900">{{ __('Penerimaan Dokumen') }}</h3>
@@ -173,7 +176,17 @@
 
             <form id="terimaForm" method="POST" action="">
                 @csrf
-                <div class="space-y-6 mb-12">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label for="terima_aktivitas" class="block text-sm font-medium text-gray-700 mb-1.5">Aktivitas
+                            <span class="text-red-400">*</span></label>
+                        <select id="terima_aktivitas" name="aktivitas" required
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="" disabled selected>Pilih Aktivitas</option>
+                            <option value="INBOUND">INBOUND</option>
+                            <option value="OUTBOUND">OUTBOUND</option>
+                        </select>
+                    </div>
                     <div>
                         <label for="terima_jenis_kendaraan"
                             class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Vehicle Type') }} <span
@@ -181,7 +194,7 @@
                         <select id="terima_jenis_kendaraan" name="jenis_kendaraan" required
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="" disabled selected>{{ __('Pilih Jenis Kendaraan') }}</option>
-                            @foreach($vehicleTypes as $vt)
+                            @foreach ($vehicleTypes as $vt)
                                 <option value="{{ $vt }}">{{ $vt }}</option>
                             @endforeach
                         </select>
@@ -197,6 +210,15 @@
                         </select>
                     </div>
                     <div>
+                        <label for="terima_shipping_type"
+                            class="block text-sm font-medium text-gray-700 mb-1.5">Shipping Type <span
+                                class="text-red-400">*</span></label>
+                        <select id="terima_shipping_type" name="shipping_type" required
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="" selected>Pilih Shipping Type</option>
+                        </select>
+                    </div>
+                    <div>
                         <label for="terima_jenis_barang" class="block text-sm font-medium text-gray-700 mb-1.5">Jenis
                             Barang <span class="text-red-400">*</span></label>
                         <select id="terima_jenis_barang" name="jenis_barang" required
@@ -208,34 +230,54 @@
                         </select>
                     </div>
                     <div>
-                        <label for="terima_aktivitas" class="block text-sm font-medium text-gray-700 mb-1.5">Aktivitas
-                            <span class="text-red-400">*</span></label>
-                        <select id="terima_aktivitas" name="aktivitas" required
+                        <label for="terima_type_of_load" class="block text-sm font-medium text-gray-700 mb-1.5">Type
+                            Of
+                            Load <span class="text-red-400">*</span></label>
+                        <select id="terima_type_of_load" name="type_of_load" required
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="" disabled selected>Pilih Aktivitas</option>
-                            <option value="INBOUND">INBOUND</option>
-                            <option value="OUTBOUND">OUTBOUND</option>
+                            <option value="" disabled selected>Pilih Type Of Load</option>
+                            <option value="Full">FULL</option>
+                            <option value="Mix">MIX</option>
+                            <option value="Cross Dock">CROSS DOCK</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">No.
-                            Surat Jalan</label>
-                        <div id="suratJalanContainer" class="space-y-2">
-                            <!-- Inputs will be generated here by JS -->
-                        </div>
-                        <input type="hidden" id="terima_no_surat_jalan" name="no_surat_jalan">
+                    <div id="category_product_container" class="hidden">
+                        <label for="terima_product_category_id"
+                            class="block text-sm font-medium text-gray-700 mb-1.5">Category product <span
+                                class="text-red-400">*</span></label>
+                        <select id="terima_product_category_id" name="product_category_id"
+                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="" disabled selected>Pilih Category product</option>
+                            @if (isset($productCategories))
+                                @foreach ($productCategories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Purchase Order</label>
-                        <div id="poContainer" class="space-y-2">
-                            <!-- Inputs will be generated here by JS -->
+                    <div class="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">No. Surat Jalan <span
+                                    class="text-red-400 hidden" id="terima_sj_asterisk">*</span></label>
+                            <div id="suratJalanContainer" class="space-y-2">
+                                <!-- Inputs will be generated here by JS -->
+                            </div>
+                            <input type="hidden" id="terima_no_surat_jalan" name="no_surat_jalan">
                         </div>
-                        <input type="hidden" id="terima_purchase_order" name="purchase_order">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5"><span
+                                    id="terima_po_label">Purchase Order</span> <span class="text-red-400 hidden"
+                                    id="terima_po_asterisk">*</span></label>
+                            <div id="poContainer" class="space-y-2">
+                                <!-- Inputs will be generated here by JS -->
+                            </div>
+                            <input type="hidden" id="terima_purchase_order" name="purchase_order">
+                        </div>
                     </div>
-                    <div>
+                    <div class="col-span-1 sm:col-span-2">
                         <label for="terima_note" class="block text-sm font-medium text-gray-700 mb-1.5">Note /
                             Description</label>
-                        <textarea id="terima_note" name="note" rows="5"
+                        <textarea id="terima_note" name="note" rows="3"
                             placeholder="Contoh Inputan : Full Botan / 1.500 Ctn / 2 SKU"
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
                     </div>
@@ -312,9 +354,113 @@
                     <button type="button" onclick="closeSerahModal()"
                         class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-lg">{{ __('Batal') }}</button>
                     <button type="submit"
-                        class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white text-sm font-semibold rounded-lg">Simpan & Serah</button>
+                        class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white text-sm font-semibold rounded-lg">Simpan
+                        & Serah</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeOfLoadSelect = document.getElementById('terima_type_of_load');
+        const categoryProductContainer = document.getElementById('category_product_container');
+        const productCategorySelect = document.getElementById('terima_product_category_id');
+
+        const aktivitasSelect = document.getElementById('terima_aktivitas');
+        const shippingTypeSelect = document.getElementById('terima_shipping_type');
+        const sjAsterisk = document.getElementById('terima_sj_asterisk');
+        const poAsterisk = document.getElementById('terima_po_asterisk');
+        const poLabel = document.getElementById('terima_po_label');
+
+        let tsCategory = null;
+        if (productCategorySelect) {
+            tsCategory = new TomSelect(productCategorySelect, {
+                create: false,
+                placeholder: 'Ketik untuk mencari kategori...',
+            });
+        }
+
+        if (typeOfLoadSelect) {
+            typeOfLoadSelect.addEventListener('change', function() {
+                if (this.value === 'Full') {
+                    categoryProductContainer.classList.remove('hidden');
+                    productCategorySelect.setAttribute('required', 'required');
+                } else {
+                    categoryProductContainer.classList.add('hidden');
+                    productCategorySelect.removeAttribute('required');
+                    if (tsCategory) {
+                        tsCategory.clear();
+                    }
+                }
+            });
+        }
+
+        function updatePenerimaanLogic() {
+            if (!aktivitasSelect) return;
+
+            const act = aktivitasSelect.value;
+            const currentShp = shippingTypeSelect.value;
+
+            shippingTypeSelect.innerHTML = '<option value="" selected>Pilih Shipping Type</option>';
+
+            if (act === 'INBOUND') {
+                typeOfLoadSelect.value = 'Full';
+                poLabel.textContent = 'PO VENDOR';
+
+                shippingTypeSelect.insertAdjacentHTML('beforeend',
+                    '<option value="SC INTERBRANCH">SC INTERBRANCH</option>');
+                shippingTypeSelect.insertAdjacentHTML('beforeend',
+                    '<option value="PO VENDOR">PO VENDOR</option>');
+
+                if (['SC INTERBRANCH', 'PO VENDOR'].includes(currentShp)) {
+                    shippingTypeSelect.value = currentShp;
+                } else {
+                    shippingTypeSelect.value = '';
+                }
+
+                const newShp = shippingTypeSelect.value;
+                if (newShp === 'SC INTERBRANCH') {
+                    sjAsterisk.classList.remove('hidden');
+                    poAsterisk.classList.add('hidden');
+                } else if (newShp === 'PO VENDOR') {
+                    sjAsterisk.classList.add('hidden');
+                    poAsterisk.classList.remove('hidden');
+                } else {
+                    sjAsterisk.classList.add('hidden');
+                    poAsterisk.classList.add('hidden');
+                }
+
+            } else if (act === 'OUTBOUND') {
+                typeOfLoadSelect.value = 'Mix';
+                poLabel.textContent = 'PO CUSTOMER';
+
+                shippingTypeSelect.insertAdjacentHTML('beforeend',
+                    '<option value="REGULAR - OUTER ISLAND">REGULAR - OUTER ISLAND</option>');
+                shippingTypeSelect.insertAdjacentHTML('beforeend',
+                    '<option value="REGULAR - LAST MILE">REGULAR - LAST MILE</option>');
+                shippingTypeSelect.insertAdjacentHTML('beforeend',
+                    '<option value="SC INTERBRANCH">SC INTERBRANCH</option>');
+
+                if (['REGULAR - OUTER ISLAND', 'REGULAR - LAST MILE', 'SC INTERBRANCH'].includes(currentShp)) {
+                    shippingTypeSelect.value = currentShp;
+                } else {
+                    shippingTypeSelect.value = '';
+                }
+
+                sjAsterisk.classList.remove('hidden');
+                poAsterisk.classList.add('hidden');
+            } else {
+                sjAsterisk.classList.add('hidden');
+                poAsterisk.classList.add('hidden');
+            }
+
+            // Trigger change for typeOfLoad so Category Product toggles
+            typeOfLoadSelect.dispatchEvent(new Event('change'));
+        }
+
+        if (aktivitasSelect) aktivitasSelect.addEventListener('change', updatePenerimaanLogic);
+        if (shippingTypeSelect) shippingTypeSelect.addEventListener('change', updatePenerimaanLogic);
+    });
+</script>

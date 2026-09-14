@@ -117,6 +117,19 @@
             </a>
             @endif
 
+            {{-- Product Categories --}}
+            @if (Auth::user()->hasPermission('vehicle_type.view'))
+            <a href="{{ route('product-categories.index') }}"
+                class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
+                      {{ request()->routeIs('product-categories.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
+                title="Master Category Product">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                <span class="sidebar-label">{{ __('Kategori Produk') }}</span>
+            </a>
+            @endif
+
             {{-- Employees --}}
             @if (Auth::user()->hasPermission('employee.view'))
                 <a href="{{ route('employees.index') }}"
