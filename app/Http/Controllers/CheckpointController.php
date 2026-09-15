@@ -382,16 +382,21 @@ class CheckpointController extends Controller
             'note' => 'nullable|string|max:500',
         ];
 
-        if ($request->aktivitas === 'OUTBOUND' || ($request->aktivitas === 'INBOUND' && $request->shipping_type === 'SC Interbranch')) {
-            $rules['no_surat_jalan'] = 'required|string|max:100';
-        } else {
+        if (strtolower($request->type_of_load) === 'cross dock') {
             $rules['no_surat_jalan'] = 'nullable|string|max:100';
-        }
-
-        if ($request->aktivitas === 'INBOUND' && $request->shipping_type === 'PO Vendor') {
-            $rules['purchase_order'] = 'required|string|max:100';
-        } else {
             $rules['purchase_order'] = 'nullable|string|max:100';
+        } else {
+            if ($request->aktivitas === 'OUTBOUND' || ($request->aktivitas === 'INBOUND' && $request->shipping_type === 'SC Interbranch')) {
+                $rules['no_surat_jalan'] = 'required|string|max:100';
+            } else {
+                $rules['no_surat_jalan'] = 'nullable|string|max:100';
+            }
+
+            if ($request->aktivitas === 'INBOUND' && $request->shipping_type === 'PO Vendor') {
+                $rules['purchase_order'] = 'required|string|max:100';
+            } else {
+                $rules['purchase_order'] = 'nullable|string|max:100';
+            }
         }
 
         $request->validate($rules, [
@@ -400,8 +405,10 @@ class CheckpointController extends Controller
             'purchase_order.required' => 'Purchase Order wajib diisi.',
         ]);
 
-        if ($error = $this->validateDuplicateSjAndPo($request, $checkpoint->id)) {
-            return redirect()->back()->with('error', $error)->withInput();
+        if (strtolower($request->type_of_load) !== 'cross dock') {
+            if ($error = $this->validateDuplicateSjAndPo($request, $checkpoint->id)) {
+                return redirect()->back()->with('error', $error)->withInput();
+            }
         }
 
         $productCategoryId = $request->type_of_load === 'Full' ? $request->product_category_id : null;
@@ -511,18 +518,19 @@ class CheckpointController extends Controller
             'receipt_number' => 'nullable|string|max:100',
         ]);
 
-        if ($request->filled('receipt_number')) {
+        if (strtolower($checkpoint->type_of_load) !== 'cross dock' && $request->filled('receipt_number')) {
             $receipts = explode('/', $request->receipt_number);
             foreach ($receipts as $receipt) {
                 $receipt = trim($receipt);
-                if (empty($receipt)) continue;
-                
+                if (empty($receipt))
+                    continue;
+
                 $exists = Checkpoint::where('id', '!=', $checkpoint->id)
-                    ->where(function($query) use ($receipt) {
+                    ->where(function ($query) use ($receipt) {
                         $query->where('receipt_number', $receipt)
-                              ->orWhere('receipt_number', 'LIKE', $receipt . '/%')
-                              ->orWhere('receipt_number', 'LIKE', '%/' . $receipt . '/%')
-                              ->orWhere('receipt_number', 'LIKE', '%/' . $receipt);
+                            ->orWhere('receipt_number', 'LIKE', $receipt . '/%')
+                            ->orWhere('receipt_number', 'LIKE', '%/' . $receipt . '/%')
+                            ->orWhere('receipt_number', 'LIKE', '%/' . $receipt);
                     })->first();
 
                 if ($exists) {
@@ -643,11 +651,45 @@ class CheckpointController extends Controller
             $durasi = sprintf('%02d:%02d:%02d', $hours, $diff->i, $diff->s);
         }
 
-        $checkpoint->update([
-            'waktu_end' => $now,
-            'status' => 'FINISH',
-            'durasi' => $durasi,
-        ]);
+        if ($checkpoint->aktivitas === 'INBOUND' && strtolower($checkpoint->type_of_load) === 'cross dock') {
+            $waktuStart = $checkpoint->waktu_start ?? $checkpoint->waktu_penerimaan_dokumen ?? $now;
+            $diff = $waktuStart->diff($now);
+            $hours = ($diff->days * 24) + $diff->h;
+            $durasi = sprintf('%02d:%02d:%02d', $hours, $diff->i, $diff->s);
+
+            $checkpoint->update([
+                'waktu_start' => $waktuStart,
+                'waktu_end' => $now,
+                'waktu_penyerahan_dokumen' => $now,
+                'status' => 'COMPLETED',
+                'durasi' => $durasi,
+            ]);
+
+            \App\Models\Checkpoint::create([
+                'no_polisi' => $checkpoint->no_polisi,
+                'vendor' => $checkpoint->vendor,
+                'driver' => $checkpoint->driver,
+                'tipe' => $checkpoint->tipe,
+                'jenis_kendaraan' => $checkpoint->jenis_kendaraan,
+                'jenis_barang' => $checkpoint->jenis_barang,
+                'aktivitas' => 'OUTBOUND',
+                'note' => $checkpoint->note,
+                'no_surat_jalan' => $checkpoint->no_surat_jalan,
+                'purchase_order' => $checkpoint->purchase_order,
+                'type_of_load' => 'Cross Dock',
+                'product_category_id' => $checkpoint->product_category_id,
+                'shipping_type' => $checkpoint->shipping_type,
+                'tanggal' => \Carbon\Carbon::today(),
+                'status' => 'PARKING',
+                'created_by' => Auth::id() ?? 1,
+            ]);
+        } else {
+            $checkpoint->update([
+                'waktu_end' => $now,
+                'status' => 'FINISH',
+                'durasi' => $durasi,
+            ]);
+        }
 
         return redirect()->back()
             ->with('success', "Loading {$checkpoint->no_polisi} selesai. Durasi: {$durasi}");
@@ -775,7 +817,7 @@ class CheckpointController extends Controller
             $rowNum = $index + 1;
             $tanggal = trim($row[0] ?? '');
             $noPolisi = strtoupper(trim($row[1] ?? ''));
-            
+
             $vehicle = \App\Models\Vehicle::where('no_polisi', $noPolisi)->first();
 
             $vendor = trim($row[2] ?? '');
@@ -796,14 +838,21 @@ class CheckpointController extends Controller
 
             // Validasi kelengkapan data (selain yang di-lookup otomatis)
             $rowErrors = [];
-            if (empty($tanggal)) $rowErrors[] = 'Tanggal kosong';
-            if (empty($noPolisi)) $rowErrors[] = 'Nomor Kendaraan kosong';
-            if (empty($vendor)) $rowErrors[] = 'Vendor kosong';
-            if (empty($jenisBarang)) $rowErrors[] = 'Product Type Storage kosong';
-            elseif (!in_array($jenisBarang, ['FROZEN', 'DRY', 'CHILLED'])) $rowErrors[] = "Product Type Storage tidak valid ($jenisBarang)";
-            
-            if (empty($aktivitas)) $rowErrors[] = 'Activity kosong';
-            elseif (!in_array($aktivitas, ['INBOUND', 'OUTBOUND'])) $rowErrors[] = "Activity tidak valid ($aktivitas)";
+            if (empty($tanggal))
+                $rowErrors[] = 'Tanggal kosong';
+            if (empty($noPolisi))
+                $rowErrors[] = 'Nomor Kendaraan kosong';
+            if (empty($vendor))
+                $rowErrors[] = 'Vendor kosong';
+            if (empty($jenisBarang))
+                $rowErrors[] = 'Product Type Storage kosong';
+            elseif (!in_array($jenisBarang, ['FROZEN', 'DRY', 'CHILLED']))
+                $rowErrors[] = "Product Type Storage tidak valid ($jenisBarang)";
+
+            if (empty($aktivitas))
+                $rowErrors[] = 'Activity kosong';
+            elseif (!in_array($aktivitas, ['INBOUND', 'OUTBOUND']))
+                $rowErrors[] = "Activity tidak valid ($aktivitas)";
 
             if (!empty($rowErrors)) {
                 $skipped++;
@@ -959,14 +1008,15 @@ class CheckpointController extends Controller
             $sjList = explode('/', $request->no_surat_jalan);
             foreach ($sjList as $sj) {
                 $sj = trim($sj);
-                if (empty($sj)) continue;
-                
+                if (empty($sj))
+                    continue;
+
                 $query = Checkpoint::query();
                 if ($ignoreId) {
                     $query->where('id', '!=', $ignoreId);
                 }
-                
-                $exists = $query->where(function($q) use ($sj) {
+
+                $exists = $query->where(function ($q) use ($sj) {
                     $q->where('no_surat_jalan', $sj)
                         ->orWhere('no_surat_jalan', 'LIKE', $sj . '/%')
                         ->orWhere('no_surat_jalan', 'LIKE', '%/' . $sj . '/%')
@@ -983,14 +1033,15 @@ class CheckpointController extends Controller
             $poList = explode('/', $request->purchase_order);
             foreach ($poList as $po) {
                 $po = trim($po);
-                if (empty($po)) continue;
-                
+                if (empty($po))
+                    continue;
+
                 $query = Checkpoint::query();
                 if ($ignoreId) {
                     $query->where('id', '!=', $ignoreId);
                 }
-                
-                $exists = $query->where(function($q) use ($po) {
+
+                $exists = $query->where(function ($q) use ($po) {
                     $q->where('purchase_order', $po)
                         ->orWhere('purchase_order', 'LIKE', $po . '/%')
                         ->orWhere('purchase_order', 'LIKE', '%/' . $po . '/%')

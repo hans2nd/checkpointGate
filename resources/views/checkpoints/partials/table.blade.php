@@ -132,7 +132,7 @@
                                             $cp->cancel_status !== 'pending' &&
                                             Auth::user()->hasPermission('checkpoint.trigger_terima'))
                                         <button type="button"
-                                            onclick="openTerimaModal({{ $cp->id }}, @js($cp->no_polisi), @js($cp->jenis_kendaraan), @js($cp->tipe), @js($cp->jenis_barang), @js($cp->aktivitas), @js($cp->no_surat_jalan), @js($cp->purchase_order), @js($cp->note))"
+                                            onclick="openTerimaModal({{ $cp->id }}, @js($cp->no_polisi), @js($cp->jenis_kendaraan), @js($cp->tipe), @js($cp->jenis_barang), @js($cp->aktivitas), @js($cp->no_surat_jalan), @js($cp->purchase_order), @js($cp->note), @js($cp->type_of_load), @js($cp->shipping_type), @js($cp->product_category_id))"
                                             class="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">📥
                                             {{ __('Receive') }}</button>
                                     @else
@@ -186,7 +186,9 @@
                                         <span
                                             class="text-xs text-gray-600">{{ $cp->waktu_start->format('H:i:s') }}</span>
                                     @elseif($cp->status !== 'CANCEL' && $cp->cancel_status !== 'pending' && Auth::user()->hasPermission('checkpoint.trigger_start'))
-                                        @if(!$cp->waktu_penerimaan_dokumen || $gateLabel == null || $gateLabel == '-')
+                                        @if($cp->aktivitas === 'INBOUND' && strtolower($cp->type_of_load) === 'cross dock')
+                                            <span class="text-[10px] text-gray-400 font-semibold italic">Bypass</span>
+                                        @elseif(!$cp->waktu_penerimaan_dokumen || $gateLabel == null || $gateLabel == '-')
                                             <button type="button" onclick="showValidationError('Gate dan Penerimaan Dokumen harus diselesaikan terlebih dahulu sebelum Start Loading.')"
                                                 class="px-2 py-1 bg-gray-200 text-gray-500 text-[10px] font-semibold rounded-md shadow-sm opacity-70">▶
                                                 Start</button>
@@ -212,9 +214,18 @@
                                             class="text-xs text-gray-600">{{ $cp->waktu_end->format('H:i:s') }}</span>
                                     @elseif($cp->status !== 'CANCEL' && $cp->cancel_status !== 'pending' && Auth::user()->hasPermission('checkpoint.trigger_end'))
                                         @if(!$cp->waktu_start)
-                                            <button type="button" onclick="showValidationError('Harap selesaikan proses Start Loading terlebih dahulu.')"
-                                                class="px-2 py-1 bg-gray-200 text-gray-500 text-[10px] font-semibold rounded-md shadow-sm opacity-70">⏹
-                                                End</button>
+                                            @if($cp->aktivitas === 'INBOUND' && strtolower($cp->type_of_load) === 'cross dock' && in_array($cp->status, ['WAITING', 'READY']))
+                                                <form method="POST" action="{{ route('checkpoints.trigger-end', $cp) }}"
+                                                    class="inline" onsubmit="event.preventDefault(); confirmEndLoading(this);">@csrf
+                                                    <button type="submit"
+                                                        class="px-2 py-1 bg-red-500 hover:bg-red-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">⏹
+                                                        End</button>
+                                                </form>
+                                            @else
+                                                <button type="button" onclick="showValidationError('Harap selesaikan proses Start Loading terlebih dahulu.')"
+                                                    class="px-2 py-1 bg-gray-200 text-gray-500 text-[10px] font-semibold rounded-md shadow-sm opacity-70">⏹
+                                                    End</button>
+                                            @endif
                                         @else
                                             <form method="POST" action="{{ route('checkpoints.trigger-end', $cp) }}"
                                                 class="inline" onsubmit="event.preventDefault(); confirmEndLoading(this);">@csrf
@@ -321,7 +332,9 @@
                                         <span
                                             class="text-xs text-gray-600">{{ $cp->waktu_penyerahan_dokumen->format('H:i:s') }}</span>
                                     @elseif($cp->status !== 'CANCEL' && $cp->cancel_status !== 'pending' && Auth::user()->hasPermission('checkpoint.trigger_serah'))
-                                        @if(!$cp->waktu_end)
+                                        @if($cp->aktivitas === 'INBOUND' && strtolower($cp->type_of_load) === 'cross dock')
+                                            <span class="text-[10px] text-gray-400 font-semibold italic">Bypass</span>
+                                        @elseif(!$cp->waktu_end)
                                             <button type="button" onclick="showValidationError('Proses End Loading belum selesai. Anda tidak dapat melakukan penyerahan dokumen.')"
                                                 class="px-2 py-1 bg-gray-200 text-gray-500 text-[10px] font-semibold rounded-md shadow-sm opacity-70">📤
                                                 Serah</button>

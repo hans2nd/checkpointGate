@@ -22,6 +22,10 @@ The application has recently undergone a comprehensive UI/UX overhaul to provide
 3. **Checkpoint Data**
    - Modernized the Index, Show, and Edit pages to follow the new premium design language.
    - Integrated intuitive **SweetAlert** pop-ups for action confirmations (e.g., delete validations) providing safety and better visual feedback.
+   - **Cross Dock Automation**:
+     - *Inbound Cross Dock* transactions automatically bypass the "Start Loading" and "Document Handover (Serah Dokumen)" actions.
+     - Upon completion (End Loading), a new *Outbound Cross Dock* transaction is automatically generated, inheriting identical details (vehicle, vendor, shipping type, goods type, Delivery Note, and PO) to streamline the gate-out process.
+     - Automatically excludes strict form validations (Delivery Note, PO Vendor, and Receipt Number uniqueness) for Cross Dock activities, allowing for a faster workflow.
    - **Dynamic Document Receipt Modal**: 
      - Restructured form to prioritize Activity selection (Inbound/Outbound) upfront.
      - Dynamically updates *Shipping Type* options, *Type Of Load*, and UI labels based on the selected Activity.
@@ -46,6 +50,11 @@ The application has recently undergone a comprehensive UI/UX overhaul to provide
 ---
 
 ## Update History
+
+- **September 15, 2026** — *Updated*
+  - Added Cross Dock full automation (auto-complete Inbound actions, auto-create Outbound).
+  - Bypassed strict validation rules (Surat Jalan, PO Vendor, Receipt Number) exclusively for Cross Dock types.
+  - Fixed UI modal logic to preserve the correct 'Cross Dock' type of load during subsequent Outbound transactions.
 
 - **September 13, 2026** — *Created/Updated by Hans*
   - Comprehensive UI/UX overhaul (Dashboard, Report Menu, Master Data).

@@ -216,7 +216,7 @@
         }
 
         // ===== TERIMA MODAL =====
-        function openTerimaModal(checkpointId, noPolisi, kendaraan, tipe, barang, aktivitas, suratJalan, po, note) {
+        function openTerimaModal(checkpointId, noPolisi, kendaraan, tipe, barang, aktivitas, suratJalan, po, note, typeOfLoad, shippingTypeData, productCategoryData) {
             const modal = document.getElementById('terimaModal');
             const form = document.getElementById('terimaForm');
             const subtitle = document.getElementById('terimaModalSubtitle');
@@ -227,18 +227,31 @@
             document.getElementById('terima_jenis_kendaraan').value = kendaraan || '';
             document.getElementById('terima_tipe').value = tipe || '';
             document.getElementById('terima_jenis_barang').value = barang || '';
+            
+            const typeOfLoadSelect = document.getElementById('terima_type_of_load');
+            if (typeOfLoadSelect && typeOfLoad) {
+                typeOfLoadSelect.value = typeOfLoad;
+            }
+
+            const shippingType = document.getElementById('terima_shipping_type');
+            if (shippingType && shippingTypeData) {
+                // temporarily store the shipping type data to use it inside updatePenerimaanLogic
+                shippingType.dataset.initialValue = shippingTypeData;
+            }
+
+            const productCategorySelect = document.getElementById('terima_product_category_id');
+            if (productCategorySelect && productCategoryData) {
+                productCategorySelect.value = productCategoryData;
+                if (tsCategory) {
+                    tsCategory.setValue(productCategoryData);
+                }
+            }
+
             const aktivitasEl = document.getElementById('terima_aktivitas');
             if (aktivitasEl) {
                 aktivitasEl.value = aktivitas || '';
-                // Trigger change to update dynamic shipping type options
+                // Trigger change to update dynamic shipping type options and asterisks
                 aktivitasEl.dispatchEvent(new Event('change'));
-            }
-            
-            const shippingType = document.getElementById('terima_shipping_type');
-            if(shippingType) {
-                // Do not clear it if the event above set it to a valid default,
-                // but if we want to ensure it's unselected initially:
-                shippingType.value = '';
             }
 
             const container = document.getElementById('suratJalanContainer');

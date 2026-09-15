@@ -775,18 +775,53 @@ class ApiController extends Controller
             }
         }
 
+        $now = Carbon::now();
         $durasi = null;
         if ($cp->waktu_start) {
-            $diff = $cp->waktu_start->diff(Carbon::now());
+            $diff = $cp->waktu_start->diff($now);
             $hours = ($diff->days * 24) + $diff->h;
             $durasi = sprintf('%02d:%02d:%02d', $hours, $diff->i, $diff->s);
         }
 
-        $cp->update([
-            'waktu_end' => Carbon::now(),
-            'status' => 'FINISH',
-            'durasi' => $durasi,
-        ]);
+        if ($cp->aktivitas === 'INBOUND' && strtolower($cp->type_of_load) === 'cross dock') {
+            $waktuStart = $cp->waktu_start ?? $cp->waktu_penerimaan_dokumen ?? $now;
+            $diff = $waktuStart->diff($now);
+            $hours = ($diff->days * 24) + $diff->h;
+            $durasiCd = sprintf('%02d:%02d:%02d', $hours, $diff->i, $diff->s);
+
+            $cp->update([
+                'waktu_start' => $waktuStart,
+                'waktu_end' => $now,
+                'waktu_penyerahan_dokumen' => $now,
+                'status' => 'COMPLETED',
+                'durasi' => $durasiCd,
+            ]);
+
+            \App\Models\Checkpoint::create([
+                'no_polisi' => $cp->no_polisi,
+                'vendor' => $cp->vendor,
+                'driver' => $cp->driver,
+                'tipe' => $cp->tipe,
+                'jenis_kendaraan' => $cp->jenis_kendaraan,
+                'jenis_barang' => $cp->jenis_barang,
+                'aktivitas' => 'OUTBOUND',
+                'note' => $cp->note,
+                'no_surat_jalan' => $cp->no_surat_jalan,
+                'purchase_order' => $cp->purchase_order,
+                'type_of_load' => 'Cross Dock',
+                'product_category_id' => $cp->product_category_id,
+                'shipping_type' => $cp->shipping_type,
+                'tanggal' => \Carbon\Carbon::today(),
+                'status' => 'PARKING',
+                'created_by' => $currentUser->id,
+            ]);
+        } else {
+            $cp->update([
+                'waktu_end' => $now,
+                'status' => 'FINISH',
+                'durasi' => $durasi,
+            ]);
+        }
 
         return response()->json([
             'success' => true,

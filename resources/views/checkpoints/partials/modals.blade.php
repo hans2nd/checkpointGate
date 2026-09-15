@@ -394,6 +394,26 @@
                         tsCategory.clear();
                     }
                 }
+
+                if (this.value === 'Cross Dock') {
+                    if (sjAsterisk) sjAsterisk.classList.add('hidden');
+                    if (poAsterisk) poAsterisk.classList.add('hidden');
+                } else {
+                    const act = aktivitasSelect ? aktivitasSelect.value : '';
+                    const shp = shippingTypeSelect ? shippingTypeSelect.value : '';
+                    if (act === 'INBOUND') {
+                        if (shp === 'SC INTERBRANCH') {
+                            if (sjAsterisk) sjAsterisk.classList.remove('hidden');
+                            if (poAsterisk) poAsterisk.classList.add('hidden');
+                        } else if (shp === 'PO VENDOR') {
+                            if (sjAsterisk) sjAsterisk.classList.add('hidden');
+                            if (poAsterisk) poAsterisk.classList.remove('hidden');
+                        }
+                    } else if (act === 'OUTBOUND') {
+                        if (sjAsterisk) sjAsterisk.classList.remove('hidden');
+                        if (poAsterisk) poAsterisk.classList.add('hidden');
+                    }
+                }
             });
         }
 
@@ -401,12 +421,21 @@
             if (!aktivitasSelect) return;
 
             const act = aktivitasSelect.value;
-            const currentShp = shippingTypeSelect.value;
+            
+            // Allow initial value passed from openTerimaModal to override currentShp temporarily
+            let currentShp = shippingTypeSelect.value;
+            if (shippingTypeSelect.dataset.initialValue) {
+                currentShp = shippingTypeSelect.dataset.initialValue;
+                delete shippingTypeSelect.dataset.initialValue;
+            }
 
             shippingTypeSelect.innerHTML = '<option value="" selected>Pilih Shipping Type</option>';
 
             if (act === 'INBOUND') {
-                typeOfLoadSelect.value = 'Full';
+                // Only set default if not already Cross Dock, or if we want to force it
+                if (typeOfLoadSelect.value !== 'Cross Dock') {
+                    typeOfLoadSelect.value = 'Full';
+                }
                 poLabel.textContent = 'PO VENDOR';
 
                 shippingTypeSelect.insertAdjacentHTML('beforeend',
@@ -421,7 +450,10 @@
                 }
 
                 const newShp = shippingTypeSelect.value;
-                if (newShp === 'SC INTERBRANCH') {
+                if (typeOfLoadSelect.value === 'Cross Dock') {
+                    sjAsterisk.classList.add('hidden');
+                    poAsterisk.classList.add('hidden');
+                } else if (newShp === 'SC INTERBRANCH') {
                     sjAsterisk.classList.remove('hidden');
                     poAsterisk.classList.add('hidden');
                 } else if (newShp === 'PO VENDOR') {
@@ -433,7 +465,9 @@
                 }
 
             } else if (act === 'OUTBOUND') {
-                typeOfLoadSelect.value = 'Mix';
+                if (typeOfLoadSelect.value !== 'Cross Dock') {
+                    typeOfLoadSelect.value = 'Mix';
+                }
                 poLabel.textContent = 'PO CUSTOMER';
 
                 shippingTypeSelect.insertAdjacentHTML('beforeend',
@@ -449,8 +483,13 @@
                     shippingTypeSelect.value = '';
                 }
 
-                sjAsterisk.classList.remove('hidden');
-                poAsterisk.classList.add('hidden');
+                if (typeOfLoadSelect.value === 'Cross Dock') {
+                    sjAsterisk.classList.add('hidden');
+                    poAsterisk.classList.add('hidden');
+                } else {
+                    sjAsterisk.classList.remove('hidden');
+                    poAsterisk.classList.add('hidden');
+                }
             } else {
                 sjAsterisk.classList.add('hidden');
                 poAsterisk.classList.add('hidden');
