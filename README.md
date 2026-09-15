@@ -55,6 +55,10 @@ The application has recently undergone a comprehensive UI/UX overhaul to provide
   - Added Cross Dock full automation (auto-complete Inbound actions, auto-create Outbound).
   - Bypassed strict validation rules (Surat Jalan, PO Vendor, Receipt Number) exclusively for Cross Dock types.
   - Fixed UI modal logic to preserve the correct 'Cross Dock' type of load during subsequent Outbound transactions.
+  - **Document Handover (Serah Dokumen)**: Restricted *Receipt Number* input to be mandatory *only* for Inbound activities. Completely hides the input field for Outbound activities.
+  - **VPS Synchronization Fix**: Created a new database migration to ensure the local `checkpoints_giic` table accurately mirrors the new columns (`type_of_load`, `product_category_id`, `shipping_type`, `is_cross_dock`, `is_generated_cross_dock`).
+  - Validated API compatibility for `SyncApiController` to handle dynamic attribute payload pushes without errors.
+  - **PowerBI Reporting**: Updated `ReportApiController` to expose `is_cross_dock` and `is_generated_cross_dock` boolean flags as part of the JSON dataset.
 
 - **September 13, 2026** — *Created/Updated by Hans*
   - Comprehensive UI/UX overhaul (Dashboard, Report Menu, Master Data).

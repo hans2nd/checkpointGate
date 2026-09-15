@@ -109,6 +109,8 @@ class ReportApiController extends Controller
                             'type_of_load' => $cp->type_of_load,
                             'category_product' => optional($cp->productCategory)->name,
                             'shipping_type' => $cp->shipping_type,
+                            'is_cross_dock' => $cp->is_cross_dock,
+                            'is_generated_cross_dock' => $cp->is_generated_cross_dock,
                             'dibuat' => $cp->created_at ? $cp->created_at->toIso8601String() : null,
                             'diperbarui' => $cp->updated_at ? $cp->updated_at->toIso8601String() : null,
                         ];

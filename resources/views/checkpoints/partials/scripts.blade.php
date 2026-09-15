@@ -503,7 +503,7 @@
         }
 
         // ===== SERAH MODAL =====
-        function openSerahModal(checkpointId, noPolisi, vendor, driver, suratJalan, po) {
+        function openSerahModal(checkpointId, noPolisi, vendor, driver, suratJalan, po, typeOfLoad, aktivitas) {
             const modal = document.getElementById('serahModal');
             const form = document.getElementById('serahForm');
             const subtitle = document.getElementById('serahModalSubtitle');
@@ -521,6 +521,23 @@
             if (container) {
                 container.innerHTML = '';
                 addReceiptInput('', true);
+            }
+
+            const receiptAsterisk = document.getElementById('serah_receipt_asterisk');
+            const receiptContainerGroup = document.getElementById('receiptContainerGroup');
+
+            if (aktivitas && aktivitas.toUpperCase() === 'INBOUND') {
+                if (receiptContainerGroup) receiptContainerGroup.classList.remove('hidden');
+                if (receiptAsterisk) {
+                    if (typeOfLoad && typeOfLoad.toLowerCase() === 'cross dock') {
+                        receiptAsterisk.classList.add('hidden');
+                    } else {
+                        receiptAsterisk.classList.remove('hidden');
+                    }
+                }
+            } else {
+                if (receiptContainerGroup) receiptContainerGroup.classList.add('hidden');
+                if (receiptAsterisk) receiptAsterisk.classList.add('hidden');
             }
 
             modal.classList.remove('hidden');
@@ -576,7 +593,25 @@
             let hasDuplicate = false;
             let duplicateVal = '';
 
+            const receiptAsterisk = document.getElementById('serah_receipt_asterisk');
+            const receiptContainerGroup = document.getElementById('receiptContainerGroup');
+
             if (rInputs.length > 0) {
+                const firstVal = rInputs[0].value.trim();
+                const isGroupVisible = receiptContainerGroup && !receiptContainerGroup.classList.contains('hidden');
+                const isAsteriskVisible = receiptAsterisk && !receiptAsterisk.classList.contains('hidden');
+
+                if (isGroupVisible && isAsteriskVisible && !firstVal) {
+                    Swal.fire({
+                        title: 'Validasi Gagal',
+                        text: 'Nomor Receipt wajib diisi saat Serah Dokumen.',
+                        icon: 'error',
+                        confirmButtonColor: '#A855F7'
+                    });
+                    rInputs[0].focus();
+                    return;
+                }
+
                 for (let i = 0; i < rInputs.length; i++) {
                     const v = rInputs[i].value.trim();
                     if (v) {

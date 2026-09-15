@@ -139,7 +139,9 @@ class ReportController extends Controller
             __('Note'),
             __('Type Of Load'),
             __('Category Product'),
-            __('Shipping Type')
+            __('Shipping Type'),
+            __('Is Cross Dock'),
+            __('Is Generated Cross Dock')
         ];
 
         foreach ($headers as $col => $header) {
@@ -149,7 +151,7 @@ class ReportController extends Controller
             $sheet->setCellValue($cell, $header);
         }
 
-        $sheet->getStyle('A4:AK4')->applyFromArray([
+        $sheet->getStyle('A4:AM4')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 10],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'F97316']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
@@ -197,19 +199,21 @@ class ReportController extends Controller
             $sheet->setCellValue('AI' . $row, $cp->type_of_load);
             $sheet->setCellValue('AJ' . $row, optional($cp->productCategory)->name);
             $sheet->setCellValue('AK' . $row, $cp->shipping_type);
+            $sheet->setCellValue('AL' . $row, $cp->is_cross_dock ? 'TRUE' : 'FALSE');
+            $sheet->setCellValue('AM' . $row, $cp->is_generated_cross_dock ? 'TRUE' : 'FALSE');
             $row++;
         }
 
         // Data borders
         if ($row > 5) {
-            $sheet->getStyle('A5:AK' . ($row - 1))->applyFromArray([
+            $sheet->getStyle('A5:AM' . ($row - 1))->applyFromArray([
                 'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 'font' => ['size' => 10],
             ]);
         }
 
         // Auto-size columns
-        foreach (range(1, 37) as $colIndex) {
+        foreach (range(1, 39) as $colIndex) {
             $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
             $sheet->getColumnDimension($colLetter)->setAutoSize(true);
         }

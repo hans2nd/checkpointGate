@@ -28,6 +28,14 @@ class Checkpoint extends Model
                 $checkpoint->sync = 0;
             }
         });
+
+        static::saving(function ($checkpoint) {
+            if ($checkpoint->type_of_load === 'Cross Dock') {
+                $checkpoint->is_cross_dock = true;
+            } else {
+                $checkpoint->is_cross_dock = false;
+            }
+        });
     }
 
     protected $fillable = [
@@ -67,6 +75,8 @@ class Checkpoint extends Model
         'type_of_load',
         'product_category_id',
         'shipping_type',
+        'is_cross_dock',
+        'is_generated_cross_dock',
     ];
 
     protected $casts = [

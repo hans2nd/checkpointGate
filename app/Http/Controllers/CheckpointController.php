@@ -514,8 +514,13 @@ class CheckpointController extends Controller
                 ->with('error', "Checkpoint {$checkpoint->no_polisi} sudah dibatalkan.");
         }
 
+        $isCrossDock = strtolower($checkpoint->type_of_load) === 'cross dock';
+        $isInbound = strtoupper($checkpoint->aktivitas) === 'INBOUND';
+
         $request->validate([
-            'receipt_number' => 'nullable|string|max:100',
+            'receipt_number' => ($isCrossDock || !$isInbound) ? 'nullable|string|max:100' : 'required|string|max:100',
+        ], [
+            'receipt_number.required' => 'Nomor Receipt wajib diisi saat Serah Dokumen.',
         ]);
 
         if (strtolower($checkpoint->type_of_load) !== 'cross dock' && $request->filled('receipt_number')) {
@@ -682,6 +687,7 @@ class CheckpointController extends Controller
                 'tanggal' => \Carbon\Carbon::today(),
                 'status' => 'PARKING',
                 'created_by' => Auth::id() ?? 1,
+                'is_generated_cross_dock' => true,
             ]);
         } else {
             $checkpoint->update([

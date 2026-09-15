@@ -340,7 +340,7 @@
                                                 Serah</button>
                                         @else
                                             <button type="button"
-                                                onclick="openSerahModal('{{ $cp->id }}', '{{ $cp->no_polisi }}', '{{ addslashes($cp->vendor) }}', '{{ addslashes($cp->driver) }}', '{{ addslashes($cp->no_surat_jalan) }}', '{{ addslashes($cp->purchase_order) }}')"
+                                                onclick="openSerahModal('{{ $cp->id }}', '{{ $cp->no_polisi }}', '{{ addslashes($cp->vendor) }}', '{{ addslashes($cp->driver) }}', '{{ addslashes($cp->no_surat_jalan) }}', '{{ addslashes($cp->purchase_order) }}', '{{ $cp->type_of_load }}', '{{ $cp->aktivitas }}')"
                                                 class="px-2 py-1 bg-purple-500 hover:bg-purple-600 text-white text-[10px] font-semibold rounded-md transition-all shadow-sm">📤
                                                 Serah</button>
                                         @endif

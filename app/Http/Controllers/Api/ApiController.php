@@ -814,6 +814,7 @@ class ApiController extends Controller
                 'tanggal' => \Carbon\Carbon::today(),
                 'status' => 'PARKING',
                 'created_by' => $currentUser->id,
+                'is_generated_cross_dock' => true,
             ]);
         } else {
             $cp->update([
@@ -833,12 +834,46 @@ class ApiController extends Controller
     /**
      * POST /api/checkpoints/{id}/trigger-penyerahan
      */
-    public function triggerPenyerahan($id)
+    public function triggerPenyerahan(Request $request, $id)
     {
         $cp = Checkpoint::findOrFail($id);
+        
+        $isCrossDock = strtolower($cp->type_of_load) === 'cross dock';
+        $isInbound = strtoupper($cp->aktivitas) === 'INBOUND';
+
+        $request->validate([
+            'receipt_number' => ($isCrossDock || !$isInbound) ? 'nullable|string|max:100' : 'required|string|max:100',
+        ], [
+            'receipt_number.required' => 'Nomor Receipt wajib diisi saat Serah Dokumen.',
+        ]);
+
+        if (strtolower($cp->type_of_load) !== 'cross dock' && $request->filled('receipt_number')) {
+            $receipts = explode('/', $request->receipt_number);
+            foreach ($receipts as $receipt) {
+                $receipt = trim($receipt);
+                if (empty($receipt)) continue;
+
+                $exists = Checkpoint::where('id', '!=', $cp->id)
+                    ->where(function ($query) use ($receipt) {
+                        $query->where('receipt_number', $receipt)
+                            ->orWhere('receipt_number', 'LIKE', $receipt . '/%')
+                            ->orWhere('receipt_number', 'LIKE', '%/' . $receipt . '/%')
+                            ->orWhere('receipt_number', 'LIKE', '%/' . $receipt);
+                    })->first();
+
+                if ($exists) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Nomor Receipt {$receipt} sudah pernah diinput pada checkpoint lain (No Polisi: {$exists->no_polisi})."
+                    ], 422);
+                }
+            }
+        }
+
         $cp->update([
             'waktu_penyerahan_dokumen' => Carbon::now(),
             'waktu_keluar' => Carbon::now(),
+            'receipt_number' => $request->receipt_number,
         ]);
 
         return response()->json([

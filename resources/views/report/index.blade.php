@@ -500,6 +500,12 @@
                             <th
                                 class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
                                 {{ __('Shipping Type') }}</th>
+                            <th
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
+                                {{ __('Is Cross Dock') }}</th>
+                            <th
+                                class="px-3 py-3 font-semibold text-white text-xs uppercase tracking-wider whitespace-nowrap">
+                                {{ __('Is Generated Cross Dock') }}</th>
 
 
                         </tr>
@@ -631,6 +637,20 @@
                                 <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{{ $cp->type_of_load ?: '—' }}</td>
                                 <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{{ optional($cp->productCategory)->name ?: '—' }}</td>
                                 <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">{{ $cp->shipping_type ?: '—' }}</td>
+                                <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">
+                                    @if($cp->is_cross_dock)
+                                        <span class="inline-flex px-1.5 py-0.5 rounded text-[10px] font-semibold bg-green-50 text-green-700">TRUE</span>
+                                    @else
+                                        <span class="inline-flex px-1.5 py-0.5 rounded text-[10px] font-semibold bg-gray-50 text-gray-700">FALSE</span>
+                                    @endif
+                                </td>
+                                <td class="px-3 py-2.5 text-gray-600 text-xs whitespace-nowrap">
+                                    @if($cp->is_generated_cross_dock)
+                                        <span class="inline-flex px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-50 text-purple-700">TRUE</span>
+                                    @else
+                                        <span class="inline-flex px-1.5 py-0.5 rounded text-[10px] font-semibold bg-gray-50 text-gray-700">FALSE</span>
+                                    @endif
+                                </td>
 
                             </tr>
                         @empty

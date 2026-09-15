@@ -342,8 +342,8 @@
                     </div>
 
                     <!-- Receipt Number Input Container -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Receipt Number</label>
+                    <div id="receiptContainerGroup">
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Receipt Number <span id="serah_receipt_asterisk" class="text-red-400 hidden">*</span></label>
                         <div id="receiptContainer" class="space-y-2">
                             <!-- Inputs will be generated here by JS -->
                         </div>
