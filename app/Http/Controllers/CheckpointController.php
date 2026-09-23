@@ -87,7 +87,8 @@ class CheckpointController extends Controller
     public function create()
     {
         $vehicleTypes = VehicleType::orderBy('name')->pluck('name');
-        return view('checkpoints.create', compact('vehicleTypes'));
+        $productCategories = \App\Models\ProductCategory::orderBy('name')->get();
+        return view('checkpoints.create', compact('vehicleTypes', 'productCategories'));
     }
 
     public function store(Request $request)
@@ -96,18 +97,36 @@ class CheckpointController extends Controller
             'no_polisi' => 'required|string|max:20',
             'driver' => 'required|string|max:100',
             'vendor' => 'required|string|max:100',
-            'tipe' => 'required|in:INTERNAL,EKSTERNAL',
-            'jenis_kendaraan' => 'required|string|max:50',
+            'tipe' => 'nullable|in:INTERNAL,EKSTERNAL',
+            'jenis_kendaraan' => 'nullable|string|max:50',
             'no_surat_jalan' => 'nullable|string|max:100',
             'purchase_order' => 'nullable|string|max:100',
+            'receipt_number' => 'nullable|string|max:100',
             'foto_identitas' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Max 5MB
             'aktivitas' => 'nullable|in:INBOUND,OUTBOUND',
             'jenis_barang' => 'nullable|in:FROZEN,DRY,CHILLED',
+            'type_of_load' => 'nullable|in:Full,Mix,Cross Dock',
+            'shipping_type' => 'nullable|string|max:100',
+            'product_category_id' => 'nullable|exists:product_categories,id|required_if:type_of_load,Full',
+        ], [
+            'product_category_id.required_if' => 'Category product wajib diisi jika Type Of Load adalah Full.',
         ]);
 
         $validated['tanggal'] = Carbon::today();
         $validated['status'] = 'PARKING';
         $validated['created_by'] = Auth::id();
+
+        // Check active checkpoint to prevent duplicates
+        $activeCheckpoint = Checkpoint::where('no_polisi', $validated['no_polisi'])
+            ->whereNotIn('status', ['COMPLETED', 'CANCEL'])
+            ->first();
+
+        if ($activeCheckpoint) {
+            return redirect()->back()->with('active_checkpoint_error', [
+                'no_polisi' => $validated['no_polisi'],
+                'status' => $activeCheckpoint->status
+            ])->withInput();
+        }
 
         if ($error = $this->validateDuplicateSjAndPo($request)) {
             return redirect()->back()->with('error', $error)->withInput();
@@ -124,8 +143,8 @@ class CheckpointController extends Controller
             [
                 'driver' => $validated['driver'],
                 'vendor' => $validated['vendor'],
-                'tipe' => $validated['tipe'],
-                'jenis_kendaraan' => $validated['jenis_kendaraan'],
+                'tipe' => $validated['tipe'] ?? 'EKSTERNAL',
+                'jenis_kendaraan' => $validated['jenis_kendaraan'] ?? '-',
             ]
         );
 
@@ -531,6 +550,7 @@ class CheckpointController extends Controller
                     continue;
 
                 $exists = Checkpoint::where('id', '!=', $checkpoint->id)
+                    ->where('status', '!=', 'CANCEL')
                     ->where(function ($query) use ($receipt) {
                         $query->where('receipt_number', $receipt)
                             ->orWhere('receipt_number', 'LIKE', $receipt . '/%')
@@ -1018,6 +1038,7 @@ class CheckpointController extends Controller
                     continue;
 
                 $query = Checkpoint::query();
+                $query->where('status', '!=', 'CANCEL');
                 if ($ignoreId) {
                     $query->where('id', '!=', $ignoreId);
                 }
@@ -1043,6 +1064,7 @@ class CheckpointController extends Controller
                     continue;
 
                 $query = Checkpoint::query();
+                $query->where('status', '!=', 'CANCEL');
                 if ($ignoreId) {
                     $query->where('id', '!=', $ignoreId);
                 }

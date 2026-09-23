@@ -1,7 +1,7 @@
 {
-  "latest_version": "1.0.3",
-  "build_number": 3,
+  "latest_version": "1.0.4",
+  "build_number": 4,
   "is_force_update": false,
-  "changelog": "Ganti Title Checkpoint PDA > PL Checkpoint PDA",
+  "changelog": "Update behaviour create transaction vehicle",
   "download_url": "http://giic.panganlestari.com:8085/checkpointGate/apk/Reg-Vehicle-App.apk"
 }

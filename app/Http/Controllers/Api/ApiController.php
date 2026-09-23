@@ -505,6 +505,36 @@ class ApiController extends Controller
         $noPolisiFormatted = strtoupper(str_replace(' ', '', $request->no_polisi));
         $noPolisiFormatted = preg_replace('/(?<=[A-Z])(?=[0-9])|(?<=[0-9])(?=[A-Z])/', ' ', $noPolisiFormatted);
 
+        // Check active checkpoint to prevent duplicates
+        $activeCheckpoint = Checkpoint::where('no_polisi', $noPolisiFormatted)
+            ->whereNotIn('status', ['COMPLETED', 'CANCEL'])
+            ->first();
+
+        if ($activeCheckpoint) {
+            $status = $activeCheckpoint->status;
+            $msg = "Kendaraan sedang dalam proses ({$status})";
+            switch ($status) {
+                case 'FINISH':
+                    $msg = 'Transaksi sudah selesai, mobil belum dikeluarkan oleh security';
+                    break;
+                case 'COMPLETED':
+                    $msg = 'Transaksi sudah selesai dan mobil sudah keluar dari Hub';
+                    break;
+                case 'PARKING':
+                    $msg = 'Kendaraan terparkir diarea transit';
+                    break;
+                case 'DOC IN':
+                    $msg = 'Dokumen sudah diterima oleh Admin, untuk persiapan proses assign Gate';
+                    break;
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => "Kendaraan {$noPolisiFormatted} sudah terinput dengan kondisi:\n{$msg}",
+                'is_active_vehicle' => true,
+            ], 422);
+        }
+
         // Auto-insert Master Vehicle jika belum ada
         \App\Models\Vehicle::firstOrCreate(
             ['no_polisi' => $noPolisiFormatted],

@@ -111,97 +111,6 @@
                             readonly>
                     </div>
 
-                    {{-- Tipe (auto-filled) --}}
-                    <div>
-                        <label for="tipe" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Tipe') }}
-                            <span class="text-red-400">*</span></label>
-                        <select id="tipe" name="tipe" required
-                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-gray-50 transition-all"
-                            disabled>
-                            <option value="EKSTERNAL">EKSTERNAL</option>
-                            <option value="INTERNAL">INTERNAL</option>
-                        </select>
-                        <input type="hidden" name="tipe" id="tipe_hidden" value="{{ old('tipe', 'EKSTERNAL') }}">
-                    </div>
-
-                    {{-- Jenis Kendaraan (dropdown from master) --}}
-                    <div>
-                        <label for="jenis_kendaraan"
-                            class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Jenis Kendaraan') }}
-                            <span class="text-red-400">*</span></label>
-                        <select id="jenis_kendaraan" name="jenis_kendaraan" required
-                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-gray-50 transition-all"
-                            disabled>
-                            <option value="">-- {{ __('Pilih Jenis Kendaraan') }} --</option>
-                            @foreach($vehicleTypes as $vt)
-                                <option value="{{ $vt }}" {{ old('jenis_kendaraan') == $vt ? 'selected' : '' }}>{{ $vt }}</option>
-                            @endforeach
-                        </select>
-                        <input type="hidden" name="jenis_kendaraan" id="jenis_kendaraan_hidden" value="{{ old('jenis_kendaraan') }}">
-                    </div>
-
-                    {{-- Jenis Barang --}}
-                    <div>
-                        <label for="jenis_barang"
-                            class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Jenis Barang') }}
-                            <span class="text-gray-400 text-xs font-normal ml-1">(Opsional)</span></label>
-                        <select id="jenis_barang" name="jenis_barang"
-                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white transition-all">
-                            <option value="">-- Belum Ditentukan (Parking) --</option>
-                            <option value="FROZEN" {{ old('jenis_barang') == 'FROZEN' ? 'selected' : '' }}>FROZEN</option>
-                            <option value="DRY" {{ old('jenis_barang') == 'DRY' ? 'selected' : '' }}>DRY</option>
-                            <option value="CHILLED" {{ old('jenis_barang') == 'CHILLED' ? 'selected' : '' }}>CHILLED
-                            </option>
-                        </select>
-                    </div>
-
-                    {{-- Aktivitas --}}
-                    <div>
-                        <label for="aktivitas"
-                            class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Aktivitas') }} <span
-                                class="text-gray-400 text-xs font-normal ml-1">(Opsional)</span></label>
-                        <select id="aktivitas" name="aktivitas"
-                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white transition-all">
-                            <option value="">-- Belum Ditentukan (Parking) --</option>
-                            <option value="INBOUND" {{ old('aktivitas') == 'INBOUND' ? 'selected' : '' }}>INBOUND</option>
-                            <option value="OUTBOUND" {{ old('aktivitas') == 'OUTBOUND' ? 'selected' : '' }}>OUTBOUND
-                            </option>
-                        </select>
-                    </div>
-
-                    {{-- Gate --}}
-                    {{-- <div>
-                        <label for="gate" class="block text-sm font-medium text-gray-700 mb-1.5">Gate</label>
-                        <input type="number" id="gate" name="gate" value="{{ old('gate') }}"
-                            placeholder="11" min="1"
-                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
-                    </div> --}}
-                </div>
-
-                {{-- No. Surat Jalan & Purchase Order --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
-                    <div>
-                        <label for="no_surat_jalan"
-                            class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('No. Surat Jalan') }}</label>
-                        <input type="text" id="no_surat_jalan" name="no_surat_jalan"
-                            value="{{ old('no_surat_jalan') }}" placeholder="Surat Jalan"
-                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
-                    </div>
-                    <div>
-                        <label for="purchase_order"
-                            class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Purchase Order') }}</label>
-                        <input type="text" id="purchase_order" name="purchase_order"
-                            value="{{ old('purchase_order') }}" placeholder="Purchase Order"
-                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
-                    </div>
-                </div>
-
-                {{-- Note/Keterangan --}}
-                <div class="mt-5">
-                    <label for="note"
-                        class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Catatan / Keterangan') }}</label>
-                    <textarea id="note" name="note" rows="3" placeholder="Contoh Inputan : Full Botan / 1.500 Ctn / 2 SKU"
-                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none">{{ old('note') }}</textarea>
                 </div>
 
                 {{-- Foto Identitas (SIM/KTP) --}}
@@ -307,15 +216,6 @@
                 document.getElementById('driver').value = vehicle.driver;
                 document.getElementById('vendor').value = vehicle.vendor;
 
-                // Set jenis_kendaraan select & hidden
-                const jkSelect = document.getElementById('jenis_kendaraan');
-                jkSelect.value = vehicle.jenis_kendaraan;
-                document.getElementById('jenis_kendaraan_hidden').value = vehicle.jenis_kendaraan;
-
-                // Set tipe
-                document.getElementById('tipe').value = vehicle.tipe;
-                document.getElementById('tipe_hidden').value = vehicle.tipe;
-
                 autocompleteList.classList.add('hidden');
                 autocompleteList.innerHTML = '';
                 vehicleInfo.classList.remove('hidden');
@@ -334,23 +234,11 @@
                 // Make fields editable again if user wants to type manually
                 document.getElementById('driver').removeAttribute('readonly');
                 document.getElementById('vendor').removeAttribute('readonly');
-                document.getElementById('jenis_kendaraan').removeAttribute('disabled');
-                document.getElementById('tipe').removeAttribute('disabled');
 
                 ['driver', 'vendor'].forEach(id => {
                     document.getElementById(id).classList.remove('bg-gray-50');
                 });
-                document.getElementById('jenis_kendaraan').classList.remove('bg-gray-50');
-                document.getElementById('tipe').classList.remove('bg-gray-50');
             });
-
-            // Sync jenis_kendaraan hidden field when select changes
-            const jkSelect = document.getElementById('jenis_kendaraan');
-            if (jkSelect) {
-                jkSelect.addEventListener('change', function() {
-                    document.getElementById('jenis_kendaraan_hidden').value = this.value;
-                });
-            }
         });
 
         // Live clock for arrival time
@@ -363,4 +251,38 @@
                 pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
         }, 1000);
     </script>
+
+    @if (session('active_checkpoint_error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                let status = '{{ session('active_checkpoint_error')['status'] }}';
+                let noPolisi = '{{ session('active_checkpoint_error')['no_polisi'] }}';
+                let msg = '';
+                
+                switch (status) {
+                    case 'FINISH':
+                        msg = 'Transaksi sudah selesai, mobil belum dikeluarkan oleh security';
+                        break;
+                    case 'COMPLETED':
+                        msg = 'Transaksi sudah selesai dan mobil sudah keluar dari Hub';
+                        break;
+                    case 'PARKING':
+                        msg = 'Kendaraan terparkir diarea transit';
+                        break;
+                    case 'DOC IN':
+                        msg = 'Dokumen sudah diterima oleh Admin, untuk persiapan proses assign Gate';
+                        break;
+                    default:
+                        msg = 'Kendaraan sedang dalam proses (' + status + ')';
+                }
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Kendaraan Masih Aktif!',
+                    text: 'Kendaraan ' + noPolisi + ' sudah terinput dengan kondisi: ' + msg,
+                    confirmButtonColor: '#f97316'
+                });
+            });
+        </script>
+    @endif
 @endsection
