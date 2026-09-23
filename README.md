@@ -54,6 +54,9 @@ The application has recently undergone a comprehensive UI/UX overhaul to provide
 - **September 23, 2026** — *Updated*
   - **Duplicate Vehicle Validation**: Implemented active vehicle checking across Web and Mobile App. Prevents duplicate input of active license plates (not COMPLETED or CANCELLED) and displays contextual SweetAlert/AlertDialog detailing the current active state (FINISH, PARKING, DOC IN, etc.).
   - **Document Duplication Relief**: Upgraded duplication checks for Delivery Note (Surat Jalan), PO Vendor, and Receipt Number to automatically ignore `CANCELLED` transactions. This allows operators to re-use document numbers if a previous transaction failed or was cancelled.
+  - **Centralized Audit Log**: Implemented a comprehensive logging system capturing all user activities (web & API) including logins/logouts, checkpoint CRUD operations, trigger events (DOC IN, READY, ON LOADING, FINISH, COMPLETED), and bulk operations.
+    - **Log Viewer**: Added a dedicated Audit Log viewer menu (for Administrators) with advanced filtering, full-row diff displays for data changes, and Excel export capabilities.
+    - **Data Purging**: Integrated a secure data purging feature with date-range filters and SweetAlert confirmation for maintenance.
 
 - **September 15, 2026** — *Updated*
   - Added Cross Dock full automation (auto-complete Inbound actions, auto-create Outbound).

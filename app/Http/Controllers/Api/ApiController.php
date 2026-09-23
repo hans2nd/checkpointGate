@@ -7,6 +7,7 @@ use App\Models\Checkpoint;
 use App\Models\Gate;
 use App\Models\Vehicle;
 use App\Models\User;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -58,6 +59,12 @@ class ApiController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
+            AuditLogService::log(
+                'login_failed', 'auth',
+                "API login gagal via email: {$request->email}",
+                null, null, null, null, null, $request->email,
+            );
+
             return response()->json([
                 'success' => false,
                 'message' => 'Email atau password salah.',
@@ -96,6 +103,12 @@ class ApiController extends Controller
         $deviceName = $request->device_name ?? 'flutter-app';
         $token = $user->createToken($deviceName)->plainTextToken;
 
+        AuditLogService::log(
+            'login', 'auth',
+            "API login berhasil via email: {$user->email}",
+            $user,
+        );
+
         return response()->json([
             'success' => true,
             'message' => 'Login berhasil.',
@@ -130,6 +143,12 @@ class ApiController extends Controller
         $employee = \App\Models\Employee::where('employee_id', $request->employee_id)->first();
 
         if (!$employee) {
+            AuditLogService::log(
+                'login_failed', 'auth',
+                "API login gagal via Employee ID: {$request->employee_id} (tidak ditemukan)",
+                null, null, null, null, null, $request->employee_id,
+            );
+
             return response()->json([
                 'success' => false,
                 'message' => 'Employee ID tidak ditemukan.',
@@ -189,6 +208,12 @@ class ApiController extends Controller
         $deviceName = $request->device_name ?? 'flutter-app';
         $token = $user->createToken($deviceName)->plainTextToken;
 
+        AuditLogService::log(
+            'login', 'auth',
+            "API login berhasil via Employee ID: {$employee->employee_id} ({$employee->name})",
+            $user,
+        );
+
         return response()->json([
             'success' => true,
             'message' => 'Login berhasil.',
@@ -212,7 +237,15 @@ class ApiController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $user = $request->user();
+
+        AuditLogService::log(
+            'logout', 'auth',
+            "API logout: {$user->name}",
+            $user,
+        );
+
+        $user->currentAccessToken()->delete();
 
         return response()->json([
             'success' => true,
@@ -580,6 +613,12 @@ class ApiController extends Controller
 
         $cp = Checkpoint::create($dataToSave);
 
+        AuditLogService::log(
+            'create', 'checkpoint',
+            "Checkpoint baru dibuat: {$cp->no_polisi} (ID: {$cp->id})",
+            $cp, null, $dataToSave,
+        );
+
         return response()->json([
             'success' => true,
             'message' => 'Checkpoint berhasil ditambahkan.',
@@ -612,6 +651,12 @@ class ApiController extends Controller
             'gate' => $request->gate,
             'status' => 'DOC IN',
         ]);
+
+        AuditLogService::log(
+            'trigger_penerimaan', 'checkpoint',
+            "Dokumen diterima & gate {$request->gate} ditetapkan: {$cp->no_polisi}",
+            $cp,
+        );
 
         return response()->json([
             'success' => true,
@@ -678,6 +723,12 @@ class ApiController extends Controller
 
         $cp->update($updateData);
 
+        AuditLogService::log(
+            'assign_gate', 'checkpoint',
+            "Gate {$gateNumber} ditetapkan: {$cp->no_polisi}",
+            $cp,
+        );
+
         return response()->json([
             'success' => true,
             'message' => 'Gate ' . $gateNumber . ' ditetapkan.',
@@ -717,6 +768,12 @@ class ApiController extends Controller
         $cp->update([
             'status' => 'READY',
         ]);
+
+        AuditLogService::log(
+            'confirm_gate', 'checkpoint',
+            "Gate {$cp->gate} dikonfirmasi: {$cp->no_polisi}",
+            $cp,
+        );
 
         return response()->json([
             'success' => true,
@@ -760,6 +817,12 @@ class ApiController extends Controller
             'status' => 'ON LOADING',
             'started_by' => $currentUser->id,
         ]);
+
+        AuditLogService::log(
+            'trigger_start', 'checkpoint',
+            "Loading dimulai: {$cp->no_polisi}",
+            $cp,
+        );
 
         return response()->json([
             'success' => true,
@@ -854,6 +917,12 @@ class ApiController extends Controller
             ]);
         }
 
+        AuditLogService::log(
+            'trigger_end', 'checkpoint',
+            "Loading selesai: {$cp->no_polisi} (Durasi: {$durasi})",
+            $cp,
+        );
+
         return response()->json([
             'success' => true,
             'message' => 'Loading selesai. Durasi: ' . $durasi,
@@ -906,6 +975,12 @@ class ApiController extends Controller
             'receipt_number' => $request->receipt_number,
         ]);
 
+        AuditLogService::log(
+            'trigger_penyerahan', 'checkpoint',
+            "Dokumen diserahkan: {$cp->no_polisi}",
+            $cp,
+        );
+
         return response()->json([
             'success' => true,
             'message' => 'Dokumen diserahkan.',
@@ -923,6 +998,12 @@ class ApiController extends Controller
             'waktu_keluar' => Carbon::now(),
             'status' => 'COMPLETED',
         ]);
+
+        AuditLogService::log(
+            'trigger_completed', 'checkpoint',
+            "Kendaraan selesai (Completed): {$cp->no_polisi}",
+            $cp,
+        );
 
         return response()->json([
             'success' => true,

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Checkpoint;
 use App\Models\Gate;
 use App\Models\VehicleType;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -148,7 +149,13 @@ class CheckpointController extends Controller
             ]
         );
 
-        Checkpoint::create($validated);
+        $checkpoint = Checkpoint::create($validated);
+
+        AuditLogService::log(
+            'create', 'checkpoint',
+            "Checkpoint dibuat: {$checkpoint->no_polisi} (ID: {$checkpoint->id})",
+            $checkpoint, null, $validated,
+        );
 
         return redirect()->route('checkpoints.index')
             ->with('success', 'Data checkpoint berhasil ditambahkan.');
@@ -237,7 +244,14 @@ class CheckpointController extends Controller
             $validated['durasi'] = null;
         }
 
+        $oldValues = $checkpoint->getOriginal();
         $checkpoint->update($validated);
+
+        AuditLogService::log(
+            'update', 'checkpoint',
+            "Checkpoint diperbarui: {$checkpoint->no_polisi} (ID: {$checkpoint->id})",
+            $checkpoint, $oldValues, $validated,
+        );
 
         return redirect()->route('checkpoints.index')
             ->with('success', 'Data checkpoint berhasil diperbarui.');
@@ -245,10 +259,18 @@ class CheckpointController extends Controller
 
     public function destroy(Checkpoint $checkpoint)
     {
+        $snapshotData = $checkpoint->toArray();
+
         if ($checkpoint->foto_identitas) {
             Storage::disk('public')->delete($checkpoint->foto_identitas);
         }
         $checkpoint->delete();
+
+        AuditLogService::log(
+            'delete', 'checkpoint',
+            "Checkpoint dihapus: {$snapshotData['no_polisi']} (ID: {$snapshotData['id']})",
+            null, $snapshotData, null,
+        );
 
         return redirect()->route('checkpoints.index')
             ->with('success', 'Data checkpoint berhasil dihapus.');
@@ -262,12 +284,20 @@ class CheckpointController extends Controller
         $request->validate(['ids' => 'required|array', 'ids.*' => 'integer']);
 
         $checkpoints = Checkpoint::whereIn('id', $request->ids)->get();
+        $deletedPolisis = [];
         foreach ($checkpoints as $cp) {
+            $deletedPolisis[] = $cp->no_polisi;
             if ($cp->foto_identitas) {
                 Storage::disk('public')->delete($cp->foto_identitas);
             }
             $cp->delete();
         }
+
+        AuditLogService::log(
+            'bulk_delete', 'checkpoint',
+            count($request->ids) . " checkpoint dihapus: " . implode(', ', $deletedPolisis),
+            null, ['ids' => $request->ids, 'no_polisi' => $deletedPolisis], null,
+        );
 
         return redirect()->route('checkpoints.index')
             ->with('success', count($request->ids) . ' data checkpoint berhasil dihapus.');
@@ -448,6 +478,12 @@ class CheckpointController extends Controller
             'status' => 'DOC IN',
         ]);
 
+        AuditLogService::log(
+            'trigger_penerimaan', 'checkpoint',
+            "Dokumen diterima: {$checkpoint->no_polisi} → status DOC IN",
+            $checkpoint,
+        );
+
         return redirect()->back()
             ->with('success', "Dokumen {$checkpoint->no_polisi} diterima dan status menjadi DOC IN.");
     }
@@ -491,6 +527,12 @@ class CheckpointController extends Controller
             'gate' => $gateNumber,
             'status' => 'ASSIGN GATE',
         ]);
+
+        AuditLogService::log(
+            'assign_gate', 'checkpoint',
+            "Gate {$gateNumber} ditetapkan: {$checkpoint->no_polisi}",
+            $checkpoint,
+        );
 
         return redirect()->back()
             ->with('success', "Gate {$gateNumber} ditetapkan untuk {$checkpoint->no_polisi}.");
@@ -570,6 +612,12 @@ class CheckpointController extends Controller
             'receipt_number' => $request->receipt_number,
         ]);
 
+        AuditLogService::log(
+            'trigger_penyerahan', 'checkpoint',
+            "Dokumen diserahkan: {$checkpoint->no_polisi}",
+            $checkpoint,
+        );
+
         return redirect()->back()
             ->with('success', "Waktu penyerahan dokumen {$checkpoint->no_polisi} dicatat.");
     }
@@ -598,6 +646,12 @@ class CheckpointController extends Controller
         $checkpoint->update([
             'status' => 'READY',
         ]);
+
+        AuditLogService::log(
+            'confirm_gate', 'checkpoint',
+            "Gate {$checkpoint->gate} dikonfirmasi: {$checkpoint->no_polisi}",
+            $checkpoint,
+        );
 
         return redirect()->back()
             ->with('success', "Gate {$checkpoint->gate} dikonfirmasi. Kendaraan siap untuk loading.");
@@ -631,6 +685,12 @@ class CheckpointController extends Controller
             'status' => 'ON LOADING',
             'started_by' => Auth::id(),
         ]);
+
+        AuditLogService::log(
+            'trigger_start', 'checkpoint',
+            "Loading dimulai: {$checkpoint->no_polisi}",
+            $checkpoint,
+        );
 
         return redirect()->back()
             ->with('success', "Loading {$checkpoint->no_polisi} dimulai.");
@@ -717,6 +777,12 @@ class CheckpointController extends Controller
             ]);
         }
 
+        AuditLogService::log(
+            'trigger_end', 'checkpoint',
+            "Loading selesai: {$checkpoint->no_polisi} (Durasi: {$durasi})",
+            $checkpoint,
+        );
+
         return redirect()->back()
             ->with('success', "Loading {$checkpoint->no_polisi} selesai. Durasi: {$durasi}");
     }
@@ -756,15 +822,27 @@ class CheckpointController extends Controller
                 'cancel_requested_by' => $user->id,
                 'cancel_approved_by' => $user->id,
             ]);
+
+            AuditLogService::log(
+                'cancel', 'checkpoint',
+                "Checkpoint dibatalkan langsung: {$checkpoint->no_polisi} — {$validated['cancel_note']}",
+                $checkpoint,
+            );
+
             return redirect()->back()->with('success', "Checkpoint {$checkpoint->no_polisi} berhasil dibatalkan secara langsung.");
         }
 
-        // Otherwise (e.g. staff_admin), they can only request cancel
         $checkpoint->update([
             'cancel_status' => 'pending',
             'cancel_reason' => $validated['cancel_note'],
             'cancel_requested_by' => $user->id,
         ]);
+
+        AuditLogService::log(
+            'request_cancel', 'checkpoint',
+            "Request pembatalan dikirim: {$checkpoint->no_polisi} — {$validated['cancel_note']}",
+            $checkpoint,
+        );
 
         return redirect()->back()->with('success', "Request pembatalan untuk checkpoint {$checkpoint->no_polisi} berhasil dikirim dan menunggu approval.");
     }
@@ -793,6 +871,12 @@ class CheckpointController extends Controller
             'cancel_approved_by' => $user->id,
         ]);
 
+        AuditLogService::log(
+            'approve_cancel', 'checkpoint',
+            "Request pembatalan disetujui: {$checkpoint->no_polisi}",
+            $checkpoint,
+        );
+
         return redirect()->back()->with('success', "Request pembatalan disetujui, checkpoint telah dibatalkan.");
     }
 
@@ -814,6 +898,12 @@ class CheckpointController extends Controller
         $checkpoint->update([
             'cancel_status' => 'rejected',
         ]);
+
+        AuditLogService::log(
+            'reject_cancel', 'checkpoint',
+            "Request pembatalan ditolak: {$checkpoint->no_polisi}",
+            $checkpoint,
+        );
 
         return redirect()->back()->with('success', "Request pembatalan ditolak.");
     }
@@ -924,10 +1014,20 @@ class CheckpointController extends Controller
         }
 
         if (count($importErrors) > 0) {
+            AuditLogService::log(
+                'import', 'checkpoint',
+                "{$imported} data diimport, {$skipped} dilewati (ada error)",
+            );
+
             return redirect()->route('checkpoints.index')
                 ->with('warning', "{$imported} data berhasil diimport. {$skipped} baris dilewati karena ada error kelengkapan/format data.")
                 ->withErrors($importErrors);
         }
+
+        AuditLogService::log(
+            'import', 'checkpoint',
+            "{$imported} data checkpoint berhasil diimport" . ($skipped > 0 ? ", {$skipped} dilewati" : ''),
+        );
 
         $message = "{$imported} data checkpoint berhasil diimport.";
         if ($skipped > 0) {

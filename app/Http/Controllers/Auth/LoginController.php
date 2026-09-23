@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\User;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -57,6 +58,12 @@ class LoginController extends Controller
             }
 
             $request->session()->regenerate();
+
+            AuditLogService::log(
+                'login', 'auth',
+                "Login berhasil via email: {$user->email}",
+                $user,
+            );
             
             $defaultRoute = '/dashboard';
             if (!$user->hasPermission('dashboard.view')) {
@@ -71,6 +78,12 @@ class LoginController extends Controller
 
             return redirect()->intended($defaultRoute);
         }
+
+        AuditLogService::log(
+            'login_failed', 'auth',
+            "Login gagal via email: {$request->email}",
+            null, null, null, null, null, $request->email,
+        );
 
         return back()->withErrors([
             'email' => 'Email atau password salah.',
@@ -90,6 +103,12 @@ class LoginController extends Controller
         $employee = Employee::where('employee_id', $request->employee_id)->first();
 
         if (!$employee) {
+            AuditLogService::log(
+                'login_failed', 'auth',
+                "Login gagal via Employee ID: {$request->employee_id} (tidak ditemukan)",
+                null, null, null, null, null, $request->employee_id,
+            );
+
             return back()->withErrors([
                 'employee_id' => 'Employee ID tidak ditemukan.',
             ])->withInput(['employee_id' => $request->employee_id, 'login_mode' => 'employee']);
@@ -129,6 +148,12 @@ class LoginController extends Controller
         Auth::login($user, false);
         $request->session()->regenerate();
 
+        AuditLogService::log(
+            'login', 'auth',
+            "Login berhasil via Employee ID: {$employee->employee_id} ({$employee->name})",
+            $user,
+        );
+
         $defaultRoute = '/dashboard';
         if (!$user->hasPermission('dashboard.view')) {
             if ($user->hasPermission('checkpoint.view')) {
@@ -145,6 +170,14 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        $user = Auth::user();
+
+        AuditLogService::log(
+            'logout', 'auth',
+            "Logout: {$user->name}",
+            $user,
+        );
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

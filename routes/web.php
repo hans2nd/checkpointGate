@@ -192,4 +192,11 @@ Route::middleware('auth')->group(function () {
     Route::get('settings/maintenance', [\App\Http\Controllers\MaintenanceController::class, 'index'])->name('maintenance.index')->middleware('permission:maintenance.view');
     Route::post('settings/maintenance/toggle', [\App\Http\Controllers\MaintenanceController::class, 'toggle'])->name('maintenance.toggle')->middleware('permission:maintenance.toggle');
 
+    // Audit Log
+    Route::group(['middleware' => 'permission:audit_log.view'], function () {
+        Route::get('audit-logs', [\App\Http\Controllers\AuditLogController::class, 'index'])->name('audit-logs.index');
+        Route::get('audit-logs/export', [\App\Http\Controllers\AuditLogController::class, 'export'])->name('audit-logs.export')->middleware('permission:audit_log.export');
+        Route::post('audit-logs/purge', [\App\Http\Controllers\AuditLogController::class, 'purge'])->name('audit-logs.purge')->middleware('permission:audit_log.purge');
+    });
+
 });
