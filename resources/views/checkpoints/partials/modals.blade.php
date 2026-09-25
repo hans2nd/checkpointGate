@@ -257,9 +257,16 @@
                     </div>
                     <div class="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">No. Surat Jalan <span
-                                    class="text-red-400 hidden" id="terima_sj_asterisk">*</span></label>
-                            <div id="suratJalanContainer" class="space-y-2">
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="block text-sm font-medium text-gray-700">No. Surat Jalan <span
+                                        class="text-red-400 hidden" id="terima_sj_asterisk">*</span></label>
+                                <button type="button" id="btnUploadSjExcel" class="hidden text-xs bg-green-50 text-green-600 hover:bg-green-100 px-2 py-1 rounded border border-green-200 flex items-center gap-1 transition-colors">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                    Upload Excel
+                                </button>
+                                <input type="file" id="inputSjExcel" accept=".xlsx,.xls" class="hidden">
+                            </div>
+                            <div id="suratJalanContainer" class="space-y-2 max-h-60 overflow-y-auto pr-1">
                                 <!-- Inputs will be generated here by JS -->
                             </div>
                             <input type="hidden" id="terima_no_surat_jalan" name="no_surat_jalan">
@@ -268,7 +275,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1.5"><span
                                     id="terima_po_label">Purchase Order</span> <span class="text-red-400 hidden"
                                     id="terima_po_asterisk">*</span></label>
-                            <div id="poContainer" class="space-y-2">
+                            <div id="poContainer" class="space-y-2 max-h-60 overflow-y-auto pr-1">
                                 <!-- Inputs will be generated here by JS -->
                             </div>
                             <input type="hidden" id="terima_purchase_order" name="purchase_order">
@@ -344,7 +351,7 @@
                     <!-- Receipt Number Input Container -->
                     <div id="receiptContainerGroup">
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Receipt Number <span id="serah_receipt_asterisk" class="text-red-400 hidden">*</span></label>
-                        <div id="receiptContainer" class="space-y-2">
+                        <div id="receiptContainer" class="space-y-2 max-h-60 overflow-y-auto pr-1">
                             <!-- Inputs will be generated here by JS -->
                         </div>
                         <input type="hidden" id="serah_receipt_number" name="receipt_number">
@@ -432,6 +439,10 @@
             shippingTypeSelect.innerHTML = '<option value="" selected>Pilih Shipping Type</option>';
 
             if (act === 'INBOUND') {
+                if (document.getElementById('btnUploadSjExcel')) {
+                    document.getElementById('btnUploadSjExcel').classList.add('hidden');
+                }
+
                 // Only set default if not already Cross Dock, or if we want to force it
                 if (typeOfLoadSelect.value !== 'Cross Dock') {
                     typeOfLoadSelect.value = 'Full';
@@ -465,6 +476,10 @@
                 }
 
             } else if (act === 'OUTBOUND') {
+                if (document.getElementById('btnUploadSjExcel')) {
+                    document.getElementById('btnUploadSjExcel').classList.remove('hidden');
+                }
+
                 if (typeOfLoadSelect.value !== 'Cross Dock') {
                     typeOfLoadSelect.value = 'Mix';
                 }

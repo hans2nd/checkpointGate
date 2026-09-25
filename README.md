@@ -51,6 +51,14 @@ The application has recently undergone a comprehensive UI/UX overhaul to provide
 
 ## Update History
 
+- **September 25, 2026** — *Updated*
+  - **Database Constraint Sync**: Removed string length validations (`max:100`) for `no_surat_jalan`, `purchase_order`, and `receipt_number` across all web and API controllers to align with their updated `TEXT` datatype in the database.
+  - **Batch Import Improvements**: Integrated strict active checkpoint verification and centralized `AuditLogService` logging directly into the bulk Excel import (`import`) logic.
+  - **Smart Excel Extraction for Receipt Modal**:
+    - Built a new API endpoint (`/checkpoints/extract-surat-jalan`) to parse uploaded Excel files and automatically extract Delivery Note (Surat Jalan) numbers from Column A (ignoring "Order Nbr" and empty rows).
+    - Added a contextual "Upload Excel" button inside the *Penerimaan Dokumen* modal, exclusively visible during OUTBOUND activities.
+    - Upgraded dynamic input containers (`suratJalanContainer`, `poContainer`, `receiptContainer`) with internal scrollbars (`max-h-60 overflow-y-auto`) to maintain optimal UI layout and prevent modal stretching when populating massive amounts of data.
+
 - **September 23, 2026** — *Updated*
   - **Duplicate Vehicle Validation**: Implemented active vehicle checking across Web and Mobile App. Prevents duplicate input of active license plates (not COMPLETED or CANCELLED) and displays contextual SweetAlert/AlertDialog detailing the current active state (FINISH, PARKING, DOC IN, etc.).
   - **Document Duplication Relief**: Upgraded duplication checks for Delivery Note (Surat Jalan), PO Vendor, and Receipt Number to automatically ignore `CANCELLED` transactions. This allows operators to re-use document numbers if a previous transaction failed or was cancelled.

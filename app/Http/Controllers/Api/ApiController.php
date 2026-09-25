@@ -520,8 +520,8 @@ class ApiController extends Controller
             'jenis_barang' => 'nullable|in:FROZEN,DRY,CHILLED',
             'aktivitas' => 'nullable|in:INBOUND,OUTBOUND',
             'note' => 'nullable|string|max:500',
-            'no_surat_jalan' => 'nullable|string|max:100',
-            'purchase_order' => 'nullable|string|max:100',
+            'no_surat_jalan' => 'nullable|string',
+            'purchase_order' => 'nullable|string',
             'type_of_load' => 'nullable|in:Full,Mix,Cross Dock',
             'product_category_id' => 'nullable|exists:product_categories,id|required_if:type_of_load,Full',
             'shipping_type' => 'nullable|string|max:100',
@@ -941,7 +941,7 @@ class ApiController extends Controller
         $isInbound = strtoupper($cp->aktivitas) === 'INBOUND';
 
         $request->validate([
-            'receipt_number' => ($isCrossDock || !$isInbound) ? 'nullable|string|max:100' : 'required|string|max:100',
+            'receipt_number' => ($isCrossDock || !$isInbound) ? 'nullable|string' : 'required|string',
         ], [
             'receipt_number.required' => 'Nomor Receipt wajib diisi saat Serah Dokumen.',
         ]);

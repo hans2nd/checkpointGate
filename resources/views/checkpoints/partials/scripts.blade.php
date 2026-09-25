@@ -291,6 +291,69 @@
             modal.classList.remove('hidden');
         }
 
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnUploadSjExcel = document.getElementById('btnUploadSjExcel');
+            const inputSjExcel = document.getElementById('inputSjExcel');
+            
+            if (btnUploadSjExcel && inputSjExcel) {
+                btnUploadSjExcel.addEventListener('click', function() {
+                    inputSjExcel.click();
+                });
+                
+                inputSjExcel.addEventListener('change', function() {
+                    if (!this.files.length) return;
+                    const file = this.files[0];
+                    
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+                    
+                    // Show a small loading state on the button
+                    const originalHTML = btnUploadSjExcel.innerHTML;
+                    btnUploadSjExcel.innerHTML = '<svg class="animate-spin w-3.5 h-3.5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> Loading...';
+                    btnUploadSjExcel.disabled = true;
+
+                    fetch('{{ route("checkpoints.extract-sj") }}', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(res => {
+                        if (res.success && res.data) {
+                            const container = document.getElementById('suratJalanContainer');
+                            container.innerHTML = '';
+                            if (res.data.length === 0) {
+                                addSuratJalanInput('', true);
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: 'Informasi',
+                                    text: 'Tidak ada data Surat Jalan yang ditemukan di file Excel.'
+                                });
+                            } else {
+                                res.data.forEach((val, idx) => {
+                                    addSuratJalanInput(val, idx === 0);
+                                });
+                            }
+                        } else {
+                            throw new Error(res.message || 'Gagal mengekstrak Surat Jalan');
+                        }
+                    })
+                    .catch(err => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: err.message
+                        });
+                    })
+                    .finally(() => {
+                        btnUploadSjExcel.innerHTML = originalHTML;
+                        btnUploadSjExcel.disabled = false;
+                        inputSjExcel.value = ''; // Reset input so same file can be uploaded again
+                    });
+                });
+            }
+        });
+
         function addSuratJalanInput(val = '', isFirst = false) {
             const container = document.getElementById('suratJalanContainer');
             if (!container) return;

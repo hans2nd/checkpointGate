@@ -100,9 +100,9 @@ class CheckpointController extends Controller
             'vendor' => 'required|string|max:100',
             'tipe' => 'nullable|in:INTERNAL,EKSTERNAL',
             'jenis_kendaraan' => 'nullable|string|max:50',
-            'no_surat_jalan' => 'nullable|string|max:100',
-            'purchase_order' => 'nullable|string|max:100',
-            'receipt_number' => 'nullable|string|max:100',
+            'no_surat_jalan' => 'nullable|string',
+            'purchase_order' => 'nullable|string',
+            'receipt_number' => 'nullable|string',
             'foto_identitas' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Max 5MB
             'aktivitas' => 'nullable|in:INBOUND,OUTBOUND',
             'jenis_barang' => 'nullable|in:FROZEN,DRY,CHILLED',
@@ -193,8 +193,8 @@ class CheckpointController extends Controller
             'waktu_start' => 'nullable|date|before_or_equal:waktu_end|after_or_equal:waktu_penerimaan_dokumen',
             'waktu_end' => 'nullable|date|after_or_equal:waktu_start',
             'note' => 'nullable|string|max:500',
-            'no_surat_jalan' => 'nullable|string|max:100',
-            'purchase_order' => 'nullable|string|max:100',
+            'no_surat_jalan' => 'nullable|string',
+            'purchase_order' => 'nullable|string',
             'cancel_note' => 'required_if:status,CANCEL|nullable|string|max:500',
             'foto_identitas' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
             'remove_foto' => 'nullable|boolean',
@@ -432,19 +432,19 @@ class CheckpointController extends Controller
         ];
 
         if (strtolower($request->type_of_load) === 'cross dock') {
-            $rules['no_surat_jalan'] = 'nullable|string|max:100';
-            $rules['purchase_order'] = 'nullable|string|max:100';
+            $rules['no_surat_jalan'] = 'nullable|string';
+            $rules['purchase_order'] = 'nullable|string';
         } else {
             if ($request->aktivitas === 'OUTBOUND' || ($request->aktivitas === 'INBOUND' && $request->shipping_type === 'SC Interbranch')) {
-                $rules['no_surat_jalan'] = 'required|string|max:100';
+                $rules['no_surat_jalan'] = 'required|string';
             } else {
-                $rules['no_surat_jalan'] = 'nullable|string|max:100';
+                $rules['no_surat_jalan'] = 'nullable|string';
             }
 
             if ($request->aktivitas === 'INBOUND' && $request->shipping_type === 'PO Vendor') {
-                $rules['purchase_order'] = 'required|string|max:100';
+                $rules['purchase_order'] = 'required|string';
             } else {
-                $rules['purchase_order'] = 'nullable|string|max:100';
+                $rules['purchase_order'] = 'nullable|string';
             }
         }
 
@@ -579,7 +579,7 @@ class CheckpointController extends Controller
         $isInbound = strtoupper($checkpoint->aktivitas) === 'INBOUND';
 
         $request->validate([
-            'receipt_number' => ($isCrossDock || !$isInbound) ? 'nullable|string|max:100' : 'required|string|max:100',
+            'receipt_number' => ($isCrossDock || !$isInbound) ? 'nullable|string' : 'required|string',
         ], [
             'receipt_number.required' => 'Nomor Receipt wajib diisi saat Serah Dokumen.',
         ]);
@@ -914,72 +914,112 @@ class CheckpointController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls|max:2048',
+            'file' => 'required|mimes:xlsx,xls|max:5120',
         ]);
 
         $file = $request->file('file');
         $spreadsheet = IOFactory::load($file->getPathname());
-        $sheet = $spreadsheet->getActiveSheet();
-        $rows = $sheet->toArray();
-
+        
         $imported = 0;
         $skipped = 0;
         $importErrors = [];
 
-        foreach ($rows as $index => $row) {
-            if ($index === 0)
-                continue; // Skip header
-
-            $rowNum = $index + 1;
-            $tanggal = trim($row[0] ?? '');
-            $noPolisi = strtoupper(trim($row[1] ?? ''));
-
-            $vehicle = \App\Models\Vehicle::where('no_polisi', $noPolisi)->first();
-
-            $vendor = trim($row[2] ?? '');
-            if (empty($vendor) && $vehicle) {
-                $vendor = $vehicle->vendor;
-            }
-
-            $jenisKendaraan = trim($row[3] ?? '');
-            if (empty($jenisKendaraan) && $vehicle) {
-                $jenisKendaraan = $vehicle->jenis_kendaraan;
-            }
-
-            $jenisBarang = strtoupper(trim($row[4] ?? ''));
-            $aktivitas = strtoupper(trim($row[5] ?? ''));
-            $suratJalan = trim($row[6] ?? '');
-            $po = trim($row[7] ?? '');
-            $note = trim($row[8] ?? '');
-
-            // Validasi kelengkapan data (selain yang di-lookup otomatis)
-            $rowErrors = [];
-            if (empty($tanggal))
-                $rowErrors[] = 'Tanggal kosong';
-            if (empty($noPolisi))
-                $rowErrors[] = 'Nomor Kendaraan kosong';
-            if (empty($vendor))
-                $rowErrors[] = 'Vendor kosong';
-            if (empty($jenisBarang))
-                $rowErrors[] = 'Product Type Storage kosong';
-            elseif (!in_array($jenisBarang, ['FROZEN', 'DRY', 'CHILLED']))
-                $rowErrors[] = "Product Type Storage tidak valid ($jenisBarang)";
-
-            if (empty($aktivitas))
-                $rowErrors[] = 'Activity kosong';
-            elseif (!in_array($aktivitas, ['INBOUND', 'OUTBOUND']))
-                $rowErrors[] = "Activity tidak valid ($aktivitas)";
-
-            if (!empty($rowErrors)) {
-                $skipped++;
-                $importErrors[] = "Baris {$rowNum}: " . implode(', ', $rowErrors);
+        foreach ($spreadsheet->getWorksheetIterator() as $sheet) {
+            $noPolisi = strtoupper(trim($sheet->getTitle()));
+            
+            if (empty($noPolisi)) {
                 continue;
             }
 
-            $tipe = $vehicle ? $vehicle->tipe : 'EKSTERNAL';
-            $driver = $vehicle ? $vehicle->driver : '-';
+            $rows = $sheet->toArray();
+            if (count($rows) < 2) {
+                if (str_starts_with($noPolisi, 'SHEET')) {
+                    continue;
+                }
+                $skipped++;
+                $importErrors[] = "Sheet {$noPolisi}: Tidak ada data (minimal 2 baris)";
+                continue;
+            }
 
-            // Auto-insert Master Vehicle jika belum ada
+            // 1. Check Active Checkpoint (prevent duplicates)
+            $activeCheckpoint = Checkpoint::where('no_polisi', $noPolisi)
+                ->whereNotIn('status', ['COMPLETED', 'CANCEL'])
+                ->first();
+
+            if ($activeCheckpoint) {
+                $skipped++;
+                $importErrors[] = "Sheet {$noPolisi}: Kendaraan masih memiliki checkpoint aktif (Status: {$activeCheckpoint->status})";
+                continue;
+            }
+
+            $vendor = 'PLGIIC';
+            $aktivitas = 'OUTBOUND';
+            $tipe = 'INTERNAL';
+            $shippingType = 'REGULAR - LAST MILE';
+            $typeOfLoad = 'Mix'; // Match case used in validation in store()
+
+            $jenisBarang = null;
+            if (isset($rows[1])) {
+                $row2Str = strtoupper(implode(' ', array_map(function($val) { return trim((string)$val); }, $rows[1])));
+                if (strpos($row2Str, 'FRZ') !== false) {
+                    $jenisBarang = 'FROZEN';
+                } elseif (strpos($row2Str, 'DRY') !== false) {
+                    $jenisBarang = 'DRY';
+                }
+            }
+            if (!$jenisBarang) {
+                $jenisBarang = 'FROZEN'; // Fallback
+            }
+
+            $suratJalanList = [];
+            foreach ($rows as $index => $row) {
+                if ($index < 2) continue; // Skip header rows (Row 1 & Row 2)
+                
+                $val = trim((string)($row[4] ?? ''));
+                if ($val !== '' && stripos($val, 'Invoice') === false && stripos($val, 'Surat Jalan') === false) {
+                    $suratJalanList[] = str_replace(' ', '', $val);
+                }
+            }
+            $suratJalanList = array_unique($suratJalanList);
+            $suratJalan = implode(',', $suratJalanList);
+
+            if (empty($suratJalan)) {
+                if (str_starts_with($noPolisi, 'SHEET')) {
+                    continue;
+                }
+                $skipped++;
+                $importErrors[] = "Sheet {$noPolisi}: Kolom E (No Surat Jalan) kosong atau tidak ada data";
+                continue;
+            }
+
+            // 3. Duplicate SJ Validation
+            $duplicateError = null;
+            foreach ($suratJalanList as $sj) {
+                $exists = Checkpoint::where('status', '!=', 'CANCEL')
+                    ->where(function($q) use ($sj) {
+                        $q->where('no_surat_jalan', $sj)
+                          ->orWhere('no_surat_jalan', 'LIKE', $sj . ',%')
+                          ->orWhere('no_surat_jalan', 'LIKE', '%,' . $sj . ',%')
+                          ->orWhere('no_surat_jalan', 'LIKE', '%,' . $sj)
+                          ->orWhere('no_surat_jalan', 'LIKE', $sj . '/%')
+                          ->orWhere('no_surat_jalan', 'LIKE', '%/' . $sj . '/%')
+                          ->orWhere('no_surat_jalan', 'LIKE', '%/' . $sj);
+                    })->first();
+                if ($exists) {
+                    $duplicateError = "Nomor Surat Jalan {$sj} sudah pernah diinput pada checkpoint lain (No Polisi: {$exists->no_polisi}).";
+                    break;
+                }
+            }
+            if ($duplicateError) {
+                $skipped++;
+                $importErrors[] = "Sheet {$noPolisi}: {$duplicateError}";
+                continue;
+            }
+
+            $vehicle = \App\Models\Vehicle::where('no_polisi', $noPolisi)->first();
+            $driver = $vehicle ? $vehicle->driver : '-';
+            $jenisKendaraan = $vehicle ? $vehicle->jenis_kendaraan : '-';
+
             if (!$vehicle) {
                 \App\Models\Vehicle::create([
                     'no_polisi' => $noPolisi,
@@ -990,14 +1030,8 @@ class CheckpointController extends Controller
                 ]);
             }
 
-            try {
-                $parsedDate = $tanggal ? Carbon::parse($tanggal) : Carbon::today();
-            } catch (\Exception $e) {
-                $parsedDate = Carbon::today();
-            }
-
-            Checkpoint::create([
-                'tanggal' => $parsedDate,
+            $checkpoint = Checkpoint::create([
+                'tanggal' => Carbon::today(),
                 'no_polisi' => $noPolisi,
                 'vendor' => $vendor,
                 'driver' => $driver,
@@ -1006,10 +1040,19 @@ class CheckpointController extends Controller
                 'jenis_barang' => $jenisBarang,
                 'aktivitas' => $aktivitas,
                 'no_surat_jalan' => $suratJalan,
-                'purchase_order' => $po,
-                'note' => $note,
+                'type_of_load' => $typeOfLoad,
+                'shipping_type' => $shippingType,
                 'status' => 'PARKING',
+                'created_by' => Auth::id(),
             ]);
+
+            // 4. Audit Log (like store)
+            AuditLogService::log(
+                'create', 'checkpoint',
+                "Checkpoint dibuat via import: {$checkpoint->no_polisi} (ID: {$checkpoint->id})",
+                $checkpoint
+            );
+
             $imported++;
         }
 
@@ -1020,7 +1063,7 @@ class CheckpointController extends Controller
             );
 
             return redirect()->route('checkpoints.index')
-                ->with('warning', "{$imported} data berhasil diimport. {$skipped} baris dilewati karena ada error kelengkapan/format data.")
+                ->with('warning', "{$imported} data berhasil diimport. {$skipped} sheet dilewati karena ada error.")
                 ->withErrors($importErrors);
         }
 
@@ -1031,11 +1074,12 @@ class CheckpointController extends Controller
 
         $message = "{$imported} data checkpoint berhasil diimport.";
         if ($skipped > 0) {
-            $message .= " {$skipped} baris dilewati.";
+            $message .= " {$skipped} sheet dilewati.";
         }
 
         return redirect()->route('checkpoints.index')->with('success', $message);
     }
+
 
     /**
      * Download import template for checkpoints
@@ -1183,5 +1227,45 @@ class CheckpointController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * Extract Surat Jalan list from uploaded Excel file for modal form
+     */
+    public function extractSuratJalan(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls|max:5120',
+        ]);
+
+        try {
+            $spreadsheet = IOFactory::load($request->file('file')->getRealPath());
+            $sheet = $spreadsheet->getActiveSheet();
+            $rows = $sheet->toArray();
+
+            $suratJalanList = [];
+            foreach ($rows as $index => $row) {
+                // Header in this excel is usually on row 1 (index 0)
+                $val = trim((string)($row[0] ?? '')); // Kolom A
+                
+                // Skip empty rows and header variations
+                if ($val !== '' && stripos($val, 'Order Nbr') === false && stripos($val, 'Invoice') === false && stripos($val, 'Surat Jalan') === false) {
+                    $suratJalanList[] = str_replace(' ', '', $val);
+                }
+            }
+
+            $suratJalanList = array_unique(array_filter($suratJalanList));
+
+            return response()->json([
+                'success' => true,
+                'data' => array_values($suratJalanList)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membaca file excel: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

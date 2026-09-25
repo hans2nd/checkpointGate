@@ -117,6 +117,7 @@ Route::middleware('auth')->group(function () {
 
     // Import routes (protected by create permissions)
     Route::post('checkpoints/import', [CheckpointController::class, 'import'])->name('checkpoints.import')->middleware('permission:checkpoint.import');
+    Route::post('checkpoints/extract-surat-jalan', [CheckpointController::class, 'extractSuratJalan'])->name('checkpoints.extract-sj');
     Route::post('gates/import', [GateController::class, 'import'])->name('gates.import')->middleware('permission:checkpoint.create');
     Route::post('vehicles/import', [VehicleController::class, 'import'])->name('vehicles.import')->middleware('permission:vehicle.create');
 
